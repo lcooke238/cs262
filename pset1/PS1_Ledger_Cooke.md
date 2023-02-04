@@ -38,11 +38,31 @@ Part 2: Re-implement (or alter) the application you built in Part 1 using gRPC. 
 	- legal languages: python, C, C++, Java, C#
 	- keep a notebook (this one!) for decision making
 
+Logistics
 	- turn in a link to the repo or a tar/zip file of the final product
 	- DO NOT INCLUDE NAME in the files
 
 2. re-implement or alter the app built in part 1 using gRPC
 	- in notebook, add comparisons over the complexity of the code, performance differences, and buffer sizes being sent back and forth
 
+
+## Brainstorming
+**Server Skeleton**:
+1. Check version number of wire protocol.
+	- If we cannot handle this version, return a *FatalError*
+2. bind to a host and port
+	- possible error here? TBD
+3. turn on the server and start listening
+	- add some sort of validation sending loop if possible? --> If possible, would repeatedly send a packet after x amnt of time without an operation being recieved by the server and ensure it comes back.
+		- loopback interface. Is this good design?
+
+
+
+**Error Types**:
+1. *FatalError*: Impossible to recover from, kills all components, will likely be common to server stuff because we will only have a single server.
+2. *LocalError*: Error specific to a given instance/client that cannot be recovered, rest of system remains unaffected. Will only kill the problematic component. Will likely exist with specific clients.
+3. *Warning*: problem occurred within running system, does not affect overall system functionality (ie. if we can identify an indicator of a faulty packet, can give someone a warning?)
+
+**Test Suite Ideas**
 
 
