@@ -53,8 +53,32 @@ Logistics
 2. bind to a host and port
 	- possible error here? TBD
 3. turn on the server and start listening
-	- add some sort of validation sending loop if possible? --> If possible, would repeatedly send a packet after x amnt of time without an operation being recieved by the server and ensure it comes back.
-		- loopback interface. Is this good design?
+4. recieve client communication to login, ask for a username (OK to assume first message is a login message)
+5. recieve username, ensure it is unique, communicate success
+	- either create client account or log back into client account
+6. maintain userbase that is online and separate one that is offline (and maintain message queues for offline!).
+7. listen for communication from logged-in client with message and a username
+	- verify that both are present in the correct format spec, if not return a message error explaining what part is wrong if possible
+	- verify message sent in correct format is being sent to a valid account, if not send back an error to the client
+8. upon proper message receipt, determine if user is online or not.
+	- if online, send message 
+	- for offline, queue the messages they get while offline until next login to then send
+9. listen for account deletion message from client with username.
+	- if said user has undelivered message, indicate this to client who wants to delete and inform them that these messages will be lost, ensure they wish to proceed. 
+	- if so, delete account from server along with all stored messages
+10. take logout requests
+	- account still exists, however it is now offline, meaning any messages sent will be queued
+
+**Client Skeleton**
+1. login with valid user or new one to create new account
+	- verify correct formatting and content (aka it exists) before send, if not give error
+2. upon login, check with server for any logged messages and display them if applicable
+3. send messages in correct format to another account
+	- verify correct formatting
+	- worth keeping local lists to verify users locally?
+4. message reciept: display message to user
+5. send logout request
+	- need to close sockets upon logout
 
 
 
@@ -64,5 +88,28 @@ Logistics
 3. *Warning*: problem occurred within running system, does not affect overall system functionality (ie. if we can identify an indicator of a faulty packet, can give someone a warning?)
 
 **Test Suite Ideas**
+1. *message format error*: user fails to provide a message and/or username in the format specified
+	- if possible, (aka format is correct but location for a piece of information is blank, create more specific problems errors to share)
+	- verifiable both on client and server end (do once on client for input check, once on server for travel check)
+2. can duplicate above for all possible message over server formats
+3. more generalized u gave me nonsense doesn't bind to message type
 
+
+## Stuff I have considered and left behind
+1. Don't need to verify your own existence: 
+a. loopback interface. Is this good design? --> DONT DO THAT YOU HAVE A THREAD THEREFORE YOU ARE
+2. Don't need to send back message to the client to verify correctness --> overkill
+3. Multithreading a good idea, but not necessary for this assignment:
+a. All of this occurs on a single server, therefore upon receiving a request of any kind, the server should multithread this process and keep a listening channel open at all times. --> not worthwhile for this assignment, single thread ok
+
+
+## Office Hour Wisdom
+okay for everything to be single threaded, start with single threaded server bc allows for more straightforward network debugging (esp in python not really worth it)
+- message over network format:
+	- version number
+	- (separate with byte for length of element before it)
+	- wildcard compatability of some sort needed (getting groups of accounts by some sort of exp with a communication)
+
+
+## Wire Protocol
 
