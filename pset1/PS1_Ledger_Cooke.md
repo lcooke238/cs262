@@ -111,5 +111,184 @@ okay for everything to be single threaded, start with single threaded server bc 
 	- wildcard compatability of some sort needed (getting groups of accounts by some sort of exp with a communication)
 
 
+
+## Pseudocode
+### Server
+```
+#imports
+
+#server startup function
+    #setup server socket
+    #bind to host and port
+    #access database with users and stored messages
+        #ensure reachable, if not, throw warning and create a new one
+    #turn on server and start listening
+
+
+#accept client function
+    #should get login username as first contact
+    #check version number of wire protocol
+        #ensure it is what you expect, if not throw versionError
+    #query fed username:
+        #if exists and is offline
+            #bring online
+            #communicate success
+            #feed client stored messages
+            #delete stored message
+            #repeat until storage is empty
+        #if exists and is online
+            #BAD BAD BAD throw unique user warning to them and prevent login
+        #if does not exist anywhere
+            #create in online category
+            #communicate success
+
+
+#message handling function
+    #should recieve message with sender username, recipient username, and message
+        #ensure all three components arrived non-empty, if not return emptyField error to sender
+        #validate sender username is online, if not return invalidAccount error
+        #validate recipient username exists, if not return invalidRecipient error
+            #if it does, store where it is (online or offline)
+    #if recipient online:
+        #send message in proper format to that client
+    #if recipient offline:
+        #store message for them in database
+
+
+#send error function
+    #encode error with wire protocol function
+    #send encoded error
+
+
+#recieve error function
+    #decode error with wire protocol function
+         #if either field is blank, display failedErrorTransmission error
+    #display decoded error
+    
+
+#delete account function
+    #should recieve sender username
+        #ensure sender username exists and is online, if not return faultyCommunication error
+    #otherwise, communicate warning to sender about implications (losing all messages, getting logged out, etc.)
+        #communication also includes a generated key stored locally on server array
+    #if user communicates a delete back with the generated key, then the account will be deleted. (communicate success)
+    #any other communication with delete operation will cancel the deletion.
+
+
+#logout function
+    #should recieve sender username
+        #ensure sender username exists and is online, if not return faultyCommunication error
+    #move user to offline in database
+    #communicate success
+
+
+#database query function (input query type)
+    #make query of choice
+    #save database if succeeds
+    #return result
+
+
+#msg to wire protocol function (add toggle bw manual and gRPC)
+    #given input of all required pieces for communication:
+        #version number
+        #operation
+        #content
+        #More stuff??
+    #convert input to output as specified by wire protocol
+    #return this result
+
+
+#wire protocol to msg function (add toggle bw manual and gRPC)
+    #given bit string
+    #check wire protocol version number is correct
+        #if not, report versionError and inform client
+    #convert according to wire protocol to message
+    #grab operation from request
+    #call said operation defined above
+```
+
+### Client
+```
+#imports
+
+#connect to server/login function
+    #initialize state vars as 0
+    #setup client socket
+    #bind to host and port
+    #encode login message according to wire protocol
+    #send message to server
+    #wait for response from server:
+        #if responds with success, move on/function is over (for accts coming back online those messages will be sent by server already)
+        #if responds with fail, raise invalidUsername exception and re-request user to login
+        #if this takes longer than 5 minutes, raise timeOut error and kill client?
+
+
+#recieve message function
+    #should have message and sender username from input
+        #ensure both fields are non-empty
+            #if either is empty, return failedTransmission error to server
+        #display message coming from sender username 
+
+
+#send message function
+    #encode message and usernames of interest with wire protocol function
+    #send encoded message to server
+
+
+#logout function
+    #encode logout request with your username using wire protocol function
+    #send encoded request to server
+    #indicate locally that we are waiting for logout response with state var
+    #get logout response from server, activate lower part of fn with state var:
+        #if success, display logout succeeded, wait 5s, and kill client responsibly
+        #if fail, display logoutError
+
+
+#delete account function
+    #encode logout request with your username using wire protocol function
+    #send encoded request to server
+    #indicate locally that we are waiting for delete response with state var
+    #get response from server:
+        #if success, display deletion warning and grab key
+            #prompt user for confirmation letter
+                #if input is confirmation letter, encode and send delete with key and confirmed state active, update local state var
+                #if input is anything else, set state back to 0, tell user delete was cancelled, and communicate cancellation to server
+            #get response from server, activate this part with extra state var:
+                #if success, display delete succeeded, wait 5s, and kill client responsibly
+                #if fail, display deleteConfirmError
+        #if fail, display deleteError
+        
+
+#send error function
+    #encode error with wire protocol function
+    #send encoded error to server
+
+
+#recieve error function
+    #decode error with wire protocol function
+        #if either field is blank, display failedErrorTransmission error
+    #display decoded error
+
+
+#msg to wire protocol function (add toggle bw manual and gRPC)
+    #given input of all required pieces for communication:
+        #version number
+        #operation
+        #content
+        #More stuff??
+    #convert input to output as specified by wire protocol
+    #return this result
+
+
+#wire protocol to msg function (add toggle bw manual and gRPC)
+    #given bit string
+    #check wire protocol version number is correct
+        #if not, report versionError and inform client
+    #convert according to wire protocol to message
+    #grab operation from request
+    #call said operation defined above
+```
+
+
 ## Wire Protocol
 
