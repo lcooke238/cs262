@@ -4,22 +4,25 @@ import pandas as pd
 import warnings
 
 #constants
-server_port = '127.0.0.1'
-server_host = 8080
-wire_protocol_version_number = 2
-server_socket = None
+# server_port = '127.0.0.1'
+# server_host = 8080
+# wire_protocol_version_number = 2
+# server_socket = None
 #logfilename = 'server_log.txt'
 #data_df = pd.read_csv('data.csv')
 
 
-#Log(logfilename, msg): records input msg in input log with name logfilename
+#Log(logfilename, msg): 
+    #records input msg in input log with name logfilename
 def Log(logfilename, msg):
     with open(logfilename, 'a') as log:
         log.write(msg + '\n')
         log.flush()
 
 
-#Rec_Exception(eName, eMsg, log): display exception to server console and logs it
+#Rec_Exception(eName, eMsg, log): 
+    #display exception of type eName with message eMsg to server console and
+    #logs it at logfilename
 def Rec_Exception(eType, eMsg, logfilename):
     #handle warnings
     if eType == Warning:
@@ -30,7 +33,10 @@ def Rec_Exception(eType, eMsg, logfilename):
         Log(logfilename, eMsg)
 
 
-# #Start_Server(): startup server, open dataset, and begin listening for client connections
+#Start_Server(sHost, sPort, logfilename, datasetname): 
+    #startup server at sHost and sPort, open csv file dataset called datasetname,
+    #and begin listening for client connections
+    #still has TODO
 def Start_Server(sHost, sPort, logfilename, datasetname):
     #setup server socket
         #TODO: add unique wire protocol here
@@ -49,7 +55,6 @@ def Start_Server(sHost, sPort, logfilename, datasetname):
         #create new dataset
         new_df = pd.DataFrame({'Online':[], 'Offline':[]})
         new_df.to_csv(datasetname, index=False)
-
     #turn on server and start listening
     server_socket.listen()
     #confirmation message server is running

@@ -1,5 +1,4 @@
-*.csv
-*.txt
+
 .DS_Store
 *.pyc
 demo_client.py
