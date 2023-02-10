@@ -1,0 +1,6 @@
+*.csv
+*.txt
+.DS_Store
+*.pyc
+demo_client.py
+demo_server.py

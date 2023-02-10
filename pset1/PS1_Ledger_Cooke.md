@@ -63,21 +63,33 @@ Logistics
 
 **Error Types**:
 1. *FatalError*: Impossible to recover from, kills all components, will likely be common to server stuff because we will only have a single server.
+<br>
+
 2. *LocalError*: Error specific to a given instance/client that cannot be recovered, rest of system remains unaffected. Will only kill the problematic component. Will likely exist with specific clients.
+<br>
+
 3. *Warning*: problem occurred within running system, does not affect overall system functionality (ie. if we can identify an indicator of a faulty packet, can give someone a warning?)
 
 **Test Suite Ideas**
 1. *message format error*: user fails to provide a message and/or username in the format specified
 	- if possible, (aka format is correct but location for a piece of information is blank, create more specific problems errors to share)
 	- verifiable both on client and server end (do once on client for input check, once on server for travel check)
+	<br>
+
 2. can duplicate above for all possible message over server formats
+<br>
+
 3. more generalized u gave me nonsense doesn't bind to message type
 
 
 ## Stuff I have considered and left behind
 1. Don't need to verify your own existence: 
 a. loopback interface. Is this good design? --> DONT DO THAT YOU HAVE A THREAD THEREFORE YOU ARE
+<br>
+
 2. Don't need to send back message to the client to verify correctness --> overkill
+<br>
+
 3. Multithreading a good idea, but not necessary for this assignment:
 a. All of this occurs on a single server, therefore upon receiving a request of any kind, the server should multithread this process and keep a listening channel open at all times. --> not worthwhile for this assignment, single thread ok
 
@@ -269,5 +281,20 @@ okay for everything to be single threaded, start with single threaded server bc 
 ```
 
 
-## Wire Protocol
+## Errors
+1. *VSCode module installation problem*: To add libraries that vs code will be happy with, type the following in the terminal:
+```
+python3 -m pip install {new_module}
+```
+<br>
 
+2. *text file reading and writing*: despite flushing after every write, my log text file will not display a write until I close the file and re-open it. I looked around on line for a means of debugging this, and the only advice I could find was to open the file for appending when writing, and open the file for reading when I wanted to read.
+<br>
+
+3. *pandas csv reading*: a dataframe is considered empty if it has header content, and converting to a csv will add an index column by default. To disable this, set 
+```index=False```
+
+
+
+## Testing Wisdom
+I have found that a good workflow for me has been to break down each part of the server and client into functions. I then attempt to implement a function, followed by writing a test suite for said function. I run the tests one at a time, checking to see if they work as I expect, and fixing my mistakes as I go. 
