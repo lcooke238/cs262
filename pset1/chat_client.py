@@ -1,4 +1,18 @@
 #imports
+import socket
+import select
+
+#constants
+client_host = "127.0.0.1"
+client_port = 1234
+
+#TODO client socket creation function
+
+
+#TODO Login protocol, subfunctino of client socket creation
+
+
+#TODO Socket selection
 
 #connect to server/login function
     #initialize state vars as 0

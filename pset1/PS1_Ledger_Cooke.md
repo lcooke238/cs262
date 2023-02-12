@@ -324,7 +324,9 @@ I decided to use a socket select protocol rather than a threading one to avoid a
     - 3: login
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the username for the login
-    - 4: error/exception
+    -4: list accounts
+        - next 4 bytes (constant) represents length of rest of input (0)
+    - 5: error/exception
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the error message to be used
 
@@ -348,3 +350,7 @@ Options:
         - finish and return:
             - hand in socket with return info, 
             - if u recieve 0, socket is dead, so close it and get rid of thread
+
+
+## Client Spec
+Threads, one for input and one for recieving shit from socket?

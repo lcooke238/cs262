@@ -204,9 +204,45 @@ def test_server_startup(host, port, logfilename):
     df = pd.DataFrame(list(zip(["hi"],["bye"])), columns=["H", "H"])
     df.to_csv('bad_format_test.csv',index=False)
 
+
 #TODO Wire_to_Function tests
 def test_WtoF(cSocket, logfilename):
     pass
+
+
+#TODO Socket_Select tests
+def test_sSelect(sSocket, sList, onlineClients, database, logfilename):
+    pass
+
+
+#TODO Login tests
+def test_login():
+    pass
+
+
+#TODO Msg_to_Wire tests
+def test_MtoW():
+    pass
+
+
+#TODO Send_Message tests
+def test_send_msg():
+    pass
+
+
+#TODO Delete_Acct tests
+def test_delete():
+    pass
+
+
+#TODO Logout tests
+def test_logout():
+    pass
+
+#TODO List_Accounts tests
+def test_list_acct():
+    pass
+
 
 
 #run tests
@@ -214,6 +250,12 @@ test_log('test_log.txt')
 test_rec_exception('test_log.txt')
 test_server_startup('127.0.0.1', 8080, 'test_log.txt')
 #first, create a socket pointing back to yourself
-
 #test_WtoF()
+#test_sSelect()
+#test_login()
+#test_MtoW()
+#test_send_msg()
+#test_delete()
+#test_logout()
+#test_list_acct()
 print("full server test suite passed")

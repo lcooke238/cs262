@@ -14,6 +14,7 @@ wp_version = 0
 log_name = 'server_log.txt'
 data = 'data.csv'
 
+#TODO: list accounts operation
 
 #Log(logfilename: String, msg: String): 
     #records msg in log text file with name logfilename
@@ -107,7 +108,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
         op_code_decoded = int(op_code.decode('utf-8').strip())
         #check for invalid op code and communicate faulty operation if found
         #TODO pick num of ops, rn 10
-        if op_code_decoded > 4:
+        if op_code_decoded > 5:
             Rec_Exception(ValueError, "Operation Code Faulty. Please ensure that your wire protocol is converting your request properly.",logfilename)
             #send op code exception back to client
             Send_Error(cSocket, "Operation Code Faulty. Please ensure that your wire protocol is converting your request properly.", logfilename)
@@ -142,8 +143,12 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
                 Log("attempting logging in from " + str(cSocket), logfilename)
                 Login(cSocket, remaining_input, sList, onlineClients, database, logfilename)
                 Log("finished logging in for " + onlineClients[cSocket], logfilename)
-            #4: error
-            case 4:
+            #4: list acconuts
+                Log("attempting account list retrieval from " + onlineClients[cSocket], logfilename)
+                List_Accounts(cSocket,onlineClients,database,logfilename)
+                Log("finished sending account list for " + onlineClients[cSocket], logfilename)
+            #5: error
+            case 5:
                 remaining_input = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 Log("recieved error from client" + onlineClients[cSocket], logfilename)
                 Rec_Exception(ValueError, remaining_input, logfilename)
@@ -376,6 +381,26 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
         Rec_Exception(ValueError, "logout failed. Ensure that you send your username along with the logout request.",logfilename)
         Send_Error(cSocket, "logout failed. Ensure that you send your username along with the logout request.",logfilename) 
     
+
+#List_Accounts(cSocket: socket, onlineClients: Dict[key=socket] = username: String, database: String, logfilename: String):
+    #generates list of existing usernames from database
+    #converts list to an encoded message that is then sent to the client socket cSocket
+    #logs progress in text log file called logfilename
+def List_Accounts(cSocket, onlineClients=online_clients, database=data, logfilename=log_name):
+    #grab accounts from dataset
+    data_df = pd.read_csv(database)
+    accounts = list(data_df["ExistingUsers"])
+    Log("retrieved existing users, sending to client " + onlineClients[cSocket], logfilename)
+    #send accounts to client
+    msg_accounts = "Existing accounts by username: \n"
+    #create message with existing accounts
+    for account in accounts:
+        msg_accounts.append(account + "\n")
+    #convert to wire
+    wire = Msg_to_Wire(onlineClients[cSocket], msg_accounts,"server",logfilename)
+    #send message
+    cSocket.send(wire)
+
 
 #server execution
 #startup server
