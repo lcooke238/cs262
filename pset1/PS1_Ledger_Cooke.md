@@ -92,6 +92,10 @@ a. loopback interface. Is this good design? --> DONT DO THAT YOU HAVE A THREAD T
 
 3. Multithreading a good idea, but not necessary for this assignment:
 a. All of this occurs on a single server, therefore upon receiving a request of any kind, the server should multithread this process and keep a listening channel open at all times. --> not worthwhile for this assignment, single thread ok
+<br>
+
+4. Storing whether or not a user is online externally is dumb, because that concept dissappears if the server goes down. Instead, only use database to store unsent messages (ie. column per offline user)
+- instead maintain that locally on the server script
 
 
 ## Office Hour Wisdom
@@ -298,3 +302,48 @@ python3 -m pip install {new_module}
 
 ## Testing Wisdom
 I have found that a good workflow for me has been to break down each part of the server and client into functions. I then attempt to implement a function, followed by writing a test suite for said function. I run the tests one at a time, checking to see if they work as I expect, and fixing my mistakes as I go. 
+
+
+## Wire Protocol (OH 2/10)
+I decided to use a socket select protocol rather than a threading one to avoid any problems with partial failure and dataset locking for multiple threads of the server accessing a dataset at once. My design for the protocol itself works like this:
+
+1. first 4 bytes (constant) represent the wire protocol version number. Upon reciept, a server and client will always check that this version number is what it expects, otherwise it will log the problem on the recieving side and close the socket. 
+    - I chose to close the socket after logging the problem locally because we have no means of properly communicating the error back to the sender with a faulty wire protocol. 
+2. next 1 byte (constant) represents the operation code. The operations are as follows:
+    - 0: send a message to another user
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve (i)
+        - next 1 byte (constant) represents the length of the username of the recipient (u)
+        - next u bytes represents the username of the recipient
+        - next i-1-u bytes represent the message
+    - 1: logout
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the confirmation keyword to ensure opcode reciept wasn't a mistake
+    - 2: delete
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the confirmatino keyword to ensure opcode reciept wasn't a mistake
+    - 3: login
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the username for the login
+    - 4: error/exception
+        - 
+
+Options:
+1. have some kind of delimiter between portions of the protocol to read until this thing
+    - tough bc have to find char u will never use
+2. part of WP, at beginning of every field the length of that field
+    - have pt that starts with 4 byte int as version number
+    - next field may be a 32bit int indicating length of entire message (to know when ur done)
+    - next part could be len of first field if u don't know already (ie. opcode)
+    - mostly sending strs, can either have them all be the same len (x chars upper lim, if less then that pad w blanks)
+        - or, could have 1st few chars be the length of number of chars in str
+        - parse len, then read num of chars indicated therein
+    - can repeat above per len
+        - worth having separate opcode for sending lots of msgs at once
+
+    - socket select (has gr8 tutorial)
+    - get bytes on recieve from whatever socket you pick
+    - parse the bytes you recieve
+        - once u know opcode via parsing, know the method u will need (pass in remaining byte flow --> then have methods parse the rest according to that method)
+        - finish and return:
+            - hand in socket with return info, 
+            - if u recieve 0, socket is dead, so close it and get rid of thread
