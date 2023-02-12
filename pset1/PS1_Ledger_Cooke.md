@@ -320,12 +320,13 @@ I decided to use a socket select protocol rather than a threading one to avoid a
         - rest of input represents the confirmation keyword to ensure opcode reciept wasn't a mistake
     - 2: delete
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
-        - rest of input represents the confirmatino keyword to ensure opcode reciept wasn't a mistake
+        - rest of input represents the confirmation keyword to ensure opcode reciept wasn't a mistake
     - 3: login
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the username for the login
     - 4: error/exception
-        - 
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the error message to be used
 
 Options:
 1. have some kind of delimiter between portions of the protocol to read until this thing

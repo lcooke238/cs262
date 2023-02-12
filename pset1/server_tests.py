@@ -142,7 +142,7 @@ def test_server_startup(host, port, logfilename):
     #clear content of test log
     open(logfilename, 'w').close()
 
-    #Test 3: exception logged when passed invalid dataset
+    #Test 3: exception logged when passed invalid non-existent dataset
     chat_server.Start_Server(host, port, logfilename, 'invalid.csv')
     #open log to read it
     with open(logfilename, 'r') as log:
@@ -153,7 +153,7 @@ def test_server_startup(host, port, logfilename):
             raise Exception("Startup Test 3 Failed. Log should read \"InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use\", but instead reads \"" + content[0].strip()+"\"")
         #ensure content of dataset is correct
         test_df = pd.read_csv('invalid.csv')
-        compare_df = pd.DataFrame({"Sample": []})
+        compare_df = pd.DataFrame({"ExistingUsers": []})
         if test_df.to_string() == compare_df.to_string():
             pass
         else:
@@ -178,8 +178,33 @@ def test_server_startup(host, port, logfilename):
     #clear content of test log
     open(logfilename, 'w').close()
 
+    #Test 5: exception logged for dataset with invalid formatting passed in
+    chat_server.Start_Server(host, port, logfilename, 'bad_format_test.csv')
+    #open log to read it
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        if content[0].strip() == "InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use":
+            pass
+        else:
+            raise Exception("Startup Test 5 Failed. Log should read \"InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use\", but instead reads \"" + content[0].strip()+"\"")
+        #ensure content of dataset is correct
+        test_df = pd.read_csv('bad_format_test.csv')
+        compare_df = pd.DataFrame({"ExistingUsers": []})
+        if test_df.to_string() == compare_df.to_string():
+            pass
+        else:
+            raise Exception("Startup Test 5 Failed. New dataset should contain " + compare_df.to_string() + ", but instead contains " + test_df.to_string())
+        if content[1].strip() == "server is listening for connections..."+ str(host)+":"+str(port):
+            print("Startup Test 5 Passed")
+        else:
+            raise Exception("Startup Test 5 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
+    #clear content of test log and remove invalid dataset
+    open(logfilename, 'w').close()
+    #reset faulty format file
+    df = pd.DataFrame(list(zip(["hi"],["bye"])), columns=["H", "H"])
+    df.to_csv('bad_format_test.csv',index=False)
 
-#Wire_to_Function tests
+#TODO Wire_to_Function tests
 def test_WtoF(cSocket, logfilename):
     pass
 
