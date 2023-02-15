@@ -1,1 +1,9 @@
-server is listening for connections...127.0.0.1:8080
+server is listening for connections...127.0.0.1:1234
+found server communication, pending connection acceptance
+accepted connection from ('127.0.0.1', 52943)
+attempting logging in from <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 52943)>
+username: Lauren
+database successfully read for user Lauren
+added to socket list for user Lauren
+finished logging in for Lauren
+attempting account list retrieval from Lauren

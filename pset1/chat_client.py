@@ -6,7 +6,7 @@ import errno
 
 #constants
 client_host = "127.0.0.1"
-client_port = 8080
+client_port = 1234
 log_name = "client_log.txt"
 wp_version = 0
 
@@ -137,7 +137,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
     #Delete: if command is in proper delete format, activate delete protocol
     elif cmd[0:7] == "\\delete":
         #verify delete input
-        verify = input("are you sure you want to log out? Type yes to continue: ")
+        verify = input("are you sure you want to delete this account? Type yes to continue: ")
         if verify.strip() == "yes":
             #call delete function
             Delete(cSocket, user, logfilename)
@@ -307,6 +307,8 @@ def Logout(cSocket, usrnm, logfilename=log_name):
     cSocket.send(wire)
     #log send
     Log("logout message sent", logfilename)
+    #kill client
+    sys.exit()
 
 
 #delete function
@@ -326,6 +328,8 @@ def Delete(cSocket, usrnm, logfilename=log_name):
     cSocket.send(wire)
     #log send
     Log("delete message sent", logfilename)
+    #kill client
+    sys.exit()
 
 
 #list users fn

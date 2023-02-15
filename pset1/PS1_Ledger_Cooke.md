@@ -298,6 +298,8 @@ python3 -m pip install {new_module}
 3. *pandas csv reading*: a dataframe is considered empty if it has header content, and converting to a csv will add an index column by default. To disable this, set 
 ```index=False```
 
+4. *messages not going through the server*: if messages are being sent to the server and the communication is good but nothing is happening, likely your socket is not registered in the selection list. 
+
 
 
 ## Testing Wisdom

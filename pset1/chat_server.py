@@ -3,10 +3,11 @@ import socket
 import pandas as pd
 import warnings
 import select
+import numpy as np
 
 #constants
 server_host = '127.0.0.1'
-server_port = 8080
+server_port = 1234
 socket_list = []
 online_clients = {}
 Head_Len = 4
@@ -77,8 +78,6 @@ def Start_Server(sHost, sPort, logfilename=log_name, database=data, emptyWarning
         new_df.to_csv(database, index=False)
     #turn on server and start listening
     server_socket.listen()
-    #add server socket to list of sockets for selection
-    socket_list = [server_socket]
     #confirmation message server is running
     Log("server is listening for connections..." + str(sHost)+":"+str(sPort), logfilename)
     return server_socket
@@ -215,6 +214,7 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
     try:
         #decode input username, input already correct length
         username = input.decode('utf-8').strip()
+        Log("username: " + username, logfilename)
         #enforce username length cap
         if len(username) > 256:
             username = username[:255]
@@ -223,18 +223,20 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
             return False
         #if username doesn't already exist offline, add to list
         data_df = pd.read_csv(database)
+        Log("database successfully read for user " + username,logfilename)
         if username not in list(data_df["ExistingUsers"]):
-            data_df["ExistingUsers"].append(username)
+            data_df = data_df.append({"ExistingUsers": username}, ignore_index=True)
         #succeeded!, add to list of active sockets and dict online clients with the username
         sList.append(cSocket)
         onlineClients[cSocket] = username
+        Log("added to socket list for user " + username, logfilename)
         #if username offline with stored messages, bring back and send those messages
         if username in list(data_df.columns):
             msgs = list(database[username])
             for msg in msgs:
                 cSocket.send(msg)
             #delete that column from the dataset
-            data_df.drop(username, axis='columns')
+            data_df = data_df.drop(username, axis='columns')
             Log("sent stored messages to " + username, logfilename)
         data_df.to_csv(database, index=False)
     except:
@@ -302,10 +304,10 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_n
     else:
         #if col for this user exists, add encoded message there
         if recip in list(data_df.columns):
-            data_df[recip].append(wire)
+            data_df = data_df.append({recip: wire}, ignore_index=True)
         #if it doesn't exist, insert a column with that addr
         else:
-            data_df.insert(2, recip, [wire], True)
+            data_df = data_df.insert(2, recip, [wire], True)
         #save dataframe to csv
         data_df.to_csv(database, index=False)
 
@@ -355,10 +357,16 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, log
         #remove from online clients database, active sockets and existing clients
         onlineClients.remove(cSocket)
         data_df = pd.read_csv(database)
-        data_df["ExistingUsers"].drop(confirm)
+        lst = list(data_df["ExistingUsers"])
+        print(lst)
+        lst.remove(confirm)
+        lst.append(np.NAN)
+        data_df = data_df.drop("ExistingUsers", axis='columns')
+        data_df = data_df.assign(ExistingUsers=lst)
         #delete all stored messages for that account if the column exists (it shouldn't!)
         if data_df[confirm]:
-            data_df.drop(confirm, axis='columns')
+            data_df = data_df.drop(confirm, axis='columns')
+        data_df.to_csv(database, index=False)
     #otherwise, deletion won't occur. 
     else:
         Rec_Exception(ValueError, "deletion failed. Ensure that you send your username along with the deletion request.",logfilename)
@@ -386,6 +394,7 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
         wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
         wire += (msg.encode('utf-8'))
         cSocket.send(wire,logfilename)
+        Log("sent logout confirmed message back to client")
         #remove from online clients database and active sockets
         onlineClients.remove(cSocket)
     #otherwise, logout won't occur. 
@@ -431,6 +440,8 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, l
 open(log_name, 'w').close()
 #startup server
 server_socket = Start_Server(server_host, server_port, log_name, data, False)
+#add server socket to list of sockets for selection
+socket_list = [server_socket]
 #infinitely select through sockets
 while True:
     Socket_Select(server_socket, socket_list, online_clients, data, log_name)
