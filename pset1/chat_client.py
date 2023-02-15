@@ -78,11 +78,13 @@ def Start_Client(cHost, cPort, logfilename=log_name):
     #create socket and connect to server socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((cHost, cPort))
+    Log(f"connected to {cHost}.{cPort}", logfilename)
     # #prevent reciving block
     client_socket.setblocking(False)
     #send converted username to server
     wire = Login_Wire(user, wp_version, logfilename)
     client_socket.send(wire)
+    Log("sent login wire for user: " + user, logfilename)
     return client_socket, user
 
 
@@ -347,6 +349,8 @@ def ListUsr(cSocket, arg, logfilename=log_name):
 
 
 #client execution
+#clear client log
+open(log_name, 'w').close()
 #setup client
 cSocket, username = Start_Client(client_host, client_port, log_name)
 #display how to access instructions

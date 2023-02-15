@@ -174,6 +174,7 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
     for rSocket in rSockets:
         #if server socket has content, we have a new connection
         if rSocket == sSocket:
+            Log("found server communication, pending connection acceptance", logfilename)
             #accept connection
             cSocket, cAddr = sSocket.accept()
             Log("accepted connection from " + str(cAddr), logfilename)
@@ -426,6 +427,8 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, l
 
 
 #server execution
+#clear server log
+open(log_name, 'w').close()
 #startup server
 server_socket = Start_Server(server_host, server_port, log_name, data, False)
 #infinitely select through sockets
