@@ -265,7 +265,8 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         if username in list(data_df.columns):
             msgs = list(data_df[username])
             for msg in msgs:
-                cSocket.send(msg)
+                msga, sender = msg.split(";;")
+                cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
             #delete that column from the dataset
             data_df = data_df.drop(username, axis='columns')
             Log("sent stored messages to " + username, logfilename)
@@ -288,14 +289,14 @@ def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
     #add opcode, in this case 0 (already a single byte)
     wire += (f"{str(0):<{1}}".encode('utf-8'))
     #add length of rest of input: 4+1+len(recip)+len(msg)
-    l_recip = len(recip)
+    l_send = len(sender)
     l_msg = len(msg)
-    l = 4+1+l_recip+l_msg
+    l = 4+1+l_send+l_msg
     wire += (f"{str(l):<{4}}".encode('utf-8'))
     #add byte for length of recipient username (already a single byte)
-    wire += (f"{str(l_recip):<{1}}".encode('utf-8'))
+    wire += (f"{str(l_send):<{1}}".encode('utf-8'))
     #add recipient username
-    wire += (recip.encode('utf-8'))
+    wire += (sender.encode('utf-8'))
     #add message
     wire += (msg.encode('utf-8'))
     #log wire having been built and return the completed wire
@@ -337,12 +338,12 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     else:
         #if col for this user exists, add encoded message there
         if recip in list(data_df.columns):
-            data_df = data_df.append({recip: wire}, ignore_index=True)
+            data_df = data_df.append({recip: [msg+";;"+sender]}, ignore_index=True)
             #save dataframe to csv
             data_df.to_csv(database, index=False)
         #if it doesn't exist, insert a column with that addr
         else:
-            new_df = pd.DataFrame({recip: [wire]})
+            new_df = pd.DataFrame({recip: [msg+";;"+sender]})
             new_df_2 = pd.concat([data_df, new_df])
             #save dataframe to csv
             new_df_2.to_csv(database, index=False)

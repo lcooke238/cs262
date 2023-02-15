@@ -113,7 +113,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
     #Send: if command is in proper send format, activate send protocol
     if (cmd[0:5] == "\\send") and cmd.__contains__(","):
         args = cmd[6:].strip()
-        arg_list = args.split(',')
+        arg_list = args.split('\,')
         if len(arg_list) != 2:
             Display_Message("Improper command format. Did you add an extra \",\"?")
             return False
@@ -219,8 +219,9 @@ def IO_Manager(cSocket, user, logfilename=log_name):
                 lst = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 act_lst = lst.split(" ")
                 Display_Message("users from query: ", logfilename)
-                for act in act_lst:
-                    Display_Message(act + ", ",logfilename)
+                if not act_lst == ['']:
+                    for act in act_lst:
+                        Display_Message(act + ", ",logfilename)
                
             #5: error from server
             case 5:
@@ -244,9 +245,7 @@ def IO_Manager(cSocket, user, logfilename=log_name):
     #Logs the display in the text log file called logfilename
 def Help(user, logfilename=log_name):
     msg = "Welcome to the chat service, "+user+"""! Here is a list of commands available to you and their syntax: \n
-    \send msg, usrnm -- sends the message msg to the person with username usrnm. 
-                        To put a comma in your message, please type it with a 
-                        backslash before it (\,) \n
+    \send msg\, usrnm -- sends the message msg to the person with username usrnm. \n
     \logout -- logs you out of your account. Client will shutdown after. \n
     \delete -- deletes your account. Client will shutdown after. \n
     \list ltrs -- provides a list of existing accounts that start with the string ltrs.
@@ -343,7 +342,7 @@ def ListUsr(cSocket, arg, logfilename=log_name):
     #add len of arg
     wire += (f"{str(len(arg)):<{4}}".encode('utf-8'))
     #add arg
-    wire += (arg.encode('utf-8'))
+    wire += arg.encode('utf-8')
     Log("Wire for list built to be sent", logfilename)
     #send message over socket
     cSocket.send(wire)
