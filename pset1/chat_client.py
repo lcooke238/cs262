@@ -77,6 +77,7 @@ def Start_Client(cHost, cPort, logfilename=log_name):
 
     #create socket and connect to server socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket.connect((cHost, cPort))
     Log(f"connected to {cHost}.{cPort}", logfilename)
     # #prevent reciving block
@@ -337,17 +338,17 @@ def ListUsr(cSocket, arg, logfilename=log_name):
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
     wire += (f"{wp_version:<{4}}".encode('utf-8'))
-    #add opcode, in this case 2 (already a single byte)
+    #add opcode, in this case 4 (already a single byte)
     wire += (f"{str(4):<{1}}".encode('utf-8'))
     #add len of arg
     wire += (f"{str(len(arg)):<{4}}".encode('utf-8'))
     #add arg
-    wire += (f"{arg:<{4}}".encode('utf-8'))
+    wire += (arg.encode('utf-8'))
     Log("Wire for list built to be sent", logfilename)
     #send message over socket
     cSocket.send(wire)
     #log send
-    Log("delete message sent", logfilename)
+    Log("listUsr message sent", logfilename)
 
 
 
@@ -357,7 +358,7 @@ open(log_name, 'w').close()
 #setup client
 cSocket, username = Start_Client(client_host, client_port, log_name)
 #display how to access instructions
-Display_Message("type \help to see instructions.", log_name)
+Display_Message("type \help to see instructions. Press Enter to look for buffered returns.", log_name)
 #run IO management until kill
 while True:
     #run IO manager until death

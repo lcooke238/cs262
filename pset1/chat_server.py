@@ -110,6 +110,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
         protocol_version = cSocket.recv(4)
         #if we recieve nothing, socket has been shut down/closed on the other end, so we end the call.
         if not len(protocol_version):
+            Log("faulty protocol input W_T_F",logfilename)
             return False
         #check for the expected protocol version number
         protocol_version_decoded = int(protocol_version.decode('utf-8').strip())
@@ -126,10 +127,12 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
             Rec_Exception(ValueError, "Operation Code Faulty. Please ensure that your wire protocol is converting your request properly.",logfilename)
             #send op code exception back to client
             Send_Error(cSocket, "Operation Code Faulty. Please ensure that your wire protocol is converting your request properly.", logfilename)
+            return False
         elif (op_code_decoded != 3 and loginFlag) or (op_code_decoded == 3 and not loginFlag):
             Rec_Exception(ValueError, "Operation Code Faulty. Login expected only as first communication.",logfilename)
             #send op code exception back to client
             Send_Error(cSocket, "Operation Code Faulty. Login expected only as first communication.", logfilename)
+            return False
         #grab rest of input length and input from socket with default size in wire protocol
         in_len_decoded = int(cSocket.recv(4).decode('utf-8').strip())
         #for the proper operation code, pass rest of input to the respective function
@@ -175,7 +178,8 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
                 Rec_Exception(ValueError, remaining_input, logfilename)
                 return True
     #otherwise socket is broken in some way, nothing left to do
-    except:
+    except Exception as e:
+        Log('Error: {}. Shutting Down.'.format(str(e)),logfilename)
         return False
 
 
@@ -202,6 +206,7 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
             Log("accepted connection from " + str(cAddr), logfilename)
             #should come with a login request, pass to function converter for handling
             b = Wire_to_Function(cSocket, sList, onlineClients, True, database, userbase, logfilename)
+            Log(str(b),logfilename)
             #u_name false means communication failed in some way, stop and repeat process
             if not b:
                 return False
@@ -210,6 +215,7 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
             #decode and do whatever operation sent via rSocket
             Log("recieved operation from socket " + str(rSocket), logfilename)
             b = Wire_to_Function(rSocket, sList, onlineClients, False, database, userbase, logfilename)
+            Log(str(b),logfilename)
             #if false, socket bad in some way, connection should be removed
             if not b:
                 #log and remove connection from faulty rSocket, repeat process
