@@ -3,7 +3,6 @@ import socket
 import pandas as pd
 import warnings
 import select
-import numpy as np
 
 #constants
 server_host = '127.0.0.1'
@@ -14,8 +13,8 @@ Head_Len = 4
 wp_version = 0
 log_name = 'server_log.txt'
 data = 'data.csv'
+users = 'users.csv'
 
-#TODO: list accounts operation
 
 #Log(logfilename: String, msg: String): 
     #records msg in log text file with name logfilename
@@ -56,30 +55,46 @@ def Rec_Exception(eType, eMsg, logfilename=log_name):
     #throws warning for an empty database if the warning flag emptyWarningFlag is True
     #logs progress in text log file called logfilename
     #returns server socket on success
-def Start_Server(sHost, sPort, logfilename=log_name, database=data, emptyWarningFlag=False):
+def Start_Server(sHost, sPort, logfilename=log_name, database=data, userbase=users, emptyWarningFlag=False):
     #setup server socket
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server_socket.bind((sHost, sPort))
-    #try to access database with users and stored messages
+    #try to access database with stored messages
     try: 
         data_df = pd.read_csv(database)
         if data_df.empty and emptyWarningFlag == True:
             #if reachable and empty, throw warning
-            Rec_Exception(Warning, 'EmptyDatasetWarning: Input message and client dataset is empty. Did you select the correct file?',logfilename)
+            Rec_Exception(Warning, 'EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?',logfilename)
         #if existing dataset doesn't have required column, do not use
         elif "ExistingUsers" not in list(data_df.columns):
             raise Exception("Dataset format invalid. Creating new dataset")
     #access failed, record exception and create new dataset to use
     except:
-        Rec_Exception(Warning, 'InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use',logfilename)
+        Rec_Exception(Warning, 'InvalidDatasetWarning: Input message invalid, creating a new dataset for server to use',logfilename)
         #create new dataset
         new_df = pd.DataFrame({"ExistingUsers": []})
         new_df.to_csv(database, index=False)
+    #try to access database with users messages
+    try: 
+        user_df = pd.read_csv(userbase)
+        if user_df.empty and emptyWarningFlag == True:
+            #if reachable and empty, throw warning
+            Rec_Exception(Warning, 'EmptyDatasetWarning: Input client dataset is empty. Did you select the correct file?',logfilename)
+        #if existing dataset doesn't have required column, do not use
+        elif "ExistingUsers" not in list(user_df.columns):
+            raise Exception("Dataset format invalid. Creating new dataset")
+    #access failed, record exception and create new dataset to use
+    except:
+        Rec_Exception(Warning, 'InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use',logfilename)
+        #create new dataset
+        user_df = pd.DataFrame({"ExistingUsers": []})
+        user_df.to_csv(userbase, index=False)
     #turn on server and start listening
     server_socket.listen()
     #confirmation message server is running
     Log("server is listening for connections..." + str(sHost)+":"+str(sPort), logfilename)
+    print("server is listening for connections..." + str(sHost)+":"+str(sPort))
     return server_socket
 
 
@@ -89,7 +104,7 @@ def Start_Server(sHost, sPort, logfilename=log_name, database=data, emptyWarning
     #if loginFlag is True, will only accept login opcode (3) on call
     #for a valid opcode, passes all necessary information to the corresponding server operation or records an exception
     #logs progress in text log file called logfilename
-def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, loginFlag=False, database=data, logfilename=log_name):
+def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, loginFlag=False, database=data, userbase=users, logfilename=log_name):
     try:
         #Get first 4 bytes for wire protocol version number
         protocol_version = cSocket.recv(4)
@@ -122,7 +137,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
             #0: send message to another user
             case 0:
                 Log("sending message from " + onlineClients[cSocket], logfilename)
-                Send_Message(cSocket, in_len_decoded, onlineClients, database, logfilename)
+                Send_Message(cSocket, in_len_decoded, onlineClients, database, userbase, logfilename)
                 Log("finished sending message from " + onlineClients[cSocket], logfilename)
             #1: logout
             case 1:
@@ -134,17 +149,17 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
             case 2:
                 remaining_input = cSocket.recv(in_len_decoded)
                 Log("deleting account from " + onlineClients[cSocket], logfilename)
-                Delete_Acct(cSocket, remaining_input, onlineClients, database, logfilename)
+                Delete_Acct(cSocket, remaining_input, onlineClients, database, userbase, logfilename)
                 Log("finished deleting account from " + str(cSocket), logfilename)
             #3: login
             case 3:
                 remaining_input = cSocket.recv(in_len_decoded)
                 Log("attempting logging in from " + str(cSocket), logfilename)
-                Login(cSocket, remaining_input, sList, onlineClients, database, logfilename)
+                Login(cSocket, remaining_input, sList, onlineClients, database, userbase, logfilename)
                 Log("finished logging in for " + onlineClients[cSocket], logfilename)
             #4: list accounts
                 Log("attempting account list retrieval from " + onlineClients[cSocket], logfilename)
-                List_Accounts(cSocket, remaining_input, onlineClients,database,logfilename)
+                List_Accounts(cSocket, remaining_input, onlineClients, userbase,logfilename)
                 Log("finished sending account list for " + onlineClients[cSocket], logfilename)
             #5: error
             case 5:
@@ -163,7 +178,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
     #for socket with error, removes it from list of active sockets sList and from onlineClients dictionary
     #logs progress in text log file called logfilename, passes active user information and stored messages per offline user in database to functions that need it
     #all should be encased in an infinite loop for use
-def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, database=data, logfilename=log_name):
+def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, database=data, userbase=users, logfilename=log_name):
     #produces list of sockets:
         #that we have recieved data on (rsockets)
         #sockets ready for data to be sent (wSockets)
@@ -178,7 +193,7 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
             cSocket, cAddr = sSocket.accept()
             Log("accepted connection from " + str(cAddr), logfilename)
             #should come with a login request, pass to function converter for handling
-            b = Wire_to_Function(cSocket, sList, onlineClients, True, database, logfilename)
+            b = Wire_to_Function(cSocket, sList, onlineClients, True, database, userbase, logfilename)
             #u_name false means communication failed in some way, stop and repeat process
             if not b:
                 return False
@@ -186,7 +201,7 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
         else:
             #decode and do whatever operation sent via rSocket
             Log("recieved operation from socket " + str(rSocket), logfilename)
-            b = Wire_to_Function(rSocket, sList, onlineClients, False, database, logfilename)
+            b = Wire_to_Function(rSocket, sList, onlineClients, False, database, userbase, logfilename)
             #if false, socket bad in some way, connection should be removed
             if not b:
                 #log and remove connection from faulty rSocket, repeat process
@@ -203,14 +218,14 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
         del online_clients[eSocket]
 
 
-#Login(cSocket: socket, input: encoded bytearray to utf-8, sList: socket List, onlineClients: Dict[key=socket] = username : String, dataset: String, logfilename: String):
+#Login(cSocket: socket, input: encoded bytearray to utf-8, sList: socket List, onlineClients: Dict[key=socket] = username : String, database: String, userbase: String, logfilename: String):
     #using communication over client socket cSocket, decodes username from encoded input, validates username for login
     #enforces username length cap of 256 characters
     #for new users, add to list of existing users in database
     #for returning users, looks for stored messages and sends them if they exist in database
     #for duplicate usernames or failure, login fails by returning false
     #logs progress in text log file called logfilename
-def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_name):
+def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, logfilename=log_name):
     try:
         #decode input username, input already correct length
         username = input.decode('utf-8').strip()
@@ -222,15 +237,17 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
         if username in onlineClients:
             return False
         #if username doesn't already exist offline, add to list
-        data_df = pd.read_csv(database)
+        user_df = pd.read_csv(userbase)
         Log("database successfully read for user " + username,logfilename)
-        if username not in list(data_df["ExistingUsers"]):
-            data_df = data_df.append({"ExistingUsers": username}, ignore_index=True)
+        if username not in list(user_df["ExistingUsers"]):
+            user_df = user_df.append({"ExistingUsers": username}, ignore_index=True)
+        user_df.to_csv(userbase, index=False)
         #succeeded!, add to list of active sockets and dict online clients with the username
         sList.append(cSocket)
         onlineClients[cSocket] = username
         Log("added to socket list for user " + username, logfilename)
         #if username offline with stored messages, bring back and send those messages
+        data_df = pd.read_csv(database)
         if username in list(data_df.columns):
             msgs = list(database[username])
             for msg in msgs:
@@ -278,7 +295,7 @@ def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
     #if recipient offline, encode message and store it in csv file with name database
     #returns false on failure to send
     #logs progress in text log file called logfilename
-def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_name):
+def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, logfilename=log_name):
     #decode recipient username and message according to wire protocol
     len_recip = int(cSocket.recv(1).decode('utf-8').strip())
     recip = str(cSocket.recv(len_recip).decode('utf-8').strip())
@@ -287,8 +304,8 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_n
     sender = onlineClients[cSocket]
     Log("recipient, message, and sender successfully retrieved from socket " + onlineClients[cSocket] ,logfilename)
     #if recipient does not exist, fail
-    data_df = pd.read_csv(database)
-    if recip not in list(data_df["ExistingUsers"]):
+    user_df = pd.read_csv(userbase)
+    if recip not in list(user_df["ExistingUsers"]):
         return False
     #find recipient and send to them TODO (clunky)
     recip_socket_set = {i for i in onlineClients if onlineClients[i]==recip}
@@ -297,6 +314,7 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_n
         recip_socket = r
     #get converted message
     wire = Msg_to_Wire(recip,msg,sender,logfilename)
+    data_df = pd.read_csv(database)
     #if recip online, send message
     if recip in onlineClients:
         recip_socket.send(wire)
@@ -337,7 +355,7 @@ def Send_Error(cSocket, eMsg, logfilename=log_name):
     #if it matches, account is deleted by removing username from list of existing users and from onlineClients dictionary
     #otherwise, records and sends an error that deletion failed
     #logs progress in text log file called logfilename
-def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, logfilename=log_name):
+def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, userbase=users, logfilename=log_name):
     #decode confirmatory username
     confirm = input.decode('utf-8').strip()
     #ensure confirmatory username and cSocket username match
@@ -353,20 +371,27 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, log
         msg = "account deleted. Client shutting down."
         wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
         wire += (msg.encode('utf-8'))
-        cSocket.send(wire,logfilename)
+        user_df = pd.read_csv(userbase)
+        lst = list(user_df["ExistingUsers"])
+        lst = lst.remove(confirm)
+        print(confirm)
+        try:
+            new_user_df = pd.DataFrame({"ExistingUsers": lst})
+            new_user_df.to_csv(userbase, index=False)
+        except:
+            new_user_df = pd.DataFrame({"ExistingUsers": []})
+            new_user_df.to_csv(userbase, index=False)
+        data_df = pd.read_csv(database)
+        #delete all stored messages for that account if the column exists (it shouldn't!)
+        try:
+            if data_df[confirm]:
+                data_df = data_df.drop(confirm, axis='columns')
+            data_df.to_csv(database, index=False)
+        except:
+            pass
+        Log("deleted user from all databases")
         #remove from online clients database, active sockets and existing clients
         onlineClients.remove(cSocket)
-        data_df = pd.read_csv(database)
-        lst = list(data_df["ExistingUsers"])
-        print(lst)
-        lst.remove(confirm)
-        lst.append(np.NAN)
-        data_df = data_df.drop("ExistingUsers", axis='columns')
-        data_df = data_df.assign(ExistingUsers=lst)
-        #delete all stored messages for that account if the column exists (it shouldn't!)
-        if data_df[confirm]:
-            data_df = data_df.drop(confirm, axis='columns')
-        data_df.to_csv(database, index=False)
     #otherwise, deletion won't occur. 
     else:
         Rec_Exception(ValueError, "deletion failed. Ensure that you send your username along with the deletion request.",logfilename)
@@ -407,10 +432,10 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
     #generates list of existing usernames from database
     #converts list to an encoded message that is then sent to the client socket cSocket
     #logs progress in text log file called logfilename
-def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, logfilename=log_name):
+def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, logfilename=log_name):
     #grab accounts from dataset
-    data_df = pd.read_csv(database)
-    accounts = list(data_df["ExistingUsers"])
+    user_df = pd.read_csv(userbase)
+    accounts = list(user_df["ExistingUsers"])
     #filter by input keyword (already decoded)
     ret_list = accounts
     if input.__contains__("*") and len(input) > 1:
@@ -439,9 +464,9 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, l
 #clear server log
 open(log_name, 'w').close()
 #startup server
-server_socket = Start_Server(server_host, server_port, log_name, data, False)
+server_socket = Start_Server(server_host, server_port, log_name, data, users, False)
 #add server socket to list of sockets for selection
 socket_list = [server_socket]
 #infinitely select through sockets
 while True:
-    Socket_Select(server_socket, socket_list, online_clients, data, log_name)
+    Socket_Select(server_socket, socket_list, online_clients, data, users, log_name)
