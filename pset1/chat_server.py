@@ -250,20 +250,20 @@ def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
     #add opcode, in this case 0 (already a single byte)
-    wire.append(f"{str(0):<{1}}".encode('utf-8'))
+    wire += (f"{str(0):<{1}}".encode('utf-8'))
     #add length of rest of input: 4+1+len(recip)+len(msg)
     l_recip = len(recip)
     l_msg = len(msg)
     l = 4+1+l_recip+l_msg
-    wire.append(f"{str(l):<{4}}".encode('utf-8'))
+    wire += (f"{str(l):<{4}}".encode('utf-8'))
     #add byte for length of recipient username (already a single byte)
-    wire.append(f"{str(l_recip):<{1}}".encode('utf-8'))
+    wire += (f"{str(l_recip):<{1}}".encode('utf-8'))
     #add recipient username
-    wire.append(recip.encode('utf-8'))
+    wire += (recip.encode('utf-8'))
     #add message
-    wire.append(msg.encode('utf-8'))
+    wire += (msg.encode('utf-8'))
     #log wire having been built and return the completed wire
     Log("Wire for message reciept built to be sent by " + sender, logfilename)
     return wire
@@ -317,13 +317,13 @@ def Send_Error(cSocket, eMsg, logfilename=log_name):
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
     #add opcode, in this case 4 (already a single byte)
-    wire.append(f"{str(4):<{1}}".encode('utf-8'))
+    wire += (f"{str(4):<{1}}".encode('utf-8'))
     #add length of message
-    wire.append(f"{str(len(eMsg)):<{4}}".encode('utf-8'))
+    wire += (f"{str(len(eMsg)):<{4}}".encode('utf-8'))
     #add message
-    wire.append(eMsg.encode('utf-8'))
+    wire += (eMsg.encode('utf-8'))
     #send encoded error
     Log("built error wire to send to client" + str(cSocket), logfilename)
     cSocket.send(wire)
@@ -344,12 +344,12 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, log
         #create byte array
         wire = bytearray()
         #first add protocol version number encoded to 4 bits
-        wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+        wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
         #add opcode, in this case 2 for delete
-        wire.append(f"{str(2):<{1}}".encode('utf-8'))
+        wire += (f"{str(2):<{1}}".encode('utf-8'))
         msg = "account deleted. Client shutting down."
-        wire.append(f"{str(len(msg)):<{4}}".encode('utf-8'))
-        wire.append(msg.encode('utf-8'))
+        wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire += (msg.encode('utf-8'))
         cSocket.send(wire,logfilename)
         #remove from online clients database, active sockets and existing clients
         onlineClients.remove(cSocket)
@@ -378,12 +378,12 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
         #create byte array
         wire = bytearray()
         #first add protocol version number encoded to 4 bits
-        wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+        wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
         #add opcode, in this case 1 for logout
-        wire.append(f"{str(1):<{1}}".encode('utf-8'))
+        wire += (f"{str(1):<{1}}".encode('utf-8'))
         msg = "account logged out. Client shutting down."
-        wire.append(f"{str(len(msg)):<{4}}".encode('utf-8'))
-        wire.append(msg.encode('utf-8'))
+        wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire += (msg.encode('utf-8'))
         cSocket.send(wire,logfilename)
         #remove from online clients database and active sockets
         onlineClients.remove(cSocket)
@@ -417,11 +417,11 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, l
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
     #add opcode, in this case 4 for list
-    wire.append(f"{str(4):<{1}}".encode('utf-8'))
-    wire.append(f"{str(len(msg_accounts)):<{4}}".encode('utf-8'))
-    wire.append(msg_accounts.encode('utf-8'))
+    wire += (f"{str(4):<{1}}".encode('utf-8'))
+    wire += (f"{str(len(msg_accounts)):<{4}}".encode('utf-8'))
+    wire += (msg_accounts.encode('utf-8'))
     cSocket.send(wire)
 
 

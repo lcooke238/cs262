@@ -1,13 +1,12 @@
 #imports
 import socket
-import select
 import warnings
 import sys
 import errno
 
 #constants
 client_host = "127.0.0.1"
-client_port = 1234
+client_port = 8080
 log_name = "client_log.txt"
 wp_version = 0
 
@@ -93,12 +92,12 @@ def Start_Client(cHost, cPort, logfilename=log_name):
 def Login_Wire(user, wp_version=wp_version, logfilename=log_name):
     wire = bytearray()
     #add wire version number
-    wire.append(f"{str(wp_version):<{4}}".encode('utf-8')) 
+    wire += (f"{str(wp_version):<{4}}".encode('utf-8')) 
     #add opcode for login (3)
-    wire.append(f"{str(3):<{1}}".encode('utf-8'))
+    wire += (f"{str(3):<{1}}".encode('utf-8'))
     #add length of username
-    wire.append(f"{str(len(user)):<{4}}".encode('utf-8'))
-    wire.append(user.encode('utf-8'))
+    wire += (f"{str(len(user)):<{4}}".encode('utf-8'))
+    wire += (user.encode('utf-8'))
     Log("wire for client login created", logfilename)
     return wire 
 
@@ -107,7 +106,7 @@ def Login_Wire(user, wp_version=wp_version, logfilename=log_name):
     #return false when loop should start over
 def In_Manager(cSocket, user, logfilename=log_name):
     #get user input
-    cmd = input(f"{user} >")
+    cmd = input(f"{user} > ")
     #Send: if command is in proper send format, activate send protocol
     if (cmd[0:4] == "\\send") and cmd.__contains__(","):
         args = cmd[5:].strip()
@@ -270,24 +269,23 @@ def Msg_to_Wire(msg, usrnm, logfilename=log_name):
     #encode version number
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{wp_version:<{4}}".encode('utf-8'))
+    wire += (f"{wp_version:<{4}}".encode('utf-8'))
     #add opcode, in this case 0 (already a single byte)
-    wire.append(f"{str(0):<{1}}".encode('utf-8'))
+    wire += (f"{str(0):<{1}}".encode('utf-8'))
     #add length of rest of input: 4+1+len(recip)+len(msg)
     l_recip = len(usrnm)
     l_msg = len(msg)
     l = 4+1+l_recip+l_msg
-    wire.append(f"{str(l):<{4}}".encode('utf-8'))
+    wire += (f"{str(l):<{4}}".encode('utf-8'))
     #add byte for length of recipient username (already a single byte)
-    wire.append(f"{str(l_recip):<{1}}".encode('utf-8'))
+    wire += (f"{str(l_recip):<{1}}".encode('utf-8'))
     #add recipient username
-    wire.append(usrnm.encode('utf-8'))
+    wire += (usrnm.encode('utf-8'))
     #add message
-    wire.append(msg.encode('utf-8'))
+    wire += (msg.encode('utf-8'))
     #log wire having been built and return the completed wire
     Log("Wire for message reciept built to be sent", logfilename)
     return wire
-    pass
 
 
 #logout function
@@ -295,13 +293,13 @@ def Logout(cSocket, usrnm, logfilename=log_name):
     #encode version number
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{wp_version:<{4}}".encode('utf-8'))
+    wire += (f"{wp_version:<{4}}".encode('utf-8'))
     #add opcode, in this case 1 (already a single byte)
-    wire.append(f"{str(1):<{1}}".encode('utf-8'))
+    wire += (f"{str(1):<{1}}".encode('utf-8'))
     #add len of usrnm
-    wire.append(f"{str(len(usrnm)):<{4}}".encode('utf-8'))
+    wire += (f"{str(len(usrnm)):<{4}}".encode('utf-8'))
     #add usrnm
-    wire.append(f"{usrnm:<{4}}".encode('utf-8'))
+    wire += (f"{usrnm:<{4}}".encode('utf-8'))
     Log("Wire for logout built to be sent", logfilename)
     #send message over socket
     cSocket.send(wire)
@@ -314,13 +312,13 @@ def Delete(cSocket, usrnm, logfilename=log_name):
     #encode version number
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{wp_version:<{4}}".encode('utf-8'))
+    wire += (f"{wp_version:<{4}}".encode('utf-8'))
     #add opcode, in this case 2 (already a single byte)
-    wire.append(f"{str(2):<{1}}".encode('utf-8'))
+    wire += (f"{str(2):<{1}}".encode('utf-8'))
     #add len of usrnm
-    wire.append(f"{str(len(usrnm)):<{4}}".encode('utf-8'))
+    wire += (f"{str(len(usrnm)):<{4}}".encode('utf-8'))
     #add usrnm
-    wire.append(f"{usrnm:<{4}}".encode('utf-8'))
+    wire += (f"{usrnm:<{4}}".encode('utf-8'))
     Log("Wire for delete built to be sent", logfilename)
     #send message over socket
     cSocket.send(wire)
@@ -333,95 +331,19 @@ def ListUsr(cSocket, arg, logfilename=log_name):
     #encode version number
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(f"{wp_version:<{4}}".encode('utf-8'))
+    wire += (f"{wp_version:<{4}}".encode('utf-8'))
     #add opcode, in this case 2 (already a single byte)
-    wire.append(f"{str(4):<{1}}".encode('utf-8'))
+    wire += (f"{str(4):<{1}}".encode('utf-8'))
     #add len of arg
-    wire.append(f"{str(len(arg)):<{4}}".encode('utf-8'))
+    wire += (f"{str(len(arg)):<{4}}".encode('utf-8'))
     #add arg
-    wire.append(f"{arg:<{4}}".encode('utf-8'))
+    wire += (f"{arg:<{4}}".encode('utf-8'))
     Log("Wire for list built to be sent", logfilename)
     #send message over socket
     cSocket.send(wire)
     #log send
     Log("delete message sent", logfilename)
 
-#connect to server/login function
-    #initialize state vars as 0
-    #setup client socket
-    #bind to host and port
-    #encode login message according to wire protocol
-    #send message to server
-    #wait for response from server:
-        #if responds with success, move on/function is over (for accts coming back online those messages will be sent by server already)
-        #if responds with fail, raise invalidUsername exception and re-request user to login
-        #if this takes longer than 5 minutes, raise timeOut error and kill client?
-
-
-#recieve message function
-    #should have message and sender username from input
-        #ensure both fields are non-empty
-            #if either is empty, return failedTransmission error to server
-        #display message coming from sender username 
-
-
-#send message function
-    #encode message and usernames of interest with wire protocol function
-    #send encoded message to server
-
-
-#logout function
-    #encode logout request with your username using wire protocol function
-    #send encoded request to server
-    #indicate locally that we are waiting for logout response with state var
-    #get logout response from server, activate lower part of fn with state var:
-        #if success, display logout succeeded, wait 5s, and kill client responsibly
-        #if fail, display logoutError
-
-
-#delete account function
-    #encode logout request with your username using wire protocol function
-    #send encoded request to server
-    #indicate locally that we are waiting for delete response with state var
-    #get response from server:
-        #if success, display deletion warning and grab key
-            #prompt user for confirmation letter
-                #if input is confirmation letter, encode and send delete with key and confirmed state active, update local state var
-                #if input is anything else, set state back to 0, tell user delete was cancelled, and communicate cancellation to server
-            #get response from server, activate this part with extra state var:
-                #if success, display delete succeeded, wait 5s, and kill client responsibly
-                #if fail, display deleteConfirmError
-        #if fail, display deleteError
-        
-
-#send error function
-    #encode error with wire protocol function
-    #send encoded error to server
-
-
-#recieve error function
-    #decode error with wire protocol function
-        #if either field is blank, display failedErrorTransmission error
-    #display decoded error
-
-
-#msg to wire protocol function (add toggle bw manual and gRPC)
-    #given input of all required pieces for communication:
-        #version number
-        #operation
-        #content
-        #More stuff??
-    #convert input to output as specified by wire protocol
-    #return this result
-
-
-#wire protocol to msg function (add toggle bw manual and gRPC)
-    #given bit string
-    #check wire protocol version number is correct
-        #if not, report versionError and inform client
-    #convert according to wire protocol to message
-    #grab operation from request
-    #call said operation defined above
 
 
 #client execution
