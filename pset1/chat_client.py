@@ -196,6 +196,7 @@ def IO_Manager(cSocket, user, logfilename=log_name):
         match op_code_decoded:
             #0: display message from another user
             case 0:
+                Log("message recieved. Parsing to display...",logfilename)
                 l_in = int(cSocket.recv(4).decode('utf-8').strip())
                 l_usr = int(cSocket.recv(1).decode('utf-8').strip())
                 usr = cSocket.recv(l_usr).decode('utf-8').strip()

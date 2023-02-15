@@ -205,9 +205,9 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
             #if false, socket bad in some way, connection should be removed
             if not b:
                 #log and remove connection from faulty rSocket, repeat process
-                Log("no data from socket. connection to socket " + str(rSocket) + "closed.", logfilename)
-                sList.remove(rSocket)
-                del online_clients[rSocket]
+                #Log("no data from socket. connection to socket " + str(rSocket) + "closed.", logfilename)
+                #sList.remove(rSocket)
+                #del online_clients[rSocket]
                 return False
     
     #handle sockets with errors
@@ -234,7 +234,7 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         if len(username) > 256:
             username = username[:255]
         #if username already online, fail
-        if username in onlineClients:
+        if username in onlineClients.values():
             return False
         #if username doesn't already exist offline, add to list
         user_df = pd.read_csv(userbase)
@@ -249,13 +249,13 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         #if username offline with stored messages, bring back and send those messages
         data_df = pd.read_csv(database)
         if username in list(data_df.columns):
-            msgs = list(database[username])
+            msgs = list(data_df[username])
             for msg in msgs:
                 cSocket.send(msg)
             #delete that column from the dataset
             data_df = data_df.drop(username, axis='columns')
             Log("sent stored messages to " + username, logfilename)
-        data_df.to_csv(database, index=False)
+            data_df.to_csv(database, index=False)
     except:
         Rec_Exception(ValueError, "Username could not be parsed from socket " + str(cSocket) + ". login will now fail.", logfilename)
         return False
@@ -306,6 +306,7 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     #if recipient does not exist, fail
     user_df = pd.read_csv(userbase)
     if recip not in list(user_df["ExistingUsers"]):
+        Log("recipient does not exist. Not good at all.", logfilename)
         return False
     #find recipient and send to them TODO (clunky)
     recip_socket_set = {i for i in onlineClients if onlineClients[i]==recip}
@@ -316,18 +317,21 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     wire = Msg_to_Wire(recip,msg,sender,logfilename)
     data_df = pd.read_csv(database)
     #if recip online, send message
-    if recip in onlineClients:
+    if recip in onlineClients.values():
         recip_socket.send(wire)
     #otherwise offline, store in database for future send
     else:
         #if col for this user exists, add encoded message there
         if recip in list(data_df.columns):
             data_df = data_df.append({recip: wire}, ignore_index=True)
+            #save dataframe to csv
+            data_df.to_csv(database, index=False)
         #if it doesn't exist, insert a column with that addr
         else:
-            data_df = data_df.insert(2, recip, [wire], True)
-        #save dataframe to csv
-        data_df.to_csv(database, index=False)
+            new_df = pd.DataFrame({recip: [wire]})
+            new_df_2 = pd.concat([data_df, new_df])
+            #save dataframe to csv
+            new_df_2.to_csv(database, index=False)
 
 
 #Send_Error(cSocket: socket, eMsg: String, logfilename: String):
