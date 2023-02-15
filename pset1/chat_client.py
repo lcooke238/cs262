@@ -197,10 +197,9 @@ def IO_Manager(cSocket, user, logfilename=log_name):
             #0: display message from another user
             case 0:
                 Log("message recieved. Parsing to display...",logfilename)
-                l_in = int(cSocket.recv(4).decode('utf-8').strip())
                 l_usr = int(cSocket.recv(1).decode('utf-8').strip())
                 usr = cSocket.recv(l_usr).decode('utf-8').strip()
-                msg = cSocket.recv(l_in-l_usr-1).decode('utf-8').strip()
+                msg = cSocket.recv(in_len_decoded-l_usr-1).decode('utf-8').strip()
                 Display_Message(f"{usr} > {msg}", logfilename)
 
             #1: logout communication from server

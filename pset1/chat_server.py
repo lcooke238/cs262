@@ -139,33 +139,41 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
                 Log("sending message from " + onlineClients[cSocket], logfilename)
                 Send_Message(cSocket, in_len_decoded, onlineClients, database, userbase, logfilename)
                 Log("finished sending message from " + onlineClients[cSocket], logfilename)
+                return True
             #1: logout
             case 1:
                 remaining_input = cSocket.recv(in_len_decoded)
                 Log("logging out from " + onlineClients[cSocket], logfilename)
                 Logout(cSocket, remaining_input, onlineClients, logfilename)
                 Log("finished logging out from " + str(cSocket), logfilename)
+                return True
             #2: Delete account
             case 2:
                 remaining_input = cSocket.recv(in_len_decoded)
                 Log("deleting account from " + onlineClients[cSocket], logfilename)
                 Delete_Acct(cSocket, remaining_input, onlineClients, database, userbase, logfilename)
                 Log("finished deleting account from " + str(cSocket), logfilename)
+                return True
             #3: login
             case 3:
                 remaining_input = cSocket.recv(in_len_decoded)
                 Log("attempting logging in from " + str(cSocket), logfilename)
                 Login(cSocket, remaining_input, sList, onlineClients, database, userbase, logfilename)
                 Log("finished logging in for " + onlineClients[cSocket], logfilename)
+                return True
             #4: list accounts
+            case 4:
+                remaining_input = cSocket.recv(in_len_decoded)
                 Log("attempting account list retrieval from " + onlineClients[cSocket], logfilename)
                 List_Accounts(cSocket, remaining_input, onlineClients, userbase,logfilename)
                 Log("finished sending account list for " + onlineClients[cSocket], logfilename)
+                return True
             #5: error
             case 5:
                 remaining_input = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 Log("recieved error from client" + onlineClients[cSocket], logfilename)
                 Rec_Exception(ValueError, remaining_input, logfilename)
+                return True
     #otherwise socket is broken in some way, nothing left to do
     except:
         return False
@@ -205,9 +213,9 @@ def Socket_Select(sSocket, sList=socket_list, onlineClients=online_clients, data
             #if false, socket bad in some way, connection should be removed
             if not b:
                 #log and remove connection from faulty rSocket, repeat process
-                #Log("no data from socket. connection to socket " + str(rSocket) + "closed.", logfilename)
-                #sList.remove(rSocket)
-                #del online_clients[rSocket]
+                Log("no data from socket. connection to socket " + str(rSocket) + "closed.", logfilename)
+                sList.remove(rSocket)
+                del online_clients[rSocket]
                 return False
     
     #handle sockets with errors
@@ -444,7 +452,7 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, 
     ret_list = accounts
     if input.__contains__("*") and len(input) > 1:
         ret_list = filter(lambda usrnm: usrnm[:len(input)-2] == input[:len(input)-2], accounts)
-    elif not input.__contains("*"):
+    elif not input.__contains__("*"):
         ret_list = filter(lambda usrnm: usrnm[:len(input)-1] == input, accounts)
     Log("retrieved existing users, sending to client " + onlineClients[cSocket], logfilename)
     #send accounts to client
