@@ -445,18 +445,20 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
     #converts list to an encoded message that is then sent to the client socket cSocket
     #logs progress in text log file called logfilename
 def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, logfilename=log_name):
+    #decode confirmatory username
+    confirm = input.decode('utf-8').strip()
     #grab accounts from dataset
     user_df = pd.read_csv(userbase)
     accounts = list(user_df["ExistingUsers"])
     #filter by input keyword (already decoded)
     ret_list = accounts
-    if input.__contains__("*") and len(input) > 1:
-        ret_list = filter(lambda usrnm: usrnm[:len(input)-2] == input[:len(input)-2], accounts)
-    elif not input.__contains__("*"):
-        ret_list = filter(lambda usrnm: usrnm[:len(input)-1] == input, accounts)
+    if not confirm.__contains__("*"):
+        ret_list = filter(lambda usrnm: usrnm[:len(confirm)-1] == confirm, accounts)
+    # elif confirm.__contains__("*") and len(confirm) > 1:
+    #     ret_list = filter(lambda usrnm: usrnm[:len(confirm)-2] == confirm[:len(confirm)-2], accounts)
     Log("retrieved existing users, sending to client " + onlineClients[cSocket], logfilename)
     #send accounts to client
-    msg_accounts = "Existing accounts by username: \n"
+    msg_accounts = ""
     #create message with existing accounts
     for account in ret_list:
         msg_accounts += account + " "

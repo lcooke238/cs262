@@ -144,8 +144,8 @@ def In_Manager(cSocket, user, logfilename=log_name):
             return False
 
     #List: if command is in proper list format, activate list protocol
-    elif cmd[0:6] == "\\list" and cmd[5:].strip() != "":
-        arg = cmd[7:].strip()
+    elif cmd[0:5] == "\\list" and cmd[6:].strip() != "":
+        arg = cmd[6:].strip()
         ListUsr(cSocket, arg, logfilename)
         return False
 
@@ -173,8 +173,9 @@ def IO_Manager(cSocket, user, logfilename=log_name):
         protocol_version = cSocket.recv(4)
         #if we recieve nothing, socket has been shut down/closed on the other end, so we end the call.
         if not len(protocol_version):
-            Display_Message("Connection Closed by Server. Shutting Down.",logfilename)
-            sys.exit()
+            return False
+            #Display_Message("Connection Closed by Server. Shutting Down.",logfilename)
+            #sys.exit()
         #check for the expected protocol version number
         protocol_version_decoded = int(protocol_version.decode('utf-8').strip())
         if protocol_version_decoded != wp_version: 
@@ -214,8 +215,7 @@ def IO_Manager(cSocket, user, logfilename=log_name):
                 
             #4: display account list from server
             case 4:
-                l_in = int(cSocket.recv(4).decode('utf-8').strip())
-                lst = cSocket.recv(l_in).decode('utf-8').strip()
+                lst = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 act_lst = lst.split(" ")
                 Display_Message("users from query: ", logfilename)
                 for act in act_lst:
@@ -223,8 +223,7 @@ def IO_Manager(cSocket, user, logfilename=log_name):
                
             #5: error from server
             case 5:
-                l_in = int(cSocket.recv(4).decode('utf-8').strip())
-                emsg = cSocket.recv(l_in).decode('utf-8').strip()
+                emsg = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 Display_Message(emsg, logfilename)
     #socket potentially broken
     except IOError as IOE:
