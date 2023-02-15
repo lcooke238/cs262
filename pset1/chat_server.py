@@ -218,7 +218,7 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
         if len(username) > 256:
             username = username[:255]
         #if username already online, fail
-        if username in onlineClients or username == "server":
+        if username in onlineClients:
             return False
         #if username doesn't already exist offline, add to list
         data_df = pd.read_csv(database)

@@ -108,8 +108,8 @@ def In_Manager(cSocket, user, logfilename=log_name):
     #get user input
     cmd = input(f"{user} > ")
     #Send: if command is in proper send format, activate send protocol
-    if (cmd[0:4] == "\\send") and cmd.__contains__(","):
-        args = cmd[5:].strip()
+    if (cmd[0:5] == "\\send") and cmd.__contains__(","):
+        args = cmd[6:].strip()
         arg_list = args.split(',')
         if len(arg_list) != 2:
             Display_Message("Improper command format. Did you add an extra \",\"?")
@@ -124,7 +124,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
         return False
 
     #Logout: if command is in proper logout format, activate logout protocol
-    elif cmd[0:6] == "\\logout":
+    elif cmd[0:7] == "\\logout":
         #verify logout input
         verify = input("are you sure you want to log out? Type yes to continue: ")
         if verify.strip() == "yes":
@@ -133,7 +133,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
             return False
     
     #Delete: if command is in proper delete format, activate delete protocol
-    elif cmd[0:6] == "\\delete":
+    elif cmd[0:7] == "\\delete":
         #verify delete input
         verify = input("are you sure you want to log out? Type yes to continue: ")
         if verify.strip() == "yes":
@@ -142,13 +142,13 @@ def In_Manager(cSocket, user, logfilename=log_name):
             return False
 
     #List: if command is in proper list format, activate list protocol
-    elif cmd[0:4] == "\\list" and cmd[5:].strip() != "":
-        arg = cmd[5:].strip()
+    elif cmd[0:6] == "\\list" and cmd[5:].strip() != "":
+        arg = cmd[7:].strip()
         ListUsr(cSocket, arg, logfilename)
         return False
 
     #Help: if command is in proper help format, activate help
-    elif cmd[0:4] == "\\help":
+    elif cmd[0:5] == "\\help":
         Help(user,logfilename)
         return False
 
@@ -162,7 +162,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
         return False
 
 
-#TODO IO management loop
+#IO management loop
     #return False when loop should start over
 def IO_Manager(cSocket, user, logfilename=log_name):
     In_Manager(cSocket, user, logfilename)
