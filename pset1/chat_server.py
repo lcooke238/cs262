@@ -9,7 +9,7 @@ server_host = '127.0.0.1'
 server_port = 8080
 socket_list = []
 online_clients = {}
-Head_Len = 10
+Head_Len = 4
 wp_version = 0
 log_name = 'server_log.txt'
 data = 'data.csv'
@@ -107,7 +107,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
         op_code = cSocket.recv(1)
         op_code_decoded = int(op_code.decode('utf-8').strip())
         #check for invalid op code and communicate faulty operation if found
-        #TODO pick num of ops, rn 10
+        #pick num of ops, rn 5
         if op_code_decoded > 5:
             Rec_Exception(ValueError, "Operation Code Faulty. Please ensure that your wire protocol is converting your request properly.",logfilename)
             #send op code exception back to client
@@ -143,9 +143,9 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
                 Log("attempting logging in from " + str(cSocket), logfilename)
                 Login(cSocket, remaining_input, sList, onlineClients, database, logfilename)
                 Log("finished logging in for " + onlineClients[cSocket], logfilename)
-            #4: list acconuts
+            #4: list accounts
                 Log("attempting account list retrieval from " + onlineClients[cSocket], logfilename)
-                List_Accounts(cSocket,onlineClients,database,logfilename)
+                List_Accounts(cSocket, remaining_input, onlineClients,database,logfilename)
                 Log("finished sending account list for " + onlineClients[cSocket], logfilename)
             #5: error
             case 5:
@@ -230,11 +230,10 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
         #if username offline with stored messages, bring back and send those messages
         if username in list(data_df.columns):
             msgs = list(database[username])
-            recip_socket = {i for i in onlineClients if onlineClients[i]==username}
             for msg in msgs:
-                recip_socket.send(msg)
+                cSocket.send(msg)
             #delete that column from the dataset
-            data_df.drop(username)
+            data_df.drop(username, axis='columns')
             Log("sent stored messages to " + username, logfilename)
         data_df.to_csv(database, index=False)
     except:
@@ -247,25 +246,20 @@ def Login(cSocket, input, sList, onlineClients, database=data, logfilename=log_n
     #returns message encoding
     #logs progress in text log file called logfilename
 def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
+    #TODO: fix padding throughout
     #create byte array
-    wire = []
+    wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(str(wp_version).encode('utf-8'))
-    #add padding to be 4 bytes long
-    while len(wire) < 32:
-        wire.append(0)
+    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
     #add opcode, in this case 0 (already a single byte)
-    wire.append(str(0).encode('utf-8'))
+    wire.append(f"{str(0):<{1}}".encode('utf-8'))
     #add length of rest of input: 4+1+len(recip)+len(msg)
     l_recip = len(recip)
     l_msg = len(msg)
     l = 4+1+l_recip+l_msg
-    wire.append(str(l).encode('utf-8'))
-    #add padding to be 4 bytes
-    while len(wire) < 32:
-        wire.append(0)
+    wire.append(f"{str(l):<{4}}".encode('utf-8'))
     #add byte for length of recipient username (already a single byte)
-    wire.append(str(l_recip).encode('utf-8'))
+    wire.append(f"{str(l_recip):<{1}}".encode('utf-8'))
     #add recipient username
     wire.append(recip.encode('utf-8'))
     #add message
@@ -293,8 +287,11 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_n
     data_df = pd.read_csv(database)
     if recip not in list(data_df["ExistingUsers"]):
         return False
-    #find recipient and send to them
-    recip_socket = {i for i in onlineClients if onlineClients[i]==recip}
+    #find recipient and send to them TODO (clunky)
+    recip_socket_set = {i for i in onlineClients if onlineClients[i]==recip}
+    recip_socket= cSocket
+    for r in recip_socket_set:
+        recip_socket = r
     #get converted message
     wire = Msg_to_Wire(recip,msg,sender,logfilename)
     #if recip online, send message
@@ -318,19 +315,13 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, logfilename=log_n
 def Send_Error(cSocket, eMsg, logfilename=log_name):
     #encode error with wire protocol function
     #create byte array
-    wire = []
+    wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire.append(str(wp_version).encode('utf-8'))
-    #add padding to be 4 bytes long
-    while len(wire) < 32:
-        wire.append(0)
-    #add opcode, in this case 0 (already a single byte)
-    wire.append(str(4).encode('utf-8'))
+    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+    #add opcode, in this case 4 (already a single byte)
+    wire.append(f"{str(4):<{1}}".encode('utf-8'))
     #add length of message
-    wire.append(str(len(eMsg)).encode('utf-8'))
-    #add padding to be 4 bytes long
-    while len(wire) < 32:
-        wire.append(0)
+    wire.append(f"{str(len(eMsg)):<{4}}".encode('utf-8'))
     #add message
     wire.append(eMsg.encode('utf-8'))
     #send encoded error
@@ -350,11 +341,23 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, log
     if confirm == onlineClients[cSocket]:
         Log("deletion confirmed. Beginning account deletion process for " + confirm, logfilename)
         #send confirmation message
-        cSocket.send(Msg_to_Wire(confirm, "account deleted. Client shutting down.","server",logfilename))
+        #create byte array
+        wire = bytearray()
+        #first add protocol version number encoded to 4 bits
+        wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+        #add opcode, in this case 2 for delete
+        wire.append(f"{str(2):<{1}}".encode('utf-8'))
+        msg = "account deleted. Client shutting down."
+        wire.append(f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire.append(msg.encode('utf-8'))
+        cSocket.send(wire,logfilename)
         #remove from online clients database, active sockets and existing clients
         onlineClients.remove(cSocket)
         data_df = pd.read_csv(database)
         data_df["ExistingUsers"].drop(confirm)
+        #delete all stored messages for that account if the column exists (it shouldn't!)
+        if data_df[confirm]:
+            data_df.drop(confirm, axis='columns')
     #otherwise, deletion won't occur. 
     else:
         Rec_Exception(ValueError, "deletion failed. Ensure that you send your username along with the deletion request.",logfilename)
@@ -372,8 +375,16 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
     #ensure confirmatory username and cSocket username match
     if confirm == onlineClients[cSocket]:
         Log("logout confirmed. Beginning account logout process for " + confirm, logfilename)
-        #send confirmation message
-        cSocket.send(Msg_to_Wire(confirm, "logged out. Client shutting down.","server",logfilename))
+        #create byte array
+        wire = bytearray()
+        #first add protocol version number encoded to 4 bits
+        wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+        #add opcode, in this case 1 for logout
+        wire.append(f"{str(1):<{1}}".encode('utf-8'))
+        msg = "account logged out. Client shutting down."
+        wire.append(f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire.append(msg.encode('utf-8'))
+        cSocket.send(wire,logfilename)
         #remove from online clients database and active sockets
         onlineClients.remove(cSocket)
     #otherwise, logout won't occur. 
@@ -382,23 +393,35 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
         Send_Error(cSocket, "logout failed. Ensure that you send your username along with the logout request.",logfilename) 
     
 
-#List_Accounts(cSocket: socket, onlineClients: Dict[key=socket] = username: String, database: String, logfilename: String):
+#List_Accounts(cSocket: socket, input: String, onlineClients: Dict[key=socket] = username: String, database: String, logfilename: String):
     #generates list of existing usernames from database
     #converts list to an encoded message that is then sent to the client socket cSocket
     #logs progress in text log file called logfilename
-def List_Accounts(cSocket, onlineClients=online_clients, database=data, logfilename=log_name):
+def List_Accounts(cSocket, input, onlineClients=online_clients, database=data, logfilename=log_name):
     #grab accounts from dataset
     data_df = pd.read_csv(database)
     accounts = list(data_df["ExistingUsers"])
+    #filter by input keyword (already decoded)
+    ret_list = accounts
+    if input.__contains__("*") and len(input) > 1:
+        ret_list = filter(lambda usrnm: usrnm[:len(input)-2] == input[:len(input)-2], accounts)
+    elif not input.__contains("*"):
+        ret_list = filter(lambda usrnm: usrnm[:len(input)-1] == input, accounts)
     Log("retrieved existing users, sending to client " + onlineClients[cSocket], logfilename)
     #send accounts to client
     msg_accounts = "Existing accounts by username: \n"
     #create message with existing accounts
-    for account in accounts:
-        msg_accounts.append(account + "\n")
+    for account in ret_list:
+        msg_accounts += account + " "
     #convert to wire
-    wire = Msg_to_Wire(onlineClients[cSocket], msg_accounts,"server",logfilename)
-    #send message
+    #create byte array
+    wire = bytearray()
+    #first add protocol version number encoded to 4 bits
+    wire.append(f"{str(wp_version):<{4}}".encode('utf-8'))
+    #add opcode, in this case 4 for list
+    wire.append(f"{str(4):<{1}}".encode('utf-8'))
+    wire.append(f"{str(len(msg_accounts)):<{4}}".encode('utf-8'))
+    wire.append(msg_accounts.encode('utf-8'))
     cSocket.send(wire)
 
 

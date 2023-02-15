@@ -325,7 +325,8 @@ I decided to use a socket select protocol rather than a threading one to avoid a
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the username for the login
     -4: list accounts
-        - next 4 bytes (constant) represents length of rest of input (0)
+        - next 4 bytes (constant) represents length of rest of input
+        - rest of input represents the keyword to filter list by
     - 5: error/exception
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the error message to be used
@@ -353,4 +354,4 @@ Options:
 
 
 ## Client Spec
-Threads, one for input and one for recieving shit from socket?
+Within spec to block outputs while waiting for an input from the user, so I will do this. However, I will also add a function local to the client to just display messages immediately upon reciept. I will also add an escape key, so that a user can get out of this mode when they wish to.

@@ -249,7 +249,8 @@ def test_list_acct():
 test_log('test_log.txt')
 test_rec_exception('test_log.txt')
 test_server_startup('127.0.0.1', 8080, 'test_log.txt')
-#first, create a socket pointing back to yourself
+#first, create a socket pointing back to yourself in a different thread
+#multithread to run the other tests with a client
 #test_WtoF()
 #test_sSelect()
 #test_login()
