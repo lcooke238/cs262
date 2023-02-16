@@ -483,12 +483,13 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, 
 
 
 #server execution
-#clear server log
-open(log_name, 'w').close()
-#startup server
-server_socket = Start_Server(server_host, server_port, log_name, data, users, False)
-#add server socket to list of sockets for selection
-socket_list = [server_socket]
-#infinitely select through sockets
-while True:
-    Socket_Select(server_socket, socket_list, online_clients, data, users, log_name)
+if __name__ == "__main__":
+    #clear server log
+    open(log_name, 'w').close()
+    #startup server
+    server_socket = Start_Server(server_host, server_port, log_name, data, users, False)
+    #add server socket to list of sockets for selection
+    socket_list = [server_socket]
+    #infinitely select through sockets
+    while True:
+        Socket_Select(server_socket, socket_list, online_clients, data, users, log_name)

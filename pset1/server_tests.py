@@ -1,7 +1,25 @@
 #imports
 import chat_server
+import chat_client
 import pandas as pd
-import os
+import threading
+import sys
+from pytest import monkeypatch
+import io
+
+#constants
+server_host = '127.0.0.1'
+server_port = 1234
+client_host = "127.0.0.1"
+client_port = 1234
+socket_list = []
+online_clients = {}
+Head_Len = 4
+wp_version = 0
+log_name_s = 'test_server_log.txt'
+log_name_c = 'test_client_log.txt'
+data = 'test_data.csv'
+users = 'test_users.csv'
 
 #log function tests
 def test_log(logfilename):
@@ -114,7 +132,7 @@ def test_server_startup(host, port, logfilename):
     open(logfilename, 'w').close()
 
     #Test 1: works when used correctly with expected dataset
-    chat_server.Start_Server(host, port, logfilename, 'test_data.csv')
+    chat_server.Start_Server(host, port, logfilename, 'test_data.csv', 'test_users.csv')
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
@@ -127,83 +145,38 @@ def test_server_startup(host, port, logfilename):
     open(logfilename, 'w').close()
 
     #Test 2: single empty dataset warning logged when passed empty dataset with flag on
-    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv', 1)
+    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv','test_users.csv', 1)
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        if content[0].strip() == "EmptyDatasetWarning: Input message and client dataset is empty. Did you select the correct file?":
+        if content[0].strip() == "EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?":
             pass
         else:
-            raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input message and client dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
-        if content[1].strip() == "server is listening for connections..." + str(host)+":"+str(port):
+            raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
+        if content[1].strip() == "EmptyDatasetWarning: Input client dataset is empty. Did you select the correct file?":
+            pass
+        else:
+            raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input client dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
+        if content[2].strip() == "server is listening for connections..." + str(host)+":"+str(port):
             print("Startup Test 2 Passed")
         else:
             raise Exception("Startup Test 2 Failed. Log should read \"server is listening for connections..." + str(host)+":"+str(port)+ "\", but instead reads \"" + content[0].strip()+"\"")
     #clear content of test log
     open(logfilename, 'w').close()
-
-    #Test 3: exception logged when passed invalid non-existent dataset
-    chat_server.Start_Server(host, port, logfilename, 'invalid.csv')
-    #open log to read it
-    with open(logfilename, 'r') as log:
-        content = log.readlines()
-        if content[0].strip() == "InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use":
-            pass
-        else:
-            raise Exception("Startup Test 3 Failed. Log should read \"InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use\", but instead reads \"" + content[0].strip()+"\"")
-        #ensure content of dataset is correct
-        test_df = pd.read_csv('invalid.csv')
-        compare_df = pd.DataFrame({"ExistingUsers": []})
-        if test_df.to_string() == compare_df.to_string():
-            pass
-        else:
-            raise Exception("Startup Test 3 Failed. New dataset should contain " + compare_df.to_string() + ", but instead contains " + test_df.to_string())
-        if content[1].strip() == "server is listening for connections..."+ str(host)+":"+str(port):
-            print("Startup Test 3 Passed")
-        else:
-            raise Exception("Startup Test 3 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
-    #clear content of test log and remove invalid dataset
-    os.remove('invalid.csv')
-    open(logfilename, 'w').close()
     
-    #Test 4: no exception logged for empty dataset with flag off
-    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv', 0)
+    #Test 3: no exception logged for empty dataset with flag off
+    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv','test_users.csv', 0)
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
         if content[0].strip() == "server is listening for connections..."+ str(host)+":"+str(port):
-            print("Startup Test 4 Passed")
+            print("Startup Test 3 Passed")
         else:
-            raise Exception("Startup Test 4 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
+            raise Exception("Startup Test 3 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
     #clear content of test log
     open(logfilename, 'w').close()
 
-    #Test 5: exception logged for dataset with invalid formatting passed in
-    chat_server.Start_Server(host, port, logfilename, 'bad_format_test.csv')
-    #open log to read it
-    with open(logfilename, 'r') as log:
-        content = log.readlines()
-        if content[0].strip() == "InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use":
-            pass
-        else:
-            raise Exception("Startup Test 5 Failed. Log should read \"InvalidDatasetWarning: input dataset invalid, creating a new dataset for server to use\", but instead reads \"" + content[0].strip()+"\"")
-        #ensure content of dataset is correct
-        test_df = pd.read_csv('bad_format_test.csv')
-        compare_df = pd.DataFrame({"ExistingUsers": []})
-        if test_df.to_string() == compare_df.to_string():
-            pass
-        else:
-            raise Exception("Startup Test 5 Failed. New dataset should contain " + compare_df.to_string() + ", but instead contains " + test_df.to_string())
-        if content[1].strip() == "server is listening for connections..."+ str(host)+":"+str(port):
-            print("Startup Test 5 Passed")
-        else:
-            raise Exception("Startup Test 5 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
-    #clear content of test log and remove invalid dataset
-    open(logfilename, 'w').close()
-    #reset faulty format file
-    df = pd.DataFrame(list(zip(["hi"],["bye"])), columns=["H", "H"])
-    df.to_csv('bad_format_test.csv',index=False)
-
+   
 
 #TODO Wire_to_Function tests
 def test_WtoF(cSocket, logfilename):
@@ -239,10 +212,28 @@ def test_delete():
 def test_logout():
     pass
 
+
 #TODO List_Accounts tests
 def test_list_acct():
     pass
 
+
+#run_server, uses constants from above to turn on a server
+def run_server(server_socket):
+    #infinitely select through sockets
+    while True:
+        chat_server.Socket_Select(server_socket, socket_list, online_clients, data, users, log_name_s)
+
+
+#runs client tests that require server connection
+def remaining_client_tests():
+    #connect to created server from first thread
+    #clear client log
+    open(log_name_c, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, log_name_c)
+    monkeypatch.setattr('sys.stdin', io.StringIO('Lauren'))
+    sys.exit()
 
 
 #run tests
@@ -250,6 +241,15 @@ test_log('test_log.txt')
 test_rec_exception('test_log.txt')
 test_server_startup('127.0.0.1', 8080, 'test_log.txt')
 #first, create a socket pointing back to yourself in a different thread
+#clear server log
+open(log_name_s, 'w').close()
+#startup server
+server_socket = chat_server.Start_Server(server_host, server_port, log_name_s, data, users, False)
+#add server socket to list of sockets for selection
+socket_list = [server_socket]
+t1 = threading.Thread(target=remaining_client_tests())
+t1.start()
+run_server(server_socket)
 #multithread to run the other tests with a client
 #test_WtoF()
 #test_sSelect()

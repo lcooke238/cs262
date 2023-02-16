@@ -361,13 +361,14 @@ def ListUsr(cSocket, arg, logfilename=log_name):
 
 
 #client execution
-#clear client log
-open(log_name, 'w').close()
-#setup client
-cSocket, username = Start_Client(client_host, client_port, log_name)
-#display how to access instructions
-Display_Message("type \help to see instructions. Press Enter to look for buffered returns.", log_name)
-#run IO management until kill
-while True:
-    #run IO manager until death
-    IO_Manager(cSocket, username, log_name)
+if __name__ == "__main__":
+    #clear client log
+    open(log_name, 'w').close()
+    #setup client
+    cSocket, username = Start_Client(client_host, client_port, log_name)
+    #display how to access instructions
+    Display_Message("type \help to see instructions. Press Enter to look for buffered returns.", log_name)
+    #run IO management until kill
+    while True:
+        #run IO manager until death
+        IO_Manager(cSocket, username, log_name)
