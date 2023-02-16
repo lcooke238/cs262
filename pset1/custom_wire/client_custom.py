@@ -8,7 +8,7 @@ import os
 #constants
 client_host = "127.0.0.1"
 client_port = 1234
-log_name = "client_log.txt"
+log_name = "logs/client_log.txt"
 wp_version = 0
 
 
