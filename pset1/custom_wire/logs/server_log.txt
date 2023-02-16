@@ -1,0 +1,20 @@
+server is listening for connections...127.0.0.1:1234
+found server communication, pending connection acceptance
+accepted connection from ('127.0.0.1', 51903)
+attempting logging in from <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51903)>
+username: andrew
+database successfully read for user andrew
+added to socket list for user andrew
+finished logging in for andrew
+True
+recieved operation from socket <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51903)>
+attempting account list retrieval from andrew
+retrieved existing users, sending to client andrew
+finished sending account list for andrew
+True
+recieved operation from socket <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51903)>
+logging out from andrew
+logout confirmed. Beginning account logout process for andrew
+Error: 'str' object cannot be interpreted as an integer. Shutting Down.
+False
+no data from socket. connection to socket <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51903)>closed.

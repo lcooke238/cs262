@@ -1,6 +1,4 @@
-*.csv
 .DS_Store
 *.pyc
 /demos/*
 /.vscode
-/custom_wire/logs
