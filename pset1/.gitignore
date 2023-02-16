@@ -2,3 +2,5 @@
 *.pyc
 /demos/*
 /.vscode
+/custom_wire/data
+/custom_wire/logs
