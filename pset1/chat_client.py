@@ -3,6 +3,7 @@ import socket
 import warnings
 import sys
 import errno
+import os
 
 #constants
 client_host = "127.0.0.1"
@@ -154,6 +155,13 @@ def In_Manager(cSocket, user, logfilename=log_name):
     elif cmd[0:5] == "\\help":
         Help(user,logfilename)
         return False
+    
+    elif cmd[0:6] == "\\clear":
+        # Clearing the Screen
+        if os.name == 'nt':
+            os.system('cls')
+        else:
+            os.system('clear')
 
     #empty input, do nothing
     elif cmd.strip() == "":
@@ -250,6 +258,7 @@ def Help(user, logfilename=log_name):
     \delete -- deletes your account. Client will shutdown after. \n
     \list ltrs -- provides a list of existing accounts that start with the string ltrs.
                   Use * to get a list of every existing account. \n
+    \clear -- clears console display thus far. \n
     \help -- displays the different commands and their syntax.
     """
     Display_Message(msg, logfilename)

@@ -322,6 +322,7 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     user_df = pd.read_csv(userbase)
     if recip not in list(user_df["ExistingUsers"]):
         Log("recipient does not exist. Not good at all.", logfilename)
+        Send_Error(cSocket,"SendError: recipient " + recip + " does not exist.",logfilename)
         return False
     #find recipient and send to them TODO (clunky)
     recip_socket_set = {i for i in onlineClients if onlineClients[i]==recip}
@@ -358,8 +359,8 @@ def Send_Error(cSocket, eMsg, logfilename=log_name):
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
     wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
-    #add opcode, in this case 4 (already a single byte)
-    wire += (f"{str(4):<{1}}".encode('utf-8'))
+    #add opcode, in this case 5 (already a single byte)
+    wire += (f"{str(5):<{1}}".encode('utf-8'))
     #add length of message
     wire += (f"{str(len(eMsg)):<{4}}".encode('utf-8'))
     #add message
