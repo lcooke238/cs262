@@ -392,8 +392,8 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, use
         wire += (msg.encode('utf-8'))
         user_df = pd.read_csv(userbase)
         lst = list(user_df["ExistingUsers"])
-        lst = lst.remove(confirm)
-        print(confirm)
+        lst.remove(confirm)
+        print(lst)
         try:
             new_user_df = pd.DataFrame({"ExistingUsers": lst})
             new_user_df.to_csv(userbase, index=False)
