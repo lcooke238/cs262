@@ -77,6 +77,16 @@ def attempt_delete(stub):
     user_token = ""
     return
 
+def attempt_send(stub, args):
+    global user_token
+    arg_list = args.split("->").strip()
+    if len(arg_list) != 2:
+        print("Invalid message send syntax. Correct syntax: \send {message} -> {user}")
+        return
+    message = arg_list[0]
+    target = arg_list[1]
+    response = stub.Send(chat_pb2.SendRequest(name=user_token, message=message, target=target))
+
 def handle_invalid_command(command):
     print(f"Invalid command: {command}, please try \help for list of commands")
 
@@ -97,7 +107,7 @@ def process_command(stub, command):
     if command[0:5] == "\\list":
         attempt_list(stub, command[5:])
     if command[0:5] == "\\send":
-        pass
+        attempt_send(stub, command[5:])
     if len(command < 7):
         handle_invalid_command(command)
         return

@@ -40,6 +40,11 @@ class ClientHandlerStub(object):
                 request_serializer=chat__pb2.LogoutRequest.SerializeToString,
                 response_deserializer=chat__pb2.LogoutReply.FromString,
                 )
+        self.Send = channel.unary_unary(
+                '/helloworld.ClientHandler/Send',
+                request_serializer=chat__pb2.SendRequest.SerializeToString,
+                response_deserializer=chat__pb2.SendReply.FromString,
+                )
 
 
 class ClientHandlerServicer(object):
@@ -81,6 +86,13 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Send(self, request, context):
+        """Attempts to Send message
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -108,6 +120,11 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     servicer.Logout,
                     request_deserializer=chat__pb2.LogoutRequest.FromString,
                     response_serializer=chat__pb2.LogoutReply.SerializeToString,
+            ),
+            'Send': grpc.unary_unary_rpc_method_handler(
+                    servicer.Send,
+                    request_deserializer=chat__pb2.SendRequest.FromString,
+                    response_serializer=chat__pb2.SendReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -202,5 +219,22 @@ class ClientHandler(object):
         return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Logout',
             chat__pb2.LogoutRequest.SerializeToString,
             chat__pb2.LogoutReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Send(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Send',
+            chat__pb2.SendRequest.SerializeToString,
+            chat__pb2.SendReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
