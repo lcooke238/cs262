@@ -57,13 +57,27 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
         return chat_pb2.ListReply(status=FAILURE, wildcard=wildcard, errormessage="NOT_IMPLEMENTED", user="[NOT_IMPLEMENTED]")
 
     def Send(self, request, context):
+        print("Not sending well")
         if request.target not in users:
             return chat_pb2.SendReply(status=FAILURE, errormessage="User does not exist :(", user=request.name, message="[]", target=request.target)
+        unread_messages[request.target].append(request.message)
+        print(unread_messages)
         if request.target not in logged_in_users:
-            unread_messages[request.target].append(request.message)
             return chat_pb2.SendReply(status=SUCCESS, errormessage="User offline, message will be received upon login", user=request.name, message="[]", target=request.target)
         # Should I have a ServerHandler for each client that accepts messages here? How to handle this case? Streams?
-        return chat_pb2.SendReply(status=FAILURE, errormessage="NOT_IMPLEMENTED", user=request.name, message="[]", target=request.target) 
+        return chat_pb2.SendReply(status=SUCCESS, errormessage=NO_ERROR, user=request.name, message="[]", target=request.target) 
+
+    def GetMessages(self, request, context):
+        if request.user not in users:
+            return chat_pb2.GetReply(status=FAILURE, errormessage="User does not exist :(")
+        unread_message_packet = chat_pb2.GetReply(status=SUCCESS, errormessage=NO_ERROR)
+        while len(unread_messages[request.user]) > 0:
+            message = unread_messages[request.user].pop(False)
+            single_message = chat_pb2.UnreadMessage(sender="UNKNOWN/NOT IMPLEMENTED", message=message, receiver=request.user)
+            unread_message_packet.message.append(single_message)
+        return unread_message_packet
+
+
 
 def serve():
     port = '50051'

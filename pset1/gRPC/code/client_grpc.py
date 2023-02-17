@@ -1,6 +1,9 @@
 from __future__ import print_function
-
+# from concurrent import futures
 import logging
+
+from _thread import *
+import threading
 
 import grpc
 import chat_pb2
@@ -110,6 +113,7 @@ def process_command(stub, command):
 def ClientHandler(channel):
     global user_token
     stub = chat_pb2_grpc.ClientHandlerStub(channel)
+    start_new_thread(listen, (stub, ))
     while True:
         if user_token:
             command = input(f"{user_token} >")
@@ -117,6 +121,21 @@ def ClientHandler(channel):
         else:
             attempt_login(stub)
         
+
+def listen(stub):
+    while True:
+        if user_token:
+            response = stub.GetMessages(chat_pb2.GetRequest(user=user_token))
+            for message in response.message:
+                print(f"{message.sender} > {message.message}")
+    # port = '50052'
+    # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    # chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
+    # server.add_insecure_port('[::]:' + port)
+    # server.start()
+    # print("Server started, listening on " + port)
+    # server.wait_for_termination()
+
 
 
 if __name__ == '__main__':
