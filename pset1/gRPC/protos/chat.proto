@@ -1,23 +1,58 @@
-// To build this, from code directory run: 
-// python -m grpc_tools.protoc -I../protos --python_out=. --pyi_out=. --grpc_python_out=. ../protos/chat.proto
-// path: ./chat.proto
-
 syntax = "proto3";
 
-package chatserver;
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.helloworld";
+option java_outer_classname = "HelloWorldProto";
+option objc_class_prefix = "HLW";
 
-message FromClient {
-    string name = 1;
-    string body = 2;
+package helloworld;
+
+// The greeting service definition.
+service ClientHandler {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // Sends another greeting
+  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
+  // Lists users
+  rpc ListUsers (ListRequest) returns (ListReply) {}
+  // Requests to Login
+  rpc Login (LoginRequest) returns (LoginReply) {}
 }
 
-message FromServer {
-    string name = 1;
-    string body = 2;
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+  string message = 2;
 }
 
-service Services {
+message LoginRequest {
+  string name = 1;
+}
 
-    rpc ChatService(stream FromClient) returns (stream FromServer){};
+message ListRequest {
+    string args = 1;
+}
 
+message SendMessageRequest {
+  string name = 1;
+  string message = 2;
+  string target = 3;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+
+message LoginReply {
+  string message = 1;
+  int32 status = 2;
+}
+
+message ListReply {
+  int32 status = 1;
+  string wildcard = 2;
+  string message = 3;
+  repeated string user = 4;
+  
 }

@@ -5,8 +5,9 @@ import grpc
 import chat_pb2 as chat__pb2
 
 
-class ServicesStub(object):
-    """Missing associated documentation comment in .proto file."""
+class ClientHandlerStub(object):
+    """The greeting service definition.
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -14,42 +15,96 @@ class ServicesStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.ChatService = channel.stream_stream(
-                '/chatserver.Services/ChatService',
-                request_serializer=chat__pb2.FromClient.SerializeToString,
-                response_deserializer=chat__pb2.FromServer.FromString,
+        self.SayHello = channel.unary_unary(
+                '/helloworld.ClientHandler/SayHello',
+                request_serializer=chat__pb2.HelloRequest.SerializeToString,
+                response_deserializer=chat__pb2.HelloReply.FromString,
+                )
+        self.SayHelloAgain = channel.unary_unary(
+                '/helloworld.ClientHandler/SayHelloAgain',
+                request_serializer=chat__pb2.HelloRequest.SerializeToString,
+                response_deserializer=chat__pb2.HelloReply.FromString,
+                )
+        self.ListUsers = channel.unary_unary(
+                '/helloworld.ClientHandler/ListUsers',
+                request_serializer=chat__pb2.ListRequest.SerializeToString,
+                response_deserializer=chat__pb2.ListReply.FromString,
+                )
+        self.Login = channel.unary_unary(
+                '/helloworld.ClientHandler/Login',
+                request_serializer=chat__pb2.LoginRequest.SerializeToString,
+                response_deserializer=chat__pb2.LoginReply.FromString,
                 )
 
 
-class ServicesServicer(object):
-    """Missing associated documentation comment in .proto file."""
+class ClientHandlerServicer(object):
+    """The greeting service definition.
+    """
 
-    def ChatService(self, request_iterator, context):
-        """Missing associated documentation comment in .proto file."""
+    def SayHello(self, request, context):
+        """Sends a greeting
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SayHelloAgain(self, request, context):
+        """Sends another greeting
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ListUsers(self, request, context):
+        """Lists users
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Login(self, request, context):
+        """Requests to Login
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_ServicesServicer_to_server(servicer, server):
+def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'ChatService': grpc.stream_stream_rpc_method_handler(
-                    servicer.ChatService,
-                    request_deserializer=chat__pb2.FromClient.FromString,
-                    response_serializer=chat__pb2.FromServer.SerializeToString,
+            'SayHello': grpc.unary_unary_rpc_method_handler(
+                    servicer.SayHello,
+                    request_deserializer=chat__pb2.HelloRequest.FromString,
+                    response_serializer=chat__pb2.HelloReply.SerializeToString,
+            ),
+            'SayHelloAgain': grpc.unary_unary_rpc_method_handler(
+                    servicer.SayHelloAgain,
+                    request_deserializer=chat__pb2.HelloRequest.FromString,
+                    response_serializer=chat__pb2.HelloReply.SerializeToString,
+            ),
+            'ListUsers': grpc.unary_unary_rpc_method_handler(
+                    servicer.ListUsers,
+                    request_deserializer=chat__pb2.ListRequest.FromString,
+                    response_serializer=chat__pb2.ListReply.SerializeToString,
+            ),
+            'Login': grpc.unary_unary_rpc_method_handler(
+                    servicer.Login,
+                    request_deserializer=chat__pb2.LoginRequest.FromString,
+                    response_serializer=chat__pb2.LoginReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'chatserver.Services', rpc_method_handlers)
+            'helloworld.ClientHandler', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class Services(object):
-    """Missing associated documentation comment in .proto file."""
+class ClientHandler(object):
+    """The greeting service definition.
+    """
 
     @staticmethod
-    def ChatService(request_iterator,
+    def SayHello(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,8 +114,59 @@ class Services(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_stream(request_iterator, target, '/chatserver.Services/ChatService',
-            chat__pb2.FromClient.SerializeToString,
-            chat__pb2.FromServer.FromString,
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/SayHello',
+            chat__pb2.HelloRequest.SerializeToString,
+            chat__pb2.HelloReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SayHelloAgain(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/SayHelloAgain',
+            chat__pb2.HelloRequest.SerializeToString,
+            chat__pb2.HelloReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ListUsers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/ListUsers',
+            chat__pb2.ListRequest.SerializeToString,
+            chat__pb2.ListReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Login(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Login',
+            chat__pb2.LoginRequest.SerializeToString,
+            chat__pb2.LoginReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
