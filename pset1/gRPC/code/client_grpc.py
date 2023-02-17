@@ -34,24 +34,51 @@ def run():
 def attempt_login(stub):
     global user_token
     user = input("Please enter a username: ")
+    # Attempt login on server
     response = stub.Login(chat_pb2.LoginRequest(name=user))
-    print(response.message, user)
+    # If failure, print failure and return, they can attempt again
     if response.status == FAILURE:
-        print(f"Login error: {response.message}")
-    else:
-        user_token = response.message
-        print(f"Succesfully logged in as user: {user_token}")
+        print(f"Login error: {response.errormessage}")
+        return
+    # If success, set user token
+    user_token = response.user
+    # Print success message
+    print(f"Succesfully logged in as user: {user_token}. Unread messages:")
+    # Print all unread messages
+    for message in response.message:
+        print(message)
 
 def attempt_list(stub, args):
+    # Attempt to retrieve user list from server
     response = stub.ListUsers(chat_pb2.ListRequest(args=args))
-    if response.status == SUCCESS:
-        print(f"Users matching wildcard {response.wildcard}:")
-        for user in response.user:
-            print(user)
-    else:
-        print(f"List users failed, error: {response.message}")
+    # If failed, print failure and return
+    if response.status == FAILURE:
+        print(f"List users failed, error: {response.errormessage}")
+        return
+    # If success, print users that match the wildcard provided
+    print(f"Users matching wildcard {response.wildcard}:")
+    for user in response.user:
+        print(user)
+        
+def attempt_logout(stub):
+    global user_token
+    response = stub.Logout(chat_pb2.LogoutRequest(name=user_token))
+    if response.status == FAILURE:
+        print(f"Logout error: {response.errormessage}")
+        return
+    user_token = ""
+    return
 
-
+def process_command(stub, command):
+    if len(command) < 5:
+        print("Invalid command, try \help for list of commands")
+        return
+    if command[0:5] == "\\list":
+        attempt_list(stub, command[5:])
+    if command[0:5] == "\\send":
+        pass
+    if command[0:7] == "\\logout":
+        attempt_logout(stub)
 
 def ClientHandler(channel):
     global user_token
@@ -59,11 +86,7 @@ def ClientHandler(channel):
     while True:
         if user_token:
             command = input(f"{user_token} >")
-            if len(command) < 6:
-                raise Exception
-            match command[0:5]:
-                case "\\list":
-                    attempt_list(stub, command[5:])
+            process_command(stub, command)
         else:
             attempt_login(stub)
         
