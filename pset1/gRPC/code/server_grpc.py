@@ -51,7 +51,12 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
             logged_in_users.remove(request.name)
             return chat_pb2.LogoutReply(status=SUCCESS, errormessage=NO_ERROR, user=request.name)
         return chat_pb2.LogoutReply(status=FAILURE, errormessage="User not currently logged in", user=request.name)
-        
+    
+    def Delete(self, request, context):
+        logged_in_users.remove(request.name)
+        users.remove(request.name)
+        return chat_pb2.DeleteReply(status=SUCCESS, errormessage=NO_ERROR, user=request.name)
+
     def ListUsers(self, request, context):
         wildcard = request.args.strip()
         # Basic wildcard, is name equal to a name in the list, or is it *
@@ -61,14 +66,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 user_list.user.append(user)
             return user_list
         return chat_pb2.ListReply(status=FAILURE, wildcard=wildcard, errormessage="NOT_IMPLEMENTED", user="[NOT_IMPLEMENTED]")
-    def SayHello(self, request, context):
-        global counter
-        storage[request.name] = counter
-        counter += 1
-        print(storage)
-        return chat_pb2.HelloReply(message='Hello, %s!' % request.name)
-    def SayHelloAgain(self, request, context):
-        return chat_pb2.HelloReply(message=f'Hello again, {request.name}!')
+
 
 def serve():
     port = '50051'

@@ -69,16 +69,42 @@ def attempt_logout(stub):
     user_token = ""
     return
 
+def attempt_delete(stub):
+    global user_token
+    stub.Delete(chat_pb2.DeleteRequest(name=user_token))
+    # No way of this actually failing is there really? Unless server goes offline?
+    # Maybe should still check response
+    user_token = ""
+    return
+
+def handle_invalid_command(command):
+    print(f"Invalid command: {command}, please try \help for list of commands")
+
+def display_command_help():
+    print(" -- Valid commands --")
+    print(" \help -> Gives this list of commands")
+    print(" \logout -> logs out of your account")
+    print(" \delete -> deletes your account")
+    print(" \send -> currently not implemented")
+    print(" \list wildcard -> lists all users that match the wildcard provided")
+
 def process_command(stub, command):
     if len(command) < 5:
-        print("Invalid command, try \help for list of commands")
+        handle_invalid_command(command)
         return
+    if command[0:5] == "\\help":
+        display_command_help()
     if command[0:5] == "\\list":
         attempt_list(stub, command[5:])
     if command[0:5] == "\\send":
         pass
+    if len(command < 7):
+        handle_invalid_command(command)
+        return
     if command[0:7] == "\\logout":
         attempt_logout(stub)
+    if command[0:7] == "\\delete":
+        attempt_delete(stub)
 
 def ClientHandler(channel):
     global user_token
