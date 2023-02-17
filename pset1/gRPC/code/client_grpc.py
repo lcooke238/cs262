@@ -1,18 +1,3 @@
-# Copyright 2015 gRPC authors.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""The Python implementation of the GRPC helloworld.ClientHandler client."""
-
 from __future__ import print_function
 
 import logging
@@ -79,7 +64,8 @@ def attempt_delete(stub):
 
 def attempt_send(stub, args):
     global user_token
-    arg_list = args.split("->").strip()
+    arg_list = args.split("->")
+    arg_list = [arg.strip() for arg in arg_list]
     if len(arg_list) != 2:
         print("Invalid message send syntax. Correct syntax: \send {message} -> {user}")
         return
@@ -104,17 +90,22 @@ def process_command(stub, command):
         return
     if command[0:5] == "\\help":
         display_command_help()
+        return
     if command[0:5] == "\\list":
         attempt_list(stub, command[5:])
+        return
     if command[0:5] == "\\send":
         attempt_send(stub, command[5:])
-    if len(command < 7):
+        return
+    if len(command) < 7:
         handle_invalid_command(command)
         return
     if command[0:7] == "\\logout":
         attempt_logout(stub)
+        return
     if command[0:7] == "\\delete":
         attempt_delete(stub)
+        return
 
 def ClientHandler(channel):
     global user_token
