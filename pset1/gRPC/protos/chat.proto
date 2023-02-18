@@ -25,18 +25,18 @@ service ClientHandler {
   rpc GetMessages (GetRequest) returns (GetReply) {}
 }
 
-// The request message containing the user's name.
+// The request message containing the user's user.
 message HelloRequest {
-  string name = 1;
+  string user = 1;
   string message = 2;
 }
 
 message LoginRequest {
-  string name = 1;
+  string user = 1;
 }
 
 message LogoutRequest{
-    string name = 1;
+    string user = 1;
 }
 
 message ListRequest {
@@ -44,13 +44,13 @@ message ListRequest {
 }
 
 message SendRequest {
-  string name = 1;
+  string user = 1;
   string message = 2;
   string target = 3;
 }
 
 message DeleteRequest {
-    string name = 1;
+    string user = 1;
 }
 
 message GetRequest {

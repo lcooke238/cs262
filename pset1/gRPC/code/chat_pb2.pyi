@@ -16,10 +16,10 @@ class DeleteReply(_message.Message):
     def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ...) -> None: ...
 
 class DeleteRequest(_message.Message):
-    __slots__ = ["name"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    __slots__ = ["user"]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    user: str
+    def __init__(self, user: _Optional[str] = ...) -> None: ...
 
 class GetReply(_message.Message):
     __slots__ = ["errormessage", "message", "status"]
@@ -44,12 +44,12 @@ class HelloReply(_message.Message):
     def __init__(self, message: _Optional[str] = ...) -> None: ...
 
 class HelloRequest(_message.Message):
-    __slots__ = ["message", "name"]
+    __slots__ = ["message", "user"]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
     message: str
-    name: str
-    def __init__(self, name: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
+    user: str
+    def __init__(self, user: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
 
 class ListReply(_message.Message):
     __slots__ = ["errormessage", "status", "user", "wildcard"]
@@ -82,10 +82,10 @@ class LoginReply(_message.Message):
     def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ..., message: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class LoginRequest(_message.Message):
-    __slots__ = ["name"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    __slots__ = ["user"]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    user: str
+    def __init__(self, user: _Optional[str] = ...) -> None: ...
 
 class LogoutReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]
@@ -98,10 +98,10 @@ class LogoutReply(_message.Message):
     def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ...) -> None: ...
 
 class LogoutRequest(_message.Message):
-    __slots__ = ["name"]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    name: str
-    def __init__(self, name: _Optional[str] = ...) -> None: ...
+    __slots__ = ["user"]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    user: str
+    def __init__(self, user: _Optional[str] = ...) -> None: ...
 
 class SendReply(_message.Message):
     __slots__ = ["errormessage", "message", "status", "target", "user"]
@@ -118,14 +118,14 @@ class SendReply(_message.Message):
     def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ..., message: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
 
 class SendRequest(_message.Message):
-    __slots__ = ["message", "name", "target"]
+    __slots__ = ["message", "target", "user"]
     MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
     TARGET_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
     message: str
-    name: str
     target: str
-    def __init__(self, name: _Optional[str] = ..., message: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
+    user: str
+    def __init__(self, user: _Optional[str] = ..., message: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
 
 class UnreadMessage(_message.Message):
     __slots__ = ["message", "receiver", "sender"]

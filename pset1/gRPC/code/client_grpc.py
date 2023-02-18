@@ -11,6 +11,7 @@ import chat_pb2_grpc
 
 SUCCESS = 0
 FAILURE = 1
+SUCCESS_WITH_DATA = 2
 
 user_token = ""
 
@@ -19,11 +20,11 @@ def run():
         ClientHandler(channel)
 
 
-def attempt_login(stub):
+def attempt_login(stub, condition):
     global user_token
     user = input("Please enter a username: ")
     # Attempt login on server
-    response = stub.Login(chat_pb2.LoginRequest(name=user))
+    response = stub.Login(chat_pb2.LoginRequest(user=user))
     # If failure, print failure and return, they can attempt again
     if response.status == FAILURE:
         print(f"Login error: {response.errormessage}")
@@ -35,6 +36,8 @@ def attempt_login(stub):
     # Print all unread messages
     for message in response.message:
         print(message)
+    with condition:
+        condition.notify_all()
 
 def attempt_list(stub, args):
     # Attempt to retrieve user list from server
@@ -50,7 +53,7 @@ def attempt_list(stub, args):
         
 def attempt_logout(stub):
     global user_token
-    response = stub.Logout(chat_pb2.LogoutRequest(name=user_token))
+    response = stub.Logout(chat_pb2.LogoutRequest(user=user_token))
     if response.status == FAILURE:
         print(f"Logout error: {response.errormessage}")
         return
@@ -59,7 +62,7 @@ def attempt_logout(stub):
 
 def attempt_delete(stub):
     global user_token
-    stub.Delete(chat_pb2.DeleteRequest(name=user_token))
+    stub.Delete(chat_pb2.DeleteRequest(user=user_token))
     # No way of this actually failing is there really? Unless server goes offline?
     # Maybe should still check response
     user_token = ""
@@ -74,7 +77,7 @@ def attempt_send(stub, args):
         return
     message = arg_list[0]
     target = arg_list[1]
-    response = stub.Send(chat_pb2.SendRequest(name=user_token, message=message, target=target))
+    response = stub.Send(chat_pb2.SendRequest(user=user_token, message=message, target=target))
 
 def handle_invalid_command(command):
     print(f"Invalid command: {command}, please try \help for list of commands")
@@ -113,30 +116,27 @@ def process_command(stub, command):
 def ClientHandler(channel):
     global user_token
     stub = chat_pb2_grpc.ClientHandlerStub(channel)
-    start_new_thread(listen, (stub, ))
+    condition = threading.Condition()
+    start_new_thread(listen, (stub, condition, ))
     while True:
         if user_token:
             command = input(f"{user_token} >")
             process_command(stub, command)
         else:
-            attempt_login(stub)
+            attempt_login(stub, condition)
         
 
-def listen(stub):
+def listen(stub, condition):
     while True:
         if user_token:
             response = stub.GetMessages(chat_pb2.GetRequest(user=user_token))
-            for message in response.message:
-                print(f"{message.sender} > {message.message}")
-    # port = '50052'
-    # server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    # chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
-    # server.add_insecure_port('[::]:' + port)
-    # server.start()
-    # print("Server started, listening on " + port)
-    # server.wait_for_termination()
-
-
+            if response.status == SUCCESS_WITH_DATA:
+                for message in response.message:
+                    print(f"{message.sender} > {message.message}")
+                print(f"{user_token} >", end="")
+        else:
+            with condition:
+                condition.wait()
 
 if __name__ == '__main__':
     logging.basicConfig()
