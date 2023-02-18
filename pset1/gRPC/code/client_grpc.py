@@ -126,12 +126,17 @@ def ClientHandler(channel):
     # to sync with main thread to have blocking rather than polling
     start_new_thread(listen, (stub, condition, ))
     while True:
-        if user_token:
-            command = input(f"{user_token} >")
-            if not process_command(stub, command):
-                break
-        else:
-            attempt_login(stub, condition)
+        try:
+            if user_token:
+                command = input(f"{user_token} >")
+                if not process_command(stub, command):
+                    break
+            else:
+                attempt_login(stub, condition)
+        except KeyboardInterrupt:
+            attempt_logout(stub)
+            print("Logging you out!")
+            break
         
 
 def listen(stub, condition):
