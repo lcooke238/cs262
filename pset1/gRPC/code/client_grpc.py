@@ -36,6 +36,7 @@ def attempt_login(stub, condition):
     # Print all unread messages
     for message in response.message:
         print(message)
+    # Notify listener thread to start listening
     with condition:
         condition.notify_all()
 
@@ -85,6 +86,7 @@ def handle_invalid_command(command):
 def display_command_help():
     print(" -- Valid commands --")
     print(" \help -> Gives this list of commands")
+    print(" \quit -> Exits the program")
     print(" \logout -> logs out of your account")
     print(" \delete -> deletes your account")
     print(" \send -> currently not implemented")
@@ -93,35 +95,41 @@ def display_command_help():
 def process_command(stub, command):
     if len(command) < 5:
         handle_invalid_command(command)
-        return
+        return True
     if command[0:5] == "\\help":
         display_command_help()
-        return
+        return True
     if command[0:5] == "\\list":
         attempt_list(stub, command[5:])
-        return
+        return True
     if command[0:5] == "\\send":
         attempt_send(stub, command[5:])
-        return
+        return True
+    if command[0:5] == "\\quit":
+        attempt_logout(stub)
+        return False
     if len(command) < 7:
         handle_invalid_command(command)
-        return
+        return True
     if command[0:7] == "\\logout":
         attempt_logout(stub)
-        return
+        return True
     if command[0:7] == "\\delete":
         attempt_delete(stub)
-        return
+        return True
 
 def ClientHandler(channel):
     global user_token
     stub = chat_pb2_grpc.ClientHandlerStub(channel)
     condition = threading.Condition()
+    # Start new Daemon thread listening for messages with condition variable
+    # to sync with main thread to have blocking rather than polling
     start_new_thread(listen, (stub, condition, ))
     while True:
         if user_token:
             command = input(f"{user_token} >")
-            process_command(stub, command)
+            if not process_command(stub, command):
+                break
         else:
             attempt_login(stub, condition)
         
