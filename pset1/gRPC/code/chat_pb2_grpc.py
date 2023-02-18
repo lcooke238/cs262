@@ -6,7 +6,7 @@ import chat_pb2 as chat__pb2
 
 
 class ClientHandlerStub(object):
-    """The greeting service definition.
+    """The ClientHandler service definition.
     """
 
     def __init__(self, channel):
@@ -15,16 +15,6 @@ class ClientHandlerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.SayHello = channel.unary_unary(
-                '/helloworld.ClientHandler/SayHello',
-                request_serializer=chat__pb2.HelloRequest.SerializeToString,
-                response_deserializer=chat__pb2.HelloReply.FromString,
-                )
-        self.SayHelloAgain = channel.unary_unary(
-                '/helloworld.ClientHandler/SayHelloAgain',
-                request_serializer=chat__pb2.HelloRequest.SerializeToString,
-                response_deserializer=chat__pb2.HelloReply.FromString,
-                )
         self.ListUsers = channel.unary_unary(
                 '/helloworld.ClientHandler/ListUsers',
                 request_serializer=chat__pb2.ListRequest.SerializeToString,
@@ -50,25 +40,16 @@ class ClientHandlerStub(object):
                 request_serializer=chat__pb2.GetRequest.SerializeToString,
                 response_deserializer=chat__pb2.GetReply.FromString,
                 )
+        self.Delete = channel.unary_unary(
+                '/helloworld.ClientHandler/Delete',
+                request_serializer=chat__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=chat__pb2.DeleteReply.FromString,
+                )
 
 
 class ClientHandlerServicer(object):
-    """The greeting service definition.
+    """The ClientHandler service definition.
     """
-
-    def SayHello(self, request, context):
-        """Sends a greeting
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def SayHelloAgain(self, request, context):
-        """Sends another greeting
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
 
     def ListUsers(self, request, context):
         """Lists users
@@ -105,19 +86,16 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Delete(self, request, context):
+        """Attempts to delete account
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'SayHello': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHello,
-                    request_deserializer=chat__pb2.HelloRequest.FromString,
-                    response_serializer=chat__pb2.HelloReply.SerializeToString,
-            ),
-            'SayHelloAgain': grpc.unary_unary_rpc_method_handler(
-                    servicer.SayHelloAgain,
-                    request_deserializer=chat__pb2.HelloRequest.FromString,
-                    response_serializer=chat__pb2.HelloReply.SerializeToString,
-            ),
             'ListUsers': grpc.unary_unary_rpc_method_handler(
                     servicer.ListUsers,
                     request_deserializer=chat__pb2.ListRequest.FromString,
@@ -143,6 +121,11 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.GetRequest.FromString,
                     response_serializer=chat__pb2.GetReply.SerializeToString,
             ),
+            'Delete': grpc.unary_unary_rpc_method_handler(
+                    servicer.Delete,
+                    request_deserializer=chat__pb2.DeleteRequest.FromString,
+                    response_serializer=chat__pb2.DeleteReply.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
             'helloworld.ClientHandler', rpc_method_handlers)
@@ -151,42 +134,8 @@ def add_ClientHandlerServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class ClientHandler(object):
-    """The greeting service definition.
+    """The ClientHandler service definition.
     """
-
-    @staticmethod
-    def SayHello(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/SayHello',
-            chat__pb2.HelloRequest.SerializeToString,
-            chat__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def SayHelloAgain(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/SayHelloAgain',
-            chat__pb2.HelloRequest.SerializeToString,
-            chat__pb2.HelloReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def ListUsers(request,
@@ -270,5 +219,22 @@ class ClientHandler(object):
         return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/GetMessages',
             chat__pb2.GetRequest.SerializeToString,
             chat__pb2.GetReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Delete(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Delete',
+            chat__pb2.DeleteRequest.SerializeToString,
+            chat__pb2.DeleteReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

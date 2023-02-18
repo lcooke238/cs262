@@ -16,7 +16,7 @@ SUCCESS_WITH_DATA = 2
 user_token = ""
 
 def run():
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('10.250.116.100:50051') as channel:
         ClientHandler(channel)
 
 

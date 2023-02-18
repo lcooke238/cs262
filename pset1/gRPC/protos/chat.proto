@@ -1,18 +1,11 @@
 syntax = "proto3";
 
-option java_multiple_files = true;
-option java_package = "io.grpc.examples.helloworld";
-option java_outer_classname = "HelloWorldProto";
 option objc_class_prefix = "HLW";
 
 package helloworld;
 
-// The greeting service definition.
+// The ClientHandler service definition.
 service ClientHandler {
-  // Sends a greeting
-  rpc SayHello (HelloRequest) returns (HelloReply) {}
-  // Sends another greeting
-  rpc SayHelloAgain (HelloRequest) returns (HelloReply) {}
   // Lists users
   rpc ListUsers (ListRequest) returns (ListReply) {}
   // Requests to Login
@@ -23,12 +16,8 @@ service ClientHandler {
   rpc Send (SendRequest) returns (SendReply) {}
   // Attempts to receive new messages
   rpc GetMessages (GetRequest) returns (GetReply) {}
-}
-
-// The request message containing the user's user.
-message HelloRequest {
-  string user = 1;
-  string message = 2;
+  // Attempts to delete account
+  rpc Delete (DeleteRequest) returns (DeleteReply) {}
 }
 
 message LoginRequest {
@@ -55,11 +44,6 @@ message DeleteRequest {
 
 message GetRequest {
   string user = 1;
-}
-
-// The response message containing the greetings
-message HelloReply {
-  string message = 1;
 }
 
 message LoginReply {

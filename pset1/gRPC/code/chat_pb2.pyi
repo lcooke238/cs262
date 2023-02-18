@@ -37,20 +37,6 @@ class GetRequest(_message.Message):
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
-class HelloReply(_message.Message):
-    __slots__ = ["message"]
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    message: str
-    def __init__(self, message: _Optional[str] = ...) -> None: ...
-
-class HelloRequest(_message.Message):
-    __slots__ = ["message", "user"]
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    USER_FIELD_NUMBER: _ClassVar[int]
-    message: str
-    user: str
-    def __init__(self, user: _Optional[str] = ..., message: _Optional[str] = ...) -> None: ...
-
 class ListReply(_message.Message):
     __slots__ = ["errormessage", "status", "user", "wildcard"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
