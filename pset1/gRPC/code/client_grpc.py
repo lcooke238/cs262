@@ -89,8 +89,8 @@ def display_command_help():
     print(" \quit -> Exits the program")
     print(" \logout -> logs out of your account")
     print(" \delete -> deletes your account")
-    print(" \send -> currently not implemented")
-    print(" \list wildcard -> lists all users that match the wildcard provided")
+    print(" \send message -> {target_user} -> sends message to target_user")
+    print(" \list {wildcard} -> lists all users that match the SQL wildcard provided, e.g. \list % lists all users")
 
 def process_command(stub, command):
     if len(command) < 5:
