@@ -36,9 +36,6 @@ def attempt_login(stub, condition):
     user_token = response.user
     # Print success message
     print(f"Succesfully logged in as user: {user_token}. Unread messages:")
-    # Print all unread messages
-    for message in response.message:
-        print(message)
     # Notify listener thread to start listening
     with condition:
         condition.notify_all()

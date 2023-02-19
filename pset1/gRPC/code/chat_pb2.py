@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\x12\nhelloworld\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"<\n\x0bSendRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06target\x18\x03 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"Q\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x03(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"`\n\tSendReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x01(\t\x12\x0e\n\x06target\x18\x05 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"\\\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12*\n\x07message\x18\x03 \x03(\x0b\x32\x19.helloworld.UnreadMessage\"E\n\x0cJaredMessage\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t2\x84\x03\n\rClientHandler\x12=\n\tListUsers\x12\x17.helloworld.ListRequest\x1a\x15.helloworld.ListReply\"\x00\x12;\n\x05Login\x12\x18.helloworld.LoginRequest\x1a\x16.helloworld.LoginReply\"\x00\x12>\n\x06Logout\x12\x19.helloworld.LogoutRequest\x1a\x17.helloworld.LogoutReply\"\x00\x12\x38\n\x04Send\x12\x17.helloworld.SendRequest\x1a\x15.helloworld.SendReply\"\x00\x12=\n\x0bGetMessages\x12\x16.helloworld.GetRequest\x1a\x14.helloworld.GetReply\"\x00\x12>\n\x06\x44\x65lete\x12\x19.helloworld.DeleteRequest\x1a\x17.helloworld.DeleteReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\x12\nhelloworld\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"<\n\x0bSendRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06target\x18\x03 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"@\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"`\n\tSendReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x01(\t\x12\x0e\n\x06target\x18\x05 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"\\\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12*\n\x07message\x18\x03 \x03(\x0b\x32\x19.helloworld.UnreadMessage\"E\n\x0cJaredMessage\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t2\x84\x03\n\rClientHandler\x12=\n\tListUsers\x12\x17.helloworld.ListRequest\x1a\x15.helloworld.ListReply\"\x00\x12;\n\x05Login\x12\x18.helloworld.LoginRequest\x1a\x16.helloworld.LoginReply\"\x00\x12>\n\x06Logout\x12\x19.helloworld.LogoutRequest\x1a\x17.helloworld.LogoutReply\"\x00\x12\x38\n\x04Send\x12\x17.helloworld.SendRequest\x1a\x15.helloworld.SendReply\"\x00\x12=\n\x0bGetMessages\x12\x16.helloworld.GetRequest\x1a\x14.helloworld.GetReply\"\x00\x12>\n\x06\x44\x65lete\x12\x19.helloworld.DeleteRequest\x1a\x17.helloworld.DeleteReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', globals())
@@ -34,21 +34,21 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETREQUEST._serialized_start=209
   _GETREQUEST._serialized_end=235
   _LOGINREPLY._serialized_start=237
-  _LOGINREPLY._serialized_end=318
-  _LOGOUTREPLY._serialized_start=320
-  _LOGOUTREPLY._serialized_end=385
-  _LISTREPLY._serialized_start=387
-  _LISTREPLY._serialized_end=468
-  _DELETEREPLY._serialized_start=470
-  _DELETEREPLY._serialized_end=535
-  _SENDREPLY._serialized_start=537
-  _SENDREPLY._serialized_end=633
-  _UNREADMESSAGE._serialized_start=635
-  _UNREADMESSAGE._serialized_end=701
-  _GETREPLY._serialized_start=703
-  _GETREPLY._serialized_end=795
-  _JAREDMESSAGE._serialized_start=797
-  _JAREDMESSAGE._serialized_end=866
-  _CLIENTHANDLER._serialized_start=869
-  _CLIENTHANDLER._serialized_end=1257
+  _LOGINREPLY._serialized_end=301
+  _LOGOUTREPLY._serialized_start=303
+  _LOGOUTREPLY._serialized_end=368
+  _LISTREPLY._serialized_start=370
+  _LISTREPLY._serialized_end=451
+  _DELETEREPLY._serialized_start=453
+  _DELETEREPLY._serialized_end=518
+  _SENDREPLY._serialized_start=520
+  _SENDREPLY._serialized_end=616
+  _UNREADMESSAGE._serialized_start=618
+  _UNREADMESSAGE._serialized_end=684
+  _GETREPLY._serialized_start=686
+  _GETREPLY._serialized_end=778
+  _JAREDMESSAGE._serialized_start=780
+  _JAREDMESSAGE._serialized_end=849
+  _CLIENTHANDLER._serialized_start=852
+  _CLIENTHANDLER._serialized_end=1240
 # @@protoc_insertion_point(module_scope)

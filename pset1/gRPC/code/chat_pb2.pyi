@@ -66,16 +66,14 @@ class ListRequest(_message.Message):
     def __init__(self, args: _Optional[str] = ...) -> None: ...
 
 class LoginReply(_message.Message):
-    __slots__ = ["errormessage", "message", "status", "user"]
+    __slots__ = ["errormessage", "status", "user"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
     errormessage: str
-    message: _containers.RepeatedScalarFieldContainer[str]
     status: int
     user: str
-    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ..., message: _Optional[_Iterable[str]] = ...) -> None: ...
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., user: _Optional[str] = ...) -> None: ...
 
 class LoginRequest(_message.Message):
     __slots__ = ["user"]

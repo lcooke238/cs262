@@ -44,12 +44,9 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 if not logged_in:
                     cursor.execute("INSERT INTO users (user, online) VALUES (?, ?)", (request.user, True))
                     con.commit()
-                    login_reply = chat_pb2.LoginReply(status = SUCCESS, errormessage=NO_ERROR, user=request.user)
-                    for unread in unread_messages.get(request.user, []):
-                        login_reply.message.append(unread)
-                    return login_reply
+                    return chat_pb2.LoginReply(status = SUCCESS, errormessage=NO_ERROR, user=request.user)
                 if logged_in[0][0]:
-                    return chat_pb2.LoginReply(errormessage="User already logged in on different machine", status=FAILURE)
+                    return chat_pb2.LoginReply(status=FAILURE, errormessage="User already logged in on different machine", user=request.user)
                 else:
                     cursor.execute("UPDATE users SET online = ? WHERE user = ?", (True, request.user, ))
                     con.commit()
@@ -60,12 +57,9 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
             with sqlite3.connect(DATABASE_PATH) as con:
                 cursor = con.cursor()
                 logged_in = cursor.execute("SELECT user FROM users WHERE user = ?", (request.user, )).fetchall()
-                print(logged_in)
                 if logged_in and logged_in[0]:
                     cursor.execute("UPDATE users SET online = FALSE WHERE user = ?", (request.user, ))
                     con.commit()
-                    check = cursor.execute("SELECT online FROM users WHERE user = ?", (request.user, )).fetchall()
-                    print(check)
                     return chat_pb2.LogoutReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
                 return chat_pb2.LogoutReply(status=FAILURE, errormessage="User not currently logged in", user=request.user)
     
@@ -76,6 +70,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 logged_in = cursor.execute("SELECT online FROM users WHERE user = ?", (request.user, )).fetchall()
                 if logged_in:
                     cursor.execute("DELETE FROM users WHERE user = ?", (request.user, ))
+                    con.commit()
                 return chat_pb2.DeleteReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
 
     def ListUsers(self, request, context):
@@ -85,18 +80,21 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
             cursor = con.cursor()
             user_list = chat_pb2.ListReply(status=SUCCESS, wildcard=wildcard, errormessage="")
             matched_users = cursor.execute("SELECT user FROM users WHERE user LIKE ?", (wildcard, )).fetchall()
+            print(matched_users)
             for user in matched_users:
-                user_list.user.append(user)
+                user_list.user.append(user[0])
             return user_list
 
     def Send(self, request, context):
-        if request.target not in users:
-            return chat_pb2.SendReply(status=FAILURE, errormessage="User does not exist :(", user=request.user, message="[]", target=request.target)
-        unread_messages[request.target].append(request.message)
-        print(unread_messages)
-        if request.target not in logged_in_users:
-            return chat_pb2.SendReply(status=SUCCESS, errormessage="User offline, message will be received upon login", user=request.user, message="[]", target=request.target)
-        return chat_pb2.SendReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user, message="[]", target=request.target) 
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                if request.target not in users:
+                    return chat_pb2.SendReply(status=FAILURE, errormessage="User does not exist :(", user=request.user, message="[]", target=request.target)
+                unread_messages[request.target].append(request.message)
+                print(unread_messages)
+                if request.target not in logged_in_users:
+                    return chat_pb2.SendReply(status=SUCCESS, errormessage="User offline, message will be received upon login", user=request.user, message="[]", target=request.target)
+                return chat_pb2.SendReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user, message="[]", target=request.target) 
 
     def GetMessages(self, request, context):
         if request.user not in users:
