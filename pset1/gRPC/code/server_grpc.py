@@ -4,8 +4,20 @@ import logging
 import grpc
 import chat_pb2
 import chat_pb2_grpc
-
+import threading
 from collections import defaultdict
+import sqlite3
+
+# 3 uses serialized mode - can be used safely by multiple threads with no restriction
+# Documentation/ and only answers seem to differ about this, so implementing a lock anyway
+sqlite3.threadsafety = 3
+
+lock = threading.Lock()
+
+DATABASE_PATH = "../data/data.db"
+
+sqlite_connection = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
+db_cursor = sqlite_connection.cursor()
 
 SUCCESS = 0
 FAILURE = 1
@@ -24,38 +36,58 @@ counter = 0
 
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
     def Login(self, request, context):
-        if request.user in logged_in_users:
-            return chat_pb2.LoginReply(errormessage="User already logged in on different machine", status=FAILURE)
-        logged_in_users.append(request.user)
-        if request.user in users:
-            login_reply = chat_pb2.LoginReply(status = SUCCESS, errormessage=NO_ERROR, user=request.user)
-            for unread in unread_messages.get(request.user, []):
-                login_reply.message.append(unread)
-            return login_reply
-        else:
-            users.append(request.user)
-            return chat_pb2.LoginReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cursor = con.cursor()
+                logged_in = cursor.execute("SELECT online FROM users WHERE user=?", (request.user, )).fetchall()
+                print(logged_in)
+                if not logged_in:
+                    cursor.execute("INSERT INTO users (user, online) VALUES (?, ?)", (request.user, True))
+                    con.commit()
+                    login_reply = chat_pb2.LoginReply(status = SUCCESS, errormessage=NO_ERROR, user=request.user)
+                    for unread in unread_messages.get(request.user, []):
+                        login_reply.message.append(unread)
+                    return login_reply
+                if logged_in[0][0]:
+                    return chat_pb2.LoginReply(errormessage="User already logged in on different machine", status=FAILURE)
+                else:
+                    cursor.execute("UPDATE users SET online = ? WHERE user = ?", (True, request.user, ))
+                    con.commit()
+                    return chat_pb2.LoginReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
         
     def Logout(self, request, context):
-        if request.user in logged_in_users:
-            logged_in_users.remove(request.user)
-            return chat_pb2.LogoutReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
-        return chat_pb2.LogoutReply(status=FAILURE, errormessage="User not currently logged in", user=request.user)
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cursor = con.cursor()
+                logged_in = cursor.execute("SELECT user FROM users WHERE user = ?", (request.user, )).fetchall()
+                print(logged_in)
+                if logged_in and logged_in[0]:
+                    cursor.execute("UPDATE users SET online = FALSE WHERE user = ?", (request.user, ))
+                    con.commit()
+                    check = cursor.execute("SELECT online FROM users WHERE user = ?", (request.user, )).fetchall()
+                    print(check)
+                    return chat_pb2.LogoutReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
+                return chat_pb2.LogoutReply(status=FAILURE, errormessage="User not currently logged in", user=request.user)
     
     def Delete(self, request, context):
-        logged_in_users.remove(request.user)
-        users.remove(request.user)
-        return chat_pb2.DeleteReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cursor = con.cursor()
+                logged_in = cursor.execute("SELECT online FROM users WHERE user = ?", (request.user, )).fetchall()
+                if logged_in:
+                    cursor.execute("DELETE FROM users WHERE user = ?", (request.user, ))
+                return chat_pb2.DeleteReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user)
 
     def ListUsers(self, request, context):
         wildcard = request.args.strip()
-        # Basic wildcard, is user equal to a user in the list, or is it *
-        if wildcard == "*":
+        with sqlite3.connect(DATABASE_PATH) as con:
+            # Basic wildcard, is user equal to a user in the list, or is it *
+            cursor = con.cursor()
             user_list = chat_pb2.ListReply(status=SUCCESS, wildcard=wildcard, errormessage="")
-            for user in users:
+            matched_users = cursor.execute("SELECT user FROM users WHERE user LIKE ?", (wildcard, )).fetchall()
+            for user in matched_users:
                 user_list.user.append(user)
             return user_list
-        return chat_pb2.ListReply(status=FAILURE, wildcard=wildcard, errormessage="NOT_IMPLEMENTED", user="[NOT_IMPLEMENTED]")
 
     def Send(self, request, context):
         if request.target not in users:
@@ -86,7 +118,10 @@ def serve():
     server.add_insecure_port('[::]:' + port)
     server.start()
     print("Server started, listening on " + port)
-    server.wait_for_termination()
+    try:
+        server.wait_for_termination()
+    except KeyboardInterrupt:
+        sqlite_connection.close()
 
 
 if __name__ == '__main__':

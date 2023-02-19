@@ -37,6 +37,16 @@ class GetRequest(_message.Message):
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
+class JaredMessage(_message.Message):
+    __slots__ = ["content", "errormessage", "status"]
+    CONTENT_FIELD_NUMBER: _ClassVar[int]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    content: str
+    errormessage: str
+    status: int
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., content: _Optional[str] = ...) -> None: ...
+
 class ListReply(_message.Message):
     __slots__ = ["errormessage", "status", "user", "wildcard"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
