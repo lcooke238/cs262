@@ -16,8 +16,14 @@ lock = threading.Lock()
 
 DATABASE_PATH = "../data/data.db"
 
-sqlite_connection = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
-db_cursor = sqlite_connection.cursor()
+# Code to wipe the database if you want a fresh copy
+
+# sqlite_connection = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
+# db_cursor = sqlite_connection.cursor()
+# db_cursor.execute("DELETE FROM users")
+# sqlite_connection.commit()
+# db_cursor.execute("DELETE FROM messages")
+# sqlite_connection.commit()
 
 SUCCESS = 0
 FAILURE = 1
@@ -25,22 +31,12 @@ SUCCESS_WITH_DATA = 2
 
 NO_ERROR = ""
 
-# Playing with state
-storage = {}
-users = ["andrew", "ben"]
-logged_in_users = ["ben"]
-unread_messages = defaultdict(list)
-unread_messages["andrew"].append("ben > Hey Andrew")
-unread_messages["andrew"].append("andrew > Note to self: turn this into db")
-counter = 0
-
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
     def Login(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cursor = con.cursor()
                 logged_in = cursor.execute("SELECT online FROM users WHERE user=?", (request.user, )).fetchall()
-                print(logged_in)
                 if not logged_in:
                     cursor.execute("INSERT INTO users (user, online) VALUES (?, ?)", (request.user, True))
                     con.commit()
@@ -88,26 +84,37 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
     def Send(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
-                if request.target not in users:
-                    return chat_pb2.SendReply(status=FAILURE, errormessage="User does not exist :(", user=request.user, message="[]", target=request.target)
-                unread_messages[request.target].append(request.message)
-                print(unread_messages)
-                if request.target not in logged_in_users:
-                    return chat_pb2.SendReply(status=SUCCESS, errormessage="User offline, message will be received upon login", user=request.user, message="[]", target=request.target)
-                return chat_pb2.SendReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user, message="[]", target=request.target) 
+                cursor = con.cursor()
+                target_check = cursor.execute("SELECT user FROM users WHERE user = ?", (request.user, ))
+                if not target_check:
+                    return chat_pb2.SendReply(status=FAILURE, errormessage="User does not exist :(", user=request.user, message=request.message, target=request.target)
+                cursor.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)", (request.user, request.message, request.target, ))
+                con.commit()
+                return chat_pb2.SendReply(status=SUCCESS, errormessage=NO_ERROR, user=request.user, message=request.message, target=request.target) 
 
     def GetMessages(self, request, context):
-        if request.user not in users:
-            return chat_pb2.GetReply(status=FAILURE, errormessage="User does not exist :(")
-        status = SUCCESS_WITH_DATA if len(unread_messages[request.user]) else SUCCESS
-        unread_message_packet = chat_pb2.GetReply(status=status, errormessage=NO_ERROR)
-        while len(unread_messages[request.user]) > 0:
-            message = unread_messages[request.user].pop(False)
-            single_message = chat_pb2.UnreadMessage(sender="UNKNOWN/NOT IMPLEMENTED", message=message, receiver=request.user)
-            unread_message_packet.message.append(single_message)
-        return unread_message_packet
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cursor = con.cursor()
+                user_check = cursor.execute("SELECT online FROM users WHERE user = ?", (request.user, )).fetchall()
+                if not user_check or not user_check[0][0]:
+                    return chat_pb2.GetReply(status=FAILURE, errormessage="User does not exist :(")
+                unread_messages = cursor.execute("SELECT * FROM messages WHERE recipient = ?", (request.user, )).fetchall()
+                status = SUCCESS_WITH_DATA if unread_messages else SUCCESS
+                unread_message_packet = chat_pb2.GetReply(status=status, errormessage=NO_ERROR)
+                for unread in unread_messages:
+                    single_message = chat_pb2.UnreadMessage(sender=unread[1], message=unread[2], receiver=request.user)
+                    unread_message_packet.message.append(single_message)
+                cursor.execute("DELETE FROM messages WHERE recipient = ?", (request.user, ))
+                con.commit()
+                return unread_message_packet
 
-
+def set_all_offline():
+    with lock:
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cursor = con.cursor()
+            cursor.execute("UPDATE users SET online = FALSE")
+            con.commit()
 
 def serve():
     port = '50051'
@@ -118,8 +125,9 @@ def serve():
     print("Server started, listening on " + port)
     try:
         server.wait_for_termination()
+        set_all_offline()
     except KeyboardInterrupt:
-        sqlite_connection.close()
+        set_all_offline()
 
 
 if __name__ == '__main__':
