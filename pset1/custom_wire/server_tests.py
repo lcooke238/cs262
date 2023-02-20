@@ -1,6 +1,6 @@
 #imports
-import chat_server
-import chat_client
+import server_custom as chat_server
+import client_custom as chat_client
 import pandas as pd
 import threading
 import sys
