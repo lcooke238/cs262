@@ -24,7 +24,7 @@ To run the gRPC version of our chat application you need to:
 * Run `client_grpc.py` on all laptops for clients
 * Run `server_grpc.py` on the laptop for the server
 
-# Updating protos
+### Updating protos
 
 Note for our group: to update the protos, run this command from within the code or protos folder to rebuild the protos:
 

@@ -4,6 +4,7 @@ import logging
 
 from _thread import *
 import threading
+import sys
 
 import grpc
 import chat_pb2
@@ -14,20 +15,28 @@ FAILURE = 1
 SUCCESS_WITH_DATA = 2
 
 user_token = ""
-
+server_online = False 
 HOST_IP = "localhost"
 PORT = "50051"
 
 def run():
+    global server_online
     with grpc.insecure_channel(HOST_IP + ":" + PORT) as channel:
+        server_online = True
         ClientHandler(channel)
 
+def handle_server_shutdown():
+    print("Error: server error")
+    sys.exit()
 
 def attempt_login(stub, condition):
     global user_token
     user = input("Please enter a username: ")
     # Attempt login on server
-    response = stub.Login(chat_pb2.LoginRequest(user=user))
+    try:
+        response = stub.Login(chat_pb2.LoginRequest(user=user))
+    except: 
+        handle_server_shutdown()
     # If failure, print failure and return, they can attempt again
     if response.status == FAILURE:
         print(f"Login error: {response.errormessage}")
@@ -42,7 +51,10 @@ def attempt_login(stub, condition):
 
 def attempt_list(stub, args):
     # Attempt to retrieve user list from server
-    response = stub.ListUsers(chat_pb2.ListRequest(args=args))
+    try:
+        response = stub.ListUsers(chat_pb2.ListRequest(args=args))
+    except:
+        handle_server_shutdown()
     # If failed, print failure and return
     if response.status == FAILURE:
         print(f"List users failed, error: {response.errormessage}")
@@ -54,7 +66,10 @@ def attempt_list(stub, args):
         
 def attempt_logout(stub):
     global user_token
-    response = stub.Logout(chat_pb2.LogoutRequest(user=user_token))
+    try:
+        response = stub.Logout(chat_pb2.LogoutRequest(user=user_token))
+    except: 
+        handle_server_shutdown()
     if response.status == FAILURE:
         print(f"Logout error: {response.errormessage}")
         return
@@ -63,7 +78,10 @@ def attempt_logout(stub):
 
 def attempt_delete(stub):
     global user_token
-    stub.Delete(chat_pb2.DeleteRequest(user=user_token))
+    try:
+        stub.Delete(chat_pb2.DeleteRequest(user=user_token))
+    except:
+        handle_server_shutdown()
     # No way of this actually failing is there really? Unless server goes offline?
     # Maybe should still check response
     user_token = ""
@@ -78,7 +96,10 @@ def attempt_send(stub, args):
         return
     message = arg_list[0]
     target = arg_list[1]
-    response = stub.Send(chat_pb2.SendRequest(user=user_token, message=message, target=target))
+    try:
+        response = stub.Send(chat_pb2.SendRequest(user=user_token, message=message, target=target))
+    except:
+        handle_server_shutdown()
 
 def handle_invalid_command(command):
     print(f"Invalid command: {command}, please try \help for list of commands")
@@ -126,6 +147,8 @@ def ClientHandler(channel):
     # to sync with main thread to have blocking rather than polling
     start_new_thread(listen, (stub, condition, ))
     while True:
+        if not server_online:
+            handle_server_shutdown()
         try:
             if user_token:
                 command = input(f"{user_token} >")
@@ -140,9 +163,14 @@ def ClientHandler(channel):
         
 
 def listen(stub, condition):
+    global server_online
     while True:
         if user_token:
-            response = stub.GetMessages(chat_pb2.GetRequest(user=user_token))
+            try:
+                response = stub.GetMessages(chat_pb2.GetRequest(user=user_token))
+            except:
+                server_online = False
+                break
             if response.status == SUCCESS_WITH_DATA:
                 for message in response.message:
                     print(f"{message.sender} > {message.message}")
