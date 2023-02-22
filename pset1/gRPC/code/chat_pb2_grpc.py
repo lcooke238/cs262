@@ -16,32 +16,32 @@ class ClientHandlerStub(object):
             channel: A grpc.Channel.
         """
         self.ListUsers = channel.unary_unary(
-                '/helloworld.ClientHandler/ListUsers',
+                '/ClientHandler/ListUsers',
                 request_serializer=chat__pb2.ListRequest.SerializeToString,
                 response_deserializer=chat__pb2.ListReply.FromString,
                 )
         self.Login = channel.unary_unary(
-                '/helloworld.ClientHandler/Login',
+                '/ClientHandler/Login',
                 request_serializer=chat__pb2.LoginRequest.SerializeToString,
                 response_deserializer=chat__pb2.LoginReply.FromString,
                 )
         self.Logout = channel.unary_unary(
-                '/helloworld.ClientHandler/Logout',
+                '/ClientHandler/Logout',
                 request_serializer=chat__pb2.LogoutRequest.SerializeToString,
                 response_deserializer=chat__pb2.LogoutReply.FromString,
                 )
         self.Send = channel.unary_unary(
-                '/helloworld.ClientHandler/Send',
+                '/ClientHandler/Send',
                 request_serializer=chat__pb2.SendRequest.SerializeToString,
                 response_deserializer=chat__pb2.SendReply.FromString,
                 )
         self.GetMessages = channel.unary_unary(
-                '/helloworld.ClientHandler/GetMessages',
+                '/ClientHandler/GetMessages',
                 request_serializer=chat__pb2.GetRequest.SerializeToString,
                 response_deserializer=chat__pb2.GetReply.FromString,
                 )
         self.Delete = channel.unary_unary(
-                '/helloworld.ClientHandler/Delete',
+                '/ClientHandler/Delete',
                 request_serializer=chat__pb2.DeleteRequest.SerializeToString,
                 response_deserializer=chat__pb2.DeleteReply.FromString,
                 )
@@ -128,7 +128,7 @@ def add_ClientHandlerServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'helloworld.ClientHandler', rpc_method_handlers)
+            'ClientHandler', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -148,7 +148,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/ListUsers',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/ListUsers',
             chat__pb2.ListRequest.SerializeToString,
             chat__pb2.ListReply.FromString,
             options, channel_credentials,
@@ -165,7 +165,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Login',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Login',
             chat__pb2.LoginRequest.SerializeToString,
             chat__pb2.LoginReply.FromString,
             options, channel_credentials,
@@ -182,7 +182,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Logout',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Logout',
             chat__pb2.LogoutRequest.SerializeToString,
             chat__pb2.LogoutReply.FromString,
             options, channel_credentials,
@@ -199,7 +199,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Send',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Send',
             chat__pb2.SendRequest.SerializeToString,
             chat__pb2.SendReply.FromString,
             options, channel_credentials,
@@ -216,7 +216,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/GetMessages',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/GetMessages',
             chat__pb2.GetRequest.SerializeToString,
             chat__pb2.GetReply.FromString,
             options, channel_credentials,
@@ -233,7 +233,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/helloworld.ClientHandler/Delete',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Delete',
             chat__pb2.DeleteRequest.SerializeToString,
             chat__pb2.DeleteReply.FromString,
             options, channel_credentials,

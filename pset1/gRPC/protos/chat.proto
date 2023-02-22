@@ -2,8 +2,6 @@ syntax = "proto3";
 
 option objc_class_prefix = "HLW";
 
-package helloworld;
-
 // The ClientHandler service definition.
 service ClientHandler {
   // Lists users
