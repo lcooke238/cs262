@@ -240,7 +240,7 @@ def IO_Manager(cSocket, user, logfilename=log_name, test=False, testin=None,conf
                 Log("message recieved. Parsing to display...",logfilename)
                 l_usr = int(cSocket.recv(1).decode('utf-8').strip())
                 usr = cSocket.recv(l_usr).decode('utf-8').strip()
-                msg = cSocket.recv(in_len_decoded-l_usr-1).decode('utf-8').strip()
+                msg = cSocket.recv(in_len_decoded-l_usr-1-4).decode('utf-8').strip()
                 Display_Message(f"{usr} > {msg}", logfilename,test)
 
             #1: logout communication from server
