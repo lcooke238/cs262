@@ -11,6 +11,7 @@ client_port = 1234
 log_name = "../logs/client_log.txt"
 wp_version = 0
 
+MAX_USERNAME_LENGTH = 20
 
 #Log(logfilename: String, msg: String): 
     #records msg in log text file with name logfilename
@@ -67,21 +68,19 @@ def Start_Client(cHost, cPort, logfilename=log_name):
         #ensure username is within a given limit before continuing
         #remove spaces and commas
         user = user.strip()
-        user.replace(" ", "")
-        user.replace(",", "")
-        if user != "" and len(user) < 20:
+        user.replace(" ", "").replace(",", "")
+        if user and len(user) < MAX_USERNAME_LENGTH:
             user_ok = True
-            continue
+            break
         #otherwise username invalid, display problem and re-ask
         Display_Message("input username empty or too long, please try again.", logfilename)
-        continue
 
     #create socket and connect to server socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket.connect((cHost, cPort))
     Log(f"connected to {cHost}.{cPort}", logfilename)
-    # #prevent reciving block
+    # #prevent receiving block
     client_socket.setblocking(False)
     #send converted username to server
     wire = Login_Wire(user, wp_version, logfilename)
@@ -120,7 +119,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
             return False
         msg = arg_list[0].strip()
         usrnm = arg_list[1].strip()
-        if msg == "" or usrnm == "":
+        if not msg  or not usrnm:
             Display_Message("Improper command format. Did you leave an argument blank?")
             return False
         #now all formatting should be okay to get request to server
@@ -134,7 +133,6 @@ def In_Manager(cSocket, user, logfilename=log_name):
         if verify.strip() == "yes":
             #call logout function
             Logout(cSocket, user, logfilename)
-            return False
     
     #Delete: if command is in proper delete format, activate delete protocol
     elif cmd[0:7] == "\\delete":
@@ -143,7 +141,6 @@ def In_Manager(cSocket, user, logfilename=log_name):
         if verify.strip() == "yes":
             #call delete function
             Delete(cSocket, user, logfilename)
-            return False
 
     #List: if command is in proper list format, activate list protocol
     elif cmd[0:5] == "\\list" and cmd[6:].strip() != "":
