@@ -11,9 +11,9 @@ socket_list = []
 online_clients = {}
 Head_Len = 4
 wp_version = 0
-log_name = 'logs/server_log.txt'
-data = 'data/data.csv'
-users = 'data/users.csv'
+log_name = '../logs/server_log.txt'
+data = '../data/data.csv'
+users = '../data/users.csv'
 
 
 #Log(logfilename: String, msg: String): 

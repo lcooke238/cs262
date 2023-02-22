@@ -4,22 +4,24 @@ import client_custom as chat_client
 import pandas as pd
 import threading
 import sys
-from pytest import monkeypatch
+# from pytest import monkeypatch
 import io
 
 #constants
 server_host = '127.0.0.1'
-server_port = 1234
+server_port = 8080
 client_host = "127.0.0.1"
-client_port = 1234
+client_port = 8080
 socket_list = []
 online_clients = {}
 Head_Len = 4
 wp_version = 0
-log_name_s = 'test_server_log.txt'
-log_name_c = 'test_client_log.txt'
-data = 'test_data.csv'
-users = 'test_users.csv'
+log_name_s = '../logs/testing/test_server_log.txt'
+log_name_c = '../logs/testing/test_client_log.txt'
+log_name_t = '../logs/testing/test_log.txt'
+empty_data = '../data/testing/test_data_empty.csv'
+data = '../data/testing/test_data.csv'
+users = '../data/testing/test_users.csv'
 
 #log function tests
 def test_log(logfilename):
@@ -132,7 +134,7 @@ def test_server_startup(host, port, logfilename):
     open(logfilename, 'w').close()
 
     #Test 1: works when used correctly with expected dataset
-    chat_server.Start_Server(host, port, logfilename, 'test_data.csv', 'test_users.csv')
+    chat_server.Start_Server(host, port, logfilename, data, users)
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
@@ -145,7 +147,7 @@ def test_server_startup(host, port, logfilename):
     open(logfilename, 'w').close()
 
     #Test 2: single empty dataset warning logged when passed empty dataset with flag on
-    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv','test_users.csv', 1)
+    chat_server.Start_Server(host, port, logfilename, empty_data, users, 1)
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
@@ -165,7 +167,7 @@ def test_server_startup(host, port, logfilename):
     open(logfilename, 'w').close()
     
     #Test 3: no exception logged for empty dataset with flag off
-    chat_server.Start_Server(host, port, logfilename, 'test_data_empty.csv','test_users.csv', 0)
+    chat_server.Start_Server(host, port, logfilename, empty_data, users, 0)
     #open log to read it
     with open(logfilename, 'r') as log:
         content = log.readlines()
@@ -237,9 +239,9 @@ def remaining_client_tests():
 
 
 #run tests
-test_log('test_log.txt')
-test_rec_exception('test_log.txt')
-test_server_startup('127.0.0.1', 8080, 'test_log.txt')
+test_log(log_name_t)
+test_rec_exception(log_name_t)
+test_server_startup('127.0.0.1', 8080, log_name_t)
 #first, create a socket pointing back to yourself in a different thread
 #clear server log
 open(log_name_s, 'w').close()

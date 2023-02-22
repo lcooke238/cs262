@@ -2,32 +2,6 @@ connected to 127.0.0.1.1234
 wire for client login created
 sent login wire for user: andrew
 type \help to see instructions. Press Enter to look for buffered returns.
-Welcome to the chat service, andrew! Here is a list of commands available to you and their syntax: 
-
-    \send msg\, usrnm -- sends the message msg to the person with username usrnm. 
-
-    \logout -- logs you out of your account. Client will shutdown after. 
-
-    \delete -- deletes your account. Client will shutdown after. 
-
-    \list ltrs -- provides a list of existing accounts that start with the string ltrs.
-                  Use * to get a list of every existing account. 
-
-    \clear -- clears console display thus far. 
-
-    \help -- displays the different commands and their syntax.
-    
-Improper command syntax. Type "\help" for instructions on how to use the interface.
-Wire for list built to be sent
-listUsr message sent
-Wire for list built to be sent
-listUsr message sent
-users from query: 
-andrew, 
-bob, 
-users from query: 
-andrew, 
-bob, 
 Wire for list built to be sent
 listUsr message sent
 users from query: 
