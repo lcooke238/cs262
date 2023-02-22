@@ -5,7 +5,6 @@ import grpc
 import chat_pb2
 import chat_pb2_grpc
 import threading
-from collections import defaultdict
 import sqlite3
 
 # 3 uses serialized mode - can be used safely by multiple threads with no restriction
