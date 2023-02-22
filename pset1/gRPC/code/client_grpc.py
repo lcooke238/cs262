@@ -13,8 +13,9 @@ SUCCESS = 0
 FAILURE = 1
 SUCCESS_WITH_DATA = 2
 
-# Setting a maximum allowed length for usernames
+# Setting a maximum allowed length for usernames and messages
 MAX_USERNAME_LENGTH = 30
+MAX_MESSAGE_LENGTH = 1000
 
 # customize server address
 HOST_IP = "localhost"
@@ -104,6 +105,10 @@ class Client:
         
         if not self.__valid_username(arg_list[1]):
             print(f"Username provided is invalid: {arg_list[1]}. All usernames are alphanumeric")
+            return
+
+        if len(arg_list[0]) > MAX_MESSAGE_LENGTH:
+            print(f"Message length capped at {MAX_MESSAGE_LENGTH}. Please shorten or send in multiple messages")
             return
 
         message, target = arg_list[0], arg_list[1]
