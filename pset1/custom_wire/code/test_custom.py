@@ -236,6 +236,15 @@ def test_send(logfilename, cSocket, username):
         assert content[3].strip() == "Lauren > Hi!"
     print("send test 2 passed")
 
+    #run bad test call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\send Hi!\\,DNE")
+    time.sleep(1)
+    chat_client.IO_Manager(cSocket, username, logfilename, True, " ")
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[6].strip() == "SendError: recipient DNE does not exist."
+    print("send test 3 passed")
+
 
 #logout in chat client function tests, assumes server is running in a separate terminal
 def test_logout(logfilename):
