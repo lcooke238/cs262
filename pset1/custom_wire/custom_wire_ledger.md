@@ -1,5 +1,4 @@
-# COMPSCI 262 PSET 1: Engineering Ledger
-## Lauren Cooke
+# COMPSCI 262 PSET 1: Custom Wire Engineering Ledger
 
 ## Assignment Synthesis, What we need To do:
 *Full spec on canvas if needed*
@@ -326,7 +325,7 @@ I decided to use a socket select protocol rather than a threading one to avoid a
     - 3: login
         - next 4 bytes (constant) represents the length of the rest of the input to recieve
         - rest of input represents the username for the login
-    -4: list accounts
+    - 4: list accounts
         - next 4 bytes (constant) represents length of rest of input
         - rest of input represents the keyword to filter list by
     - 5: error/exception
