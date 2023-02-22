@@ -14,6 +14,10 @@ To be able to run the gRPC version of our chat application you need the followin
 
 -> run `pip install sqlite3`
 
+* pytest installed
+
+-> run `pip install -U pytest`
+
 ## Running instructions
 
 To run the gRPC version of our chat application you need to:
