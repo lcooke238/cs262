@@ -135,7 +135,7 @@ def In_Manager(cSocket, user, logfilename=log_name,test=False, testin=None,confi
         if len(msg) > MAX_MESSAGE_LENGTH:
             Display_Message(f"Message is too long. Max message length: {MAX_MESSAGE_LENGTH}. Consider splitting into multiple messages",test)
 
-        if not msg  or not usrnm:
+        if not msg or not usrnm:
             Display_Message("Improper command format. Did you leave an argument blank?",test)
             return False
         #now all formatting should be okay to get request to server

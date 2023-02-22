@@ -1,19 +1,21 @@
 server is listening for connections...127.0.0.1:1234
 found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 63951)
-attempting logging in from <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 63951)>
+accepted connection from ('127.0.0.1', 64099)
+attempting logging in from <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 64099)>
 username: Lauren
 database successfully read for user Lauren
 added to socket list for user Lauren
 finished logging in for Lauren
 True
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 63952)
-attempting logging in from <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 63952)>
-username: Lauren
-Error: <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 63952)>. Shutting Down.
+recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 64099)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 64099)>
+logging out from Lauren
+logout confirmed. Beginning account logout process for Lauren
+Error: 'str' object cannot be interpreted as an integer. Shutting Down.
 False
-recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 63951)>
-faulty protocol input W_T_F
-False
-no data from socket. connection to socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 63951)>closed.
+no data from socket. connection to socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 64099)>closed.

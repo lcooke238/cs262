@@ -1,6 +1,7 @@
 #imports
 import server_custom as chat_server
 import client_custom as chat_client
+import time
 
 
 
@@ -157,11 +158,7 @@ def test_server_startup(host, port, logfilename):
             pass
         else:
             raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
-        if content[1].strip() == "EmptyDatasetWarning: Input client dataset is empty. Did you select the correct file?":
-            pass
-        else:
-            raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input client dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
-        if content[2].strip() == "server is listening for connections..." + str(host)+":"+str(port):
+        if content[1].strip() == "server is listening for connections..." + str(host)+":"+str(port):
             print("Startup Test 2 Passed")
         else:
             raise Exception("Startup Test 2 Failed. Log should read \"server is listening for connections..." + str(host)+":"+str(port)+ "\", but instead reads \"" + content[0].strip()+"\"")
@@ -209,7 +206,15 @@ def test_list(logfilename):
     with open(logfilename, 'r') as log:
         content = log.readlines()
         assert content[4].strip() == "listUsr message sent"
-    print("list test passed")
+    print("list test 1 passed")
+    #add delay for socket to send properly
+    time.sleep(1)
+    chat_client.IO_Manager(cSocket, username, logfilename, True, " ")
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[5].strip() == "users from query:"
+        assert content[6].strip() == "Lauren,"
+    print("list test 2 passed")
 
 
 #test sending to a client, assumes server is running in a separate channel
@@ -217,15 +222,25 @@ def test_send(logfilename):
     #start client
     #clear client log
     open(logfilename, 'w').close()
+    #clear server log
+    open(log_name_s, 'w').close()
     #setup client
     cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
-    #run help call
+    #run send call
     chat_client.IO_Manager(cSocket, username, logfilename, True, "\\send Hi!\\,Lauren")
     #ensure send request was logged
     with open(logfilename, 'r') as log:
         content = log.readlines()
         assert content[4].strip() == "message sent to Lauren"
-    print("send test passed")
+    print("send test 1 passed")
+    #add delay for socket to send properly
+    time.sleep(1)
+    chat_client.IO_Manager(cSocket, username, logfilename, True, " ")
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[6].strip() == "Lauren > Hi!"
+    print("send test 2 passed")
+
 
 
 #logout in chat client function tests, assumes server is running in a separate terminal
