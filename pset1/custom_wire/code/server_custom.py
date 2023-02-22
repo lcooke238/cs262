@@ -265,8 +265,8 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         if username in list(data_df.columns):
             msgs = list(data_df[username])
             for msg in msgs:
-                msga, sender = msg.split(";;")
-                cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
+                    msga, sender = msg.split(";;")
+                    cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
             #delete that column from the dataset
             data_df = data_df.drop(username, axis='columns')
             Log("sent stored messages to " + username, logfilename)
@@ -339,15 +339,50 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     else:
         #if col for this user exists, add encoded message there
         if recip in list(data_df.columns):
-            data_df = data_df.append({recip: [msg+";;"+sender]}, ignore_index=True)
+            data_df = data_df.append({recip: msg+";;"+sender}, ignore_index=True)
+            #drop bad rows
+            cols=[]
+            for col in data_df.columns:
+                cols.append(col)
+
+            GoodRows = []
+            for i in range(len(data_df)):
+                Nu = False
+                for j in range(len(cols)-1):
+                    if str(data_df[cols[j+1]][i]) != str(data_df[cols[0]][i]):
+                        Nu = True
+                GoodRows.append(Nu)
+
+            new_df = data_df
+            for idx, row in enumerate(GoodRows):
+                if not row:
+                    new_df = new_df.drop(idx)
+
             #save dataframe to csv
-            data_df.to_csv(database, index=False)
+            new_df.to_csv(database, index=False)
         #if it doesn't exist, insert a column with that addr
         else:
             new_df = pd.DataFrame({recip: [msg+";;"+sender]})
             new_df_2 = pd.concat([data_df, new_df])
+            #drop bad rows
+            cols=[]
+            for col in new_df_2.columns:
+                cols.append(col)
+
+            GoodRows = []
+            for i in range(len(new_df_2)):
+                Nu = False
+                for j in range(len(cols)-1):
+                    if str(new_df_2[cols[j+1]][i]) != str(new_df_2[cols[0]][i]):
+                        Nu = True
+                GoodRows.append(Nu)
+
+            new_df_3 = new_df_2
+            for idx, row in enumerate(GoodRows):
+                if not row:
+                    new_df_3 = new_df_3.drop(idx)
             #save dataframe to csv
-            new_df_2.to_csv(database, index=False)
+            new_df_3.to_csv(database, index=False)
 
 
 #Send_Error(cSocket: socket, eMsg: String, logfilename: String):
