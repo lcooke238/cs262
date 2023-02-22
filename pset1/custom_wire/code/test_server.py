@@ -15,7 +15,6 @@ log_name = '../logs/testing/test_server_log.txt'
 data = '../data/testing/test_data.csv'
 users = '../data/testing/test_users.csv'
 
-
 #Log(logfilename: String, msg: String): 
     #records msg in log text file with name logfilename
 def Log(msg, logfilename=log_name):
@@ -262,13 +261,18 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         Log("added to socket list for user " + username, logfilename)
         #if username offline with stored messages, bring back and send those messages
         data_df = pd.read_csv(database)
+        data_df = data_df.replace("", np.NaN)
+        print(list(data_df.columns))
         if username in list(data_df.columns):
-            msgs = list(data_df[username])
+            msgs = list(filter(lambda x: not(pd.isnull(x)), list(data_df[username])))
+            print(msgs)
             for msg in msgs:
-                msga, sender = msg.split(";;")
-                cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
+                    msga, sender = msg.split(";;")
+                    cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
             #delete that column from the dataset
             data_df = data_df.drop(username, axis='columns')
+            if len(data_df.columns) == 1:
+                data_df = pd.DataFrame({"ExistingUsers": []})
             Log("sent stored messages to " + username, logfilename)
             data_df.to_csv(database, index=False)
     except:
@@ -339,15 +343,56 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     else:
         #if col for this user exists, add encoded message there
         if recip in list(data_df.columns):
-            data_df = data_df.append({recip: [msg+";;"+sender]}, ignore_index=True)
+            print(recip)
+            data_df = data_df.append({recip: msg+";;"+sender}, ignore_index=True)
+            #drop bad rows
+            cols=[]
+            for col in data_df.columns:
+                cols.append(col)
+
+            GoodRows = []
+            for i in range(len(data_df)):
+                Nu = False
+                for j in range(len(cols)-1):
+                    if str(data_df[cols[j+1]][i]) != str(data_df[cols[0]][i]):
+                        Nu = True
+                GoodRows.append(Nu)
+
+            new_df = data_df
+            for idx, row in enumerate(GoodRows):
+                if not row:
+                    new_df = new_df.drop(idx)
+
             #save dataframe to csv
-            data_df.to_csv(database, index=False)
+            new_df.to_csv(database, index=False)
         #if it doesn't exist, insert a column with that addr
         else:
             new_df = pd.DataFrame({recip: [msg+";;"+sender]})
             new_df_2 = pd.concat([data_df, new_df])
+            print("HERE BOB")
+            print(new_df_2)
+            #drop bad rows
+            cols=[]
+            for col in new_df_2.columns:
+                cols.append(col)
+            print("CHECKPOINT 2")
+            GoodRows = []
+            # for i in range(len(new_df_2)):
+            #     Nu = False
+            #     for j in range(len(cols)-1):
+            #         if str(new_df_2[cols[j+1]][i]) != str(new_df_2[cols[0]][i]):
+            #             Nu = True
+            #     GoodRows.append(Nu)
+
+            print("CHECKPOINT 3")
+            new_df_3 = new_df_2
+            for idx, row in enumerate(GoodRows):
+                if not row:
+                    new_df_3 = new_df_3.drop(idx)
             #save dataframe to csv
-            new_df_2.to_csv(database, index=False)
+            print("CHECKPOINT 4")
+            print(new_df_3)
+            new_df_3.to_csv(database, index=False)
 
 
 #Send_Error(cSocket: socket, eMsg: String, logfilename: String):

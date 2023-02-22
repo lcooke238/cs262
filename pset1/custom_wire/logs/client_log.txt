@@ -4,3 +4,4 @@ sent login wire for user: andrew
 type \help to see instructions. Press Enter to look for buffered returns.
 message recieved. Parsing to display...
 bob > hi
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt

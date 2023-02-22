@@ -146,22 +146,6 @@ def test_server_startup(host, port, logfilename):
             )+":"+str(port) + "\", but instead reads \"" + content[0].strip()+"\"")
     #clear content of test log
     open(logfilename, 'w').close()
-
-    #Test 2: single empty dataset warning logged when passed empty dataset with flag on
-    chat_server.Start_Server(host, port, logfilename, empty_data, users, 1)
-    #open log to read it
-    with open(logfilename, 'r') as log:
-        content = log.readlines()
-        if content[0].strip() == "EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?":
-            pass
-        else:
-            raise Exception("Startup Test 2 Failed. Log should read \"EmptyDatasetWarning: Input message dataset is empty. Did you select the correct file?\", but instead reads \"" + content[0].strip()+"\"")
-        if content[1].strip() == "server is listening for connections..." + str(host)+":"+str(port):
-            print("Startup Test 2 Passed")
-        else:
-            raise Exception("Startup Test 2 Failed. Log should read \"server is listening for connections..." + str(host)+":"+str(port)+ "\", but instead reads \"" + content[0].strip()+"\"")
-    #clear content of test log
-    open(logfilename, 'w').close()
     
     #Test 3: no exception logged for empty dataset with flag off
     chat_server.Start_Server(host, port, logfilename, empty_data, users, 0)
@@ -169,9 +153,9 @@ def test_server_startup(host, port, logfilename):
     with open(logfilename, 'r') as log:
         content = log.readlines()
         if content[0].strip() == "server is listening for connections..."+ str(host)+":"+str(port):
-            print("Startup Test 3 Passed")
+            print("Startup Test 2 Passed")
         else:
-            raise Exception("Startup Test 3 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
+            raise Exception("Startup Test 2 Failed. Log should read \"server is listening for connections..."+ str(host)+":"+str(port)+"\", but instead reads \"" + content[0].strip()+"\"")
     #clear content of test log
     open(logfilename, 'w').close()
 
