@@ -28,7 +28,7 @@ def test_login(monkeypatch, capsys):
     client = client_grpc.Client()
     monkeypatch.setattr('builtins.input', lambda _: "patrick")
     
-    client.run(manual=True)
+    client.run(testing=True)
     
     client.attempt_send("hello patrick -> patrick")
     assert(True == False)

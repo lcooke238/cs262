@@ -13,6 +13,8 @@ SUCCESS = 0
 FAILURE = 1
 SUCCESS_WITH_DATA = 2
 
+# Setting a maximum allowed length for usernames
+MAX_USERNAME_LENGTH = 30
 
 # customize server address
 HOST_IP = "localhost"
@@ -24,12 +26,20 @@ class Client:
     def __init__(self, host=HOST_IP, port=PORT):
         self.host = host
         self.port = port
+        self.channel = None
         self.stub = None
         self.user_token = ""
         self.server_online = False
 
+    def __valid_username(self, user):
+        return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
+
     def attempt_login(self, condition):
-        user = input("Please enter a username: ")
+        while True:
+            user = input("Please enter a username: ")
+            if self.__valid_username(user):
+                break
+            print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
 
         # attempt login on server
         try:
@@ -59,7 +69,7 @@ class Client:
 
         # if failed, print failure and return
         if response.status == FAILURE:
-            print(f"List users failed, error: {response.errormessage}")
+            print(f"List users error: {response.errormessage}")
             return
         
         # if success, print users that match the wildcard provided
@@ -91,12 +101,19 @@ class Client:
         if len(arg_list) != 2:
             print("Invalid message send syntax. Correct syntax: \\send {message} -> {user}")
             return
+        
+        if not self.__valid_username(arg_list[1]):
+            print(f"Username provided is invalid: {arg_list[1]}. All usernames are alphanumeric")
+            return
 
         message, target = arg_list[0], arg_list[1]
         try:
-            self.stub.Send(chat_pb2.SendRequest(user=self.user_token,
+            response = self.stub.Send(chat_pb2.SendRequest(user=self.user_token,
                                                 message=message,
                                                 target=target))
+            if response.status == FAILURE:
+                print(f"Send message error: {response.errormessage}")
+                return
         except:
             self.handle_server_shutdown()
 
@@ -144,12 +161,12 @@ class Client:
         self.handle_invalid_command(command)
         return True
 
-    def ClientHandler(self, channel, manual=False):
-        self.stub = chat_pb2_grpc.ClientHandlerStub(channel)
+    def ClientHandler(self, testing=False):
+        self.stub = chat_pb2_grpc.ClientHandlerStub(self.channel)
         condition = threading.Condition()
 
-        if manual:
-            self.user_token = "test_user"
+        if testing:
+            self.attempt_login(condition)
             return
 
         # start new Daemon thread listening for messages with condition variable
@@ -166,11 +183,13 @@ class Client:
                     # if \quit is run, quit
                     if not self.process_command(command):
                         print("See you later!")
+                        self.channel.close()
                         break
                 else:
                     self.attempt_login(condition)
             except KeyboardInterrupt:  # for ctrl-c interrupt
                 self.attempt_logout()
+                self.channel.close()
                 print("Logging you out!")
                 break
 
@@ -192,16 +211,16 @@ class Client:
 
     def handle_server_shutdown(self):
         print("Error: server error")
+        self.channel.close()
         os._exit(FAILURE)
 
-    def run(self, manual=False):
-
+    def run(self, testing=False):
         # initialize logs
         logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
-        with grpc.insecure_channel(self.host + ":" + self.port) as channel:
-            self.server_online = True
-            self.ClientHandler(channel, manual)
+        self.channel = grpc.insecure_channel(self.host + ":" + self.port)
+        self.server_online = True
+        self.ClientHandler(testing)
 
 
 if __name__ == '__main__':
