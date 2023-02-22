@@ -87,7 +87,6 @@ class Client:
         return
 
     def attempt_send(self, args):
-        global user_token
         arg_list = [arg.strip() for arg in args.split("->")]
         if len(arg_list) != 2:
             print("Invalid message send syntax. Correct syntax: \\send {message} -> {user}")
@@ -150,7 +149,7 @@ class Client:
         condition = threading.Condition()
 
         if manual:
-            self.attempt_login(condition)
+            self.user_token = "test_user"
             return
 
         # start new Daemon thread listening for messages with condition variable
