@@ -9,3 +9,11 @@ message recieved. Parsing to display...
 Lauren > Hi
 Wire for logout built to be sent
 logout message sent
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt
+LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt

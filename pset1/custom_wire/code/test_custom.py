@@ -177,69 +177,64 @@ def test_server_startup(host, port, logfilename):
 
 
 #help in chat client function tests, assumes server is running in a separate terminal
-def test_help(logfilename):
+def test_help(logfilename, cSocket, username):
     #start client
      #clear client log
     open(logfilename, 'w').close()
-    #setup client
-    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
     #run help call
     chat_client.IO_Manager(cSocket, username, logfilename, True, "\\help")
     #ensure help was logged
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        assert content[3].strip() == "Welcome to the chat service, Lauren! Here is a list of commands available to you and their syntax:"
+        assert content[0].strip() == "Welcome to the chat service, Lauren! Here is a list of commands available to you and their syntax:"
     print("help test passed")
 
 
 #list in chat client function tests, assumes server is running in a separate terminal
-def test_list(logfilename):
+def test_list(logfilename, cSocket, username):
     #start client
      #clear client log
     open(logfilename, 'w').close()
     #setup client
-    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
     #run help call
     chat_client.IO_Manager(cSocket, username, logfilename, True, "\\list *")
     #ensure list request was logged
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        assert content[4].strip() == "listUsr message sent"
+        assert content[1].strip() == "listUsr message sent"
     print("list test 1 passed")
     #add delay for socket to send properly
     time.sleep(1)
     chat_client.IO_Manager(cSocket, username, logfilename, True, " ")
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        assert content[5].strip() == "users from query:"
-        assert content[6].strip() == "Lauren,"
+        assert content[2].strip() == "users from query:"
+        assert content[3].strip() == "Lauren,"
     print("list test 2 passed")
 
 
 #test sending to a client, assumes server is running in a separate channel
-def test_send(logfilename):
+def test_send(logfilename, cSocket, username):
     #start client
     #clear client log
     open(logfilename, 'w').close()
     #clear server log
     open(log_name_s, 'w').close()
-    #setup client
-    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
     #run send call
     chat_client.IO_Manager(cSocket, username, logfilename, True, "\\send Hi!\\,Lauren")
     #ensure send request was logged
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        assert content[4].strip() == "message sent to Lauren"
+        assert content[1].strip() == "message sent to Lauren"
     print("send test 1 passed")
     #add delay for socket to send properly
     time.sleep(1)
     chat_client.IO_Manager(cSocket, username, logfilename, True, " ")
     with open(logfilename, 'r') as log:
         content = log.readlines()
-        assert content[6].strip() == "Lauren > Hi!"
+        assert content[3].strip() == "Lauren > Hi!"
     print("send test 2 passed")
-
 
 
 #logout in chat client function tests, assumes server is running in a separate terminal
@@ -311,10 +306,12 @@ test_log(log_name_t)
 test_rec_exception(log_name_t)
 test_server_startup('127.0.0.1', 8080, log_name_t)
 #clear server log
+#setup client
+cSocket, username = chat_client.Start_Client(client_host, client_port, log_name_c, True, "Lauren")
 open(log_name_s, 'w').close()
-test_help(log_name_c)
-test_list(log_name_c)
-test_send(log_name_c)
+test_help(log_name_c, cSocket, username)
+test_list(log_name_c, cSocket, username)
+test_send(log_name_c, cSocket, username)
 test_logout(log_name_c)
 test_delete(log_name_c)
 
