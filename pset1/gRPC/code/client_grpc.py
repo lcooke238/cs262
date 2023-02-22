@@ -4,6 +4,7 @@ import grpc
 import chat_pb2
 import chat_pb2_grpc
 import sys
+import os
 
 LOG_PATH = "../logs/client_grpc.log"
 
@@ -13,14 +14,14 @@ FAILURE = 1
 SUCCESS_WITH_DATA = 2
 
 
-# customize default server address
-DEFAULT_HOST_IP = "localhost"
-DEFAULT_PORT = "50051"
+# customize server address
+HOST_IP = "localhost"
+PORT = "50051"
 
 
 class Client:
 
-    def __init__(self, host=DEFAULT_HOST_IP, port=DEFAULT_PORT):
+    def __init__(self, host=HOST_IP, port=PORT):
         self.host = host
         self.port = port
         self.stub = None
@@ -40,6 +41,7 @@ class Client:
         if response.status == FAILURE:
             print(f"Login error: {response.errormessage}")
             return
+        
         # if success, set user token and print success
         self.user_token = response.user
         print(f"Succesfully logged in as user: {self.user_token}. Unread messages:")
@@ -59,6 +61,7 @@ class Client:
         if response.status == FAILURE:
             print(f"List users failed, error: {response.errormessage}")
             return
+        
         # if success, print users that match the wildcard provided
         print(f"Users matching wildcard {response.wildcard}:")
         for user in response.user:
@@ -179,7 +182,7 @@ class Client:
                     response = self.stub.GetMessages(chat_pb2.GetRequest(user=self.user_token))
                 except:
                     self.server_online = False
-                    break
+                    self.handle_server_shutdown()
                 if response.status == SUCCESS_WITH_DATA:
                     for message in response.message:
                         print(f"{message.sender} > {message.message}")
@@ -190,7 +193,7 @@ class Client:
 
     def handle_server_shutdown(self):
         print("Error: server error")
-        sys.exit()
+        os._exit(FAILURE)
 
     def run(self, manual=False):
 
