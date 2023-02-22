@@ -212,6 +212,7 @@ def test_list(logfilename):
     print("list test passed")
 
 
+#test sending to a client, assumes server is running in a separate channel
 def test_send(logfilename):
     #start client
     #clear client log
