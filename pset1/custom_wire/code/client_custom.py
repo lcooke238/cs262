@@ -6,8 +6,8 @@ import errno
 import os
 
 #constants
-client_host = "127.0.0.1"
-client_port = 1234
+client_host = '10.250.116.100'
+client_port = 6000
 log_name = "../logs/client_log.txt"
 wp_version = 0
 
@@ -87,7 +87,7 @@ def Start_Client(cHost, cPort, logfilename=log_name, test=False, testin=None):
     client_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     client_socket.connect((cHost, cPort))
     Log(f"connected to {cHost}.{cPort}", logfilename)
-    # #prevent receiving block
+    #prevent receiving block
     client_socket.setblocking(False)
     #send converted username to server
     wire = Login_Wire(user, wp_version, logfilename)
@@ -214,8 +214,6 @@ def IO_Manager(cSocket, user, logfilename=log_name, test=False, testin=None,conf
         #if we recieve nothing, socket has been shut down/closed on the other end, so we end the call.
         if not len(protocol_version):
             return False
-            #Display_Message("Connection Closed by Server. Shutting Down.",logfilename)
-            #sys.exit()
         #check for the expected protocol version number
         protocol_version_decoded = int(protocol_version.decode('utf-8').strip())
         if protocol_version_decoded != wp_version: 
