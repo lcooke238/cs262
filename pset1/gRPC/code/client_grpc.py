@@ -202,15 +202,15 @@ class Client:
                     self.server_online = False
                     self.handle_server_shutdown()
                 if response.status == SUCCESS_WITH_DATA:
+                    print("")
                     for message in response.message:
-                        print(f"{message.sender} > {message.message}")
+                        print(f"\033[94m{message.sender} > \033[0m{message.message}")
                     print(f"{self.user_token} > ", end="")
             else:
                 with condition:
                     condition.wait()
 
     def handle_server_shutdown(self):
-        print("Error: server error")
         self.channel.close()
         os._exit(FAILURE)
 
