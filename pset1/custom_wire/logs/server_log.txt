@@ -1,56 +1,69 @@
 server is listening for connections...127.0.0.1:1234
 found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 50979)
-attempting logging in from <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50979)>
-username: Lauren
-database successfully read for user Lauren
-added to socket list for user Lauren
-finished logging in for Lauren
+accepted connection from ('127.0.0.1', 49193)
+attempting logging in from <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>
+username: bob
+database successfully read for user bob
+added to socket list for user bob
+finished logging in for bob
 True
-recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50979)>
-sending message from Lauren
-recipient, message, and sender successfully retrieved from socket Lauren
-Wire for message reciept built to be sent by Lauren
-finished sending message from Lauren
+recieved operation from socket <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>
+sending message from bob
+recipient, message, and sender successfully retrieved from socket bob
+Wire for message reciept built to be sent by bob
+finished sending message from bob
 True
+recieved operation from socket <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>
+sending message from bob
+recipient, message, and sender successfully retrieved from socket bob
+Wire for message reciept built to be sent by bob
+finished sending message from bob
+True
+recieved operation from socket <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>
+sending message from bob
+recipient, message, and sender successfully retrieved from socket bob
+Wire for message reciept built to be sent by bob
+finished sending message from bob
+True
+recieved operation from socket <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>
+logging out from bob
+logout confirmed. Beginning account logout process for bob
+Error: 'str' object cannot be interpreted as an integer. Shutting Down.
+False
+no data from socket. connection to socket <socket.socket fd=600, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49193)>closed.
 found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 50986)
-attempting logging in from <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50986)>
+accepted connection from ('127.0.0.1', 49206)
+attempting logging in from <socket.socket fd=1668, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49206)>
 username: Michelle
 database successfully read for user Michelle
 added to socket list for user Michelle
-Wire for message reciept built to be sent by Lauren
+Wire for message reciept built to be sent by bob
 sent stored messages to Michelle
 finished logging in for Michelle
 True
-recieved operation from socket <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50986)>
+recieved operation from socket <socket.socket fd=1668, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49206)>
+sending message from Michelle
+recipient, message, and sender successfully retrieved from socket Michelle
+Wire for message reciept built to be sent by Michelle
+finished sending message from Michelle
+True
+recieved operation from socket <socket.socket fd=1668, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49206)>
+logging out from Michelle
+logout confirmed. Beginning account logout process for Michelle
+Error: 'str' object cannot be interpreted as an integer. Shutting Down.
+False
+no data from socket. connection to socket <socket.socket fd=1668, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49206)>closed.
+found server communication, pending connection acceptance
+accepted connection from ('127.0.0.1', 49211)
+attempting logging in from <socket.socket fd=1632, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49211)>
+username: andrew
+database successfully read for user andrew
+added to socket list for user andrew
+Wire for message reciept built to be sent by bob
+sent stored messages to andrew
+finished logging in for andrew
+True
+recieved operation from socket <socket.socket fd=1632, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49211)>
 faulty protocol input W_T_F
 False
-no data from socket. connection to socket <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50986)>closed.
-recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50979)>
-sending message from Lauren
-recipient, message, and sender successfully retrieved from socket Lauren
-Wire for message reciept built to be sent by Lauren
-finished sending message from Lauren
-True
-recieved operation from socket <socket.socket fd=4, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50979)>
-sending message from Lauren
-recipient, message, and sender successfully retrieved from socket Lauren
-Wire for message reciept built to be sent by Lauren
-finished sending message from Lauren
-True
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 50997)
-attempting logging in from <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 50997)>
-username: Michelle
-database successfully read for user Michelle
-added to socket list for user Michelle
-Wire for message reciept built to be sent by Lauren
-Wire for message reciept built to be sent by Lauren
-sent stored messages to Michelle
-finished logging in for Michelle
-True
-recieved operation from socket <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234)>
-Error: [Errno 54] Connection reset by peer. Shutting Down.
-False
-no data from socket. connection to socket <socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 1234)>closed.
+no data from socket. connection to socket <socket.socket fd=1632, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 49211)>closed.
