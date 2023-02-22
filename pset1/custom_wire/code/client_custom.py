@@ -12,6 +12,7 @@ log_name = "../logs/client_log.txt"
 wp_version = 0
 
 MAX_USERNAME_LENGTH = 20
+MAX_MESSAGE_LENGTH = 4000
 
 #Log(logfilename: String, msg: String): 
     #records msg in log text file with name logfilename
@@ -119,6 +120,11 @@ def In_Manager(cSocket, user, logfilename=log_name):
             return False
         msg = arg_list[0].strip()
         usrnm = arg_list[1].strip()
+
+        # Ensuring message isn't too long, only have 4 bytes to encode length, so cap of wire protocol is 4MB
+        if len(msg) > MAX_MESSAGE_LENGTH:
+            Display_Message(f"Message is too long. Max message length: {MAX_MESSAGE_LENGTH}. Consider splitting into multiple messages")
+
         if not msg  or not usrnm:
             Display_Message("Improper command format. Did you leave an argument blank?")
             return False
