@@ -1,118 +1,178 @@
-server is listening for connections...127.0.0.1:1234
+server is listening for connections...10.250.116.100:6000
 found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51683)
-attempting logging in from <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>
-username: andrew
-database successfully read for user andrew
-added to socket list for user andrew
-finished logging in for andrew
+accepted connection from ('10.250.2.147', 58283)
+attempting logging in from <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+username: patrick
+database successfully read for user patrick
+added to socket list for user patrick
+finished logging in for patrick
 True
-recieved operation from socket <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>
-attempting account list retrieval from andrew
-retrieved existing users, sending to client andrew
-finished sending account list for andrew
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+attempting account list retrieval from patrick
+retrieved existing users, sending to client patrick
+finished sending account list for patrick
 True
-recieved operation from socket <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>
-sending message from andrew
-recipient, message, and sender successfully retrieved from socket andrew
-Wire for message reciept built to be sent by andrew
-finished sending message from andrew
-True
-recieved operation from socket <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>
-sending message from andrew
-recipient, message, and sender successfully retrieved from socket andrew
-Wire for message reciept built to be sent by andrew
-finished sending message from andrew
-True
-recieved operation from socket <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>
-logging out from andrew
-logout confirmed. Beginning account logout process for andrew
-Error: 'str' object cannot be interpreted as an integer. Shutting Down.
-False
-no data from socket. connection to socket <socket.socket fd=1612, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51683)>closed.
 found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51686)
-attempting logging in from <socket.socket fd=672, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51686)>
-username: bob
-database successfully read for user bob
-added to socket list for user bob
-Wire for message reciept built to be sent by andrew
-sent stored messages to bob
-finished logging in for bob
-True
-recieved operation from socket <socket.socket fd=672, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51686)>
-deleting account from bob
-deletion confirmed. Beginning account deletion process for bob
-deleted user from all databases
-Error: 'dict' object has no attribute 'remove'. Shutting Down.
-False
-no data from socket. connection to socket <socket.socket fd=672, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51686)>closed.
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51691)
-attempting logging in from <socket.socket fd=364, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51691)>
-username: Lauren
-database successfully read for user Lauren
-added to socket list for user Lauren
-Wire for message reciept built to be sent by andrew
-Wire for message reciept built to be sent by bob
-Wire for message reciept built to be sent by bob
-sent stored messages to Lauren
-finished logging in for Lauren
-True
-recieved operation from socket <socket.socket fd=364, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51691)>
-attempting account list retrieval from Lauren
-retrieved existing users, sending to client Lauren
-finished sending account list for Lauren
-True
-recieved operation from socket <socket.socket fd=364, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51691)>
-Error: [WinError 10054] An existing connection was forcibly closed by the remote host. Shutting Down.
-False
-no data from socket. connection to socket <socket.socket fd=364, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51691)>closed.
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51700)
-attempting logging in from <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
+accepted connection from ('10.250.69.30', 51956)
+attempting logging in from <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
 username: Lauren
 database successfully read for user Lauren
 added to socket list for user Lauren
 finished logging in for Lauren
 True
-recieved operation from socket <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
-attempting account list retrieval from Lauren
-retrieved existing users, sending to client Lauren
-finished sending account list for Lauren
-True
-recieved operation from socket <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
 sending message from Lauren
 recipient, message, and sender successfully retrieved from socket Lauren
 Wire for message reciept built to be sent by Lauren
 finished sending message from Lauren
 True
-recieved operation from socket <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
 sending message from Lauren
 recipient, message, and sender successfully retrieved from socket Lauren
-recipient does not exist. Not good at all.
-built error wire to send to client<socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
+Wire for message reciept built to be sent by Lauren
 finished sending message from Lauren
 True
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51701)
-attempting logging in from <socket.socket fd=672, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51701)>
-username: Lauren
-Error: <socket.socket fd=672, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51701)>. Shutting Down.
-False
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51702)
-attempting logging in from <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51702)>
-username: Lauren
-Error: <socket.socket fd=1644, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51702)>. Shutting Down.
-False
-found server communication, pending connection acceptance
-accepted connection from ('127.0.0.1', 51703)
-attempting logging in from <socket.socket fd=1680, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51703)>
-username: Lauren
-Error: <socket.socket fd=1680, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51703)>. Shutting Down.
-False
-recieved operation from socket <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>
-faulty protocol input W_T_F
-False
-no data from socket. connection to socket <socket.socket fd=1624, family=2, type=1, proto=0, laddr=('127.0.0.1', 1234), raddr=('127.0.0.1', 51700)>closed.
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+sending message from patrick
+recipient, message, and sender successfully retrieved from socket patrick
+Wire for message reciept built to be sent by patrick
+finished sending message from patrick
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+sending message from Lauren
+recipient, message, and sender successfully retrieved from socket Lauren
+Wire for message reciept built to be sent by Lauren
+finished sending message from Lauren
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+attempting account list retrieval from patrick
+retrieved existing users, sending to client patrick
+finished sending account list for patrick
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+attempting account list retrieval from Lauren
+retrieved existing users, sending to client Lauren
+finished sending account list for Lauren
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+attempting account list retrieval from Lauren
+retrieved existing users, sending to client Lauren
+finished sending account list for Lauren
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+attempting account list retrieval from patrick
+retrieved existing users, sending to client patrick
+finished sending account list for patrick
+True
+recieved operation from socket <socket.socket fd=1604, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.2.147', 58283)>
+attempting account list retrieval from patrick
+retrieved existing users, sending to client patrick
+finished sending account list for patrick
+True
+recieved operation from socket <socket.socket fd=1656, family=2, type=1, proto=0, laddr=('10.250.116.100', 6000), raddr=('10.250.69.30', 51956)>
+attempting account list retrieval from Lauren
+retrieved existing users, sending to client Lauren
+finished sending account list for Lauren
+True

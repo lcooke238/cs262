@@ -6,8 +6,8 @@ import errno
 import os
 
 #constants
-client_host = "127.0.0.1"
-client_port = 1234
+client_host = "65.112.8.55"
+client_port = 50051
 log_name = "../logs/client_log.txt"
 wp_version = 0
 
@@ -287,8 +287,7 @@ def Help(user, logfilename=log_name,test=False):
     \\send msg\\, usrnm -- sends the message msg to the person with username usrnm. \n
     \\logout -- logs you out of your account. Client will shutdown after. \n
     \\delete -- deletes your account. Client will shutdown after. \n
-    \\list ltrs -- provides a list of existing accounts that start with the string ltrs.
-                  Use * to get a list of every existing account. \n
+    \\list * -- provides a list of all existing accounts. \n
     \\clear -- clears console display thus far. \n
     \\help -- displays the different commands and their syntax.
     """

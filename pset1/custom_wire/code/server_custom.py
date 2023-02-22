@@ -6,8 +6,8 @@ import select
 import numpy as np
 
 #constants
-server_host = '127.0.0.1'
-server_port = 1234
+server_host = '10.250.116.100'
+server_port = 6000
 socket_list = []
 online_clients = {}
 HEAD_LEN = 4
@@ -265,7 +265,6 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
         #if username offline with stored messages, bring back and send those messages
         data_df = pd.read_csv(database)
         data_df = data_df.replace("", np.NaN)
-        print(list(data_df.columns))
         if username in list(data_df.columns):
             msgs = list(filter(lambda x: not(pd.isnull(x)), list(data_df[username])))
             print(msgs)
