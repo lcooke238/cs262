@@ -51,3 +51,30 @@ We implemented two very different versions of a chat application (as permitted b
     -> There's also the factor that one of us is a bit comment crazy, so that also affects the length of the code pretty significantly.
 
 4. The size of the buffers being sent back and forth seem to be similar. According to the internet, gRPC also pads 4 bytes to the front to store the message size along with a compression flag and then the message immediately follows. The messages are capped at 4MB (4 bytes storing length can only store a length of up to 4MB) so also have a similar cap to our custom version.
+
+## Custom Wire Protocol
+The detailed description of how this wire protocol was developed can be found in the custom_wire folder in the <b>`custom_wire_ledger.md`</b> file. Here is a summary of the wire protocol:
+
+1. first 4 bytes (constant) represent the wire protocol version number. Upon reciept, a server and client will always check that this version number is what it expects, otherwise it will log the problem on the recieving side and close the socket. 
+    - I chose to close the socket after logging the problem locally because we have no means of properly communicating the error back to the sender with a faulty wire protocol. 
+2. next 1 byte (constant) represents the operation code. The operations are as follows:
+    - 0: send a message to another user
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve (i)
+        - next 1 byte (constant) represents the length of the username of the recipient (u)
+        - next u bytes represents the username of the recipient
+        - next i-1-u bytes represent the message
+    - 1: logout
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the confirmation keyword to ensure opcode reciept wasn't a mistake
+    - 2: delete
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the confirmation keyword to ensure opcode reciept wasn't a mistake
+    - 3: login
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the username for the login
+    - 4: list accounts
+        - next 4 bytes (constant) represents length of rest of input
+        - rest of input represents the keyword to filter list by
+    - 5: error/exception
+        - next 4 bytes (constant) represents the length of the rest of the input to recieve
+        - rest of input represents the error message to be used

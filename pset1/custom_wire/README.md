@@ -1,5 +1,7 @@
 ## Installation Instructions
-To run the custom wire version of our chat application, you need to install the following packages:
+To run the custom wire version of our chat application, you will need to have python version 3.10 or higher installed to support the match statements used. The installation link can be found here: https://www.python.org/downloads/release/python-3100/
+
+You will then need to install the following packages:
 
 - socket
 - select
