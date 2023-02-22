@@ -3,6 +3,7 @@ import socket
 import pandas as pd
 import warnings
 import select
+import numpy as np
 
 #constants
 server_host = '127.0.0.1'
@@ -269,6 +270,9 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
                     cSocket.send(Msg_to_Wire(username,msga,sender,logfilename))
             #delete that column from the dataset
             data_df = data_df.drop(username, axis='columns')
+            data_df = data_df.replace("", np.NaN)
+            if len(data_df.columns) == 1:
+                data_df = pd.DataFrame({"ExistingUsers": []})
             Log("sent stored messages to " + username, logfilename)
             data_df.to_csv(database, index=False)
     except:
