@@ -1,15 +1,12 @@
 #imports
 import server_custom as chat_server
 import client_custom as chat_client
-import pandas as pd
-import sys
-import io
-#from contextlib import redirect_stdout
+
 
 
 # TEST_CUSTOM
 #   test suite for client_custom.py and server_custom.py;
-#   run by running server_custom.py in a separate tab,
+#   run by running test_server.py in a separate tab,
 #   and running 'pytest' in the directory that contains this file.
 
 #constants
@@ -299,7 +296,6 @@ def test_delete(logfilename):
 test_log(log_name_t)
 test_rec_exception(log_name_t)
 test_server_startup('127.0.0.1', 8080, log_name_t)
-#first, create a socket pointing back to yourself in a different thread
 #clear server log
 open(log_name_s, 'w').close()
 test_help(log_name_c)
@@ -309,20 +305,4 @@ test_logout(log_name_c)
 test_delete(log_name_c)
 
 
-# #startup server
-# server_socket = chat_server.Start_Server(server_host, server_port, log_name_s, data, users, False)
-# #add server socket to list of sockets for selection
-# socket_list = [server_socket]
-# t1 = threading.Thread(target=remaining_client_tests())
-# t1.start()
-# run_server(server_socket)
-#multithread to run the other tests with a client
-#test_WtoF()
-#test_sSelect()
-#test_login()
-#test_MtoW()
-#test_send_msg()
-#test_delete()
-#test_logout()
-#test_list_acct()
 print("full server test suite passed")
