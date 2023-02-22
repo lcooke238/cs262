@@ -65,12 +65,41 @@ d. If a user logs out, it goes back to blocking and waiting for the condition va
 1. *ServerShutdown*: Impossible to recover from for the client, this simply shuts down the client instantly as there is nothing they can do without the server.
 <br>
 
-2. *LocalError*: Error specific to a given instance/client that cannot be recovered, rest of system remains unaffected. Will only kill the problematic component. Will likely exist with specific clients.
+2. *ForcedExit*: Exit gracefully if user attempts to manually kill the program (e.g. CTRL + C) by ensuring they get logged out before shutting down. 
 <br>
-
-3. *Warning*: problem occurred within running system, does not affect overall system functionality (ie. if we can identify an indicator of a faulty packet, can give someone a warning?)
 
 **Test Suite Ideas**
 1. Run the server separately, and have a testing file that simulates one or more users interacting with the server
 2. Test via what output the client and/or server receives.
 3. Or test via querying the database to check operations were performed correctly.
+
+## Changes & learning points along the way
+
+### 20-22 Feb
+
+	-> Added testing suite
+
+	-> Added a few safety checks e.g. message length as gRPC packets capped at 4MB, try excepts to catch most errors
+	more gently.
+
+### 19 Feb
+
+	-> Added locking to database to ensure thread safety.
+
+	-> Also realized I was double pulling data by pulling messages upon login and upon thread startup, not an issue now with locking but removed the redundant message pull from the login functionality.
+
+### 18 Feb
+
+	-> Added functionality to crash more gently, including handling CTRL + C and server shutdown.
+
+### 17 Feb
+
+	-> Added multithreading to the client to listen.
+
+	-> Pull messages upon login added.
+
+### 16 Feb
+
+	-> Restructured folders
+
+	-> Created the bulk of the basic functions and protos
