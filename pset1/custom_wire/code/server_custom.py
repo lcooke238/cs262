@@ -100,7 +100,6 @@ def Start_Server(sHost, sPort, logfilename=log_name, database=data, userbase=use
     return server_socket
 
 
-##UNTESTED BELOW HERE##
 #Wire_to_Function(cSocket: socket,sList: socket List, onlineClients: Dict[key=socket] = username : string, loginFlag: boolean, database: String, logfilename: String): 
     #checks and decodes wire protocol version number (ensuring match to local one), operation code (ensuring validity), and remaining input length from client socket cSocket
     #if loginFlag is True, will only accept login opcode (3) on call
@@ -287,7 +286,6 @@ def Login(cSocket, input, sList, onlineClients, database=data, userbase=users, l
     #returns message encoding
     #logs progress in text log file called logfilename
 def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
-    #TODO: fix padding throughout
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
@@ -330,7 +328,7 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
         Log("recipient does not exist. Not good at all.", logfilename)
         Send_Error(cSocket,"SendError: recipient " + recip + " does not exist.",logfilename)
         return False
-    #find recipient and send to them TODO (clunky)
+    #find recipient and send to them
     recip_socket_set = {i for i in onlineClients if onlineClients[i]==recip}
     recip_socket= cSocket
     for r in recip_socket_set:
