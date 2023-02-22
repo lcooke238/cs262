@@ -1,14 +1,12 @@
-#imports
-import server_custom as chat_server
-import client_custom as chat_client
-import time
-
-
-
 # TEST_CUSTOM
 #   test suite for client_custom.py and server_custom.py;
 #   run by running test_server.py in a separate tab,
 #   and running 'pytest' in the directory that contains this file.
+
+#imports
+import server_custom as chat_server
+import client_custom as chat_client
+import time
 
 #constants
 server_host = '127.0.0.1'
@@ -177,6 +175,7 @@ def test_server_startup(host, port, logfilename):
     #clear content of test log
     open(logfilename, 'w').close()
 
+
 #help in chat client function tests, assumes server is running in a separate terminal
 def test_help(logfilename):
     #start client
@@ -305,7 +304,6 @@ def test_delete(logfilename):
             assert False
         except:
             print("delete test 2 passed")
-
 
 
 #run tests
