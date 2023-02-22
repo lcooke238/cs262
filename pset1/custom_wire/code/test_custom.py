@@ -2,16 +2,21 @@
 import server_custom as chat_server
 import client_custom as chat_client
 import pandas as pd
-import threading
 import sys
-# from pytest import monkeypatch
 import io
+#from contextlib import redirect_stdout
+
+
+# TEST_CUSTOM
+#   test suite for client_custom.py and server_custom.py;
+#   run by running server_custom.py in a separate tab,
+#   and running 'pytest' in the directory that contains this file.
 
 #constants
 server_host = '127.0.0.1'
 server_port = 8080
 client_host = "127.0.0.1"
-client_port = 8080
+client_port = 1234
 socket_list = []
 online_clients = {}
 Head_Len = 4
@@ -178,64 +183,116 @@ def test_server_startup(host, port, logfilename):
     #clear content of test log
     open(logfilename, 'w').close()
 
-   
-
-#TODO Wire_to_Function tests
-def test_WtoF(cSocket, logfilename):
-    pass
-
-
-#TODO Socket_Select tests
-def test_sSelect(sSocket, sList, onlineClients, database, logfilename):
-    pass
-
-
-#TODO Login tests
-def test_login():
-    pass
-
-
-#TODO Msg_to_Wire tests
-def test_MtoW():
-    pass
-
-
-#TODO Send_Message tests
-def test_send_msg():
-    pass
-
-
-#TODO Delete_Acct tests
-def test_delete():
-    pass
-
-
-#TODO Logout tests
-def test_logout():
-    pass
-
-
-#TODO List_Accounts tests
-def test_list_acct():
-    pass
-
-
-#run_server, uses constants from above to turn on a server
-def run_server(server_socket):
-    #infinitely select through sockets
-    while True:
-        chat_server.Socket_Select(server_socket, socket_list, online_clients, data, users, log_name_s)
-
-
-#runs client tests that require server connection
-def remaining_client_tests():
-    #connect to created server from first thread
-    #clear client log
-    open(log_name_c, 'w').close()
+#help in chat client function tests, assumes server is running in a separate terminal
+def test_help(logfilename):
+    #start client
+     #clear client log
+    open(logfilename, 'w').close()
     #setup client
-    cSocket, username = chat_client.Start_Client(client_host, client_port, log_name_c)
-    monkeypatch.setattr('sys.stdin', io.StringIO('Lauren'))
-    sys.exit()
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run help call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\help")
+    #ensure help was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[3].strip() == "Welcome to the chat service, Lauren! Here is a list of commands available to you and their syntax:"
+    print("help test passed")
+
+
+#list in chat client function tests, assumes server is running in a separate terminal
+def test_list(logfilename):
+    #start client
+     #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run help call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\list *")
+    #ensure list request was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[4].strip() == "listUsr message sent"
+    print("list test passed")
+
+
+def test_send(logfilename):
+    #start client
+    #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run help call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\send Hi!\\,Lauren")
+    #ensure send request was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[4].strip() == "message sent to Lauren"
+    print("send test passed")
+
+
+#logout in chat client function tests, assumes server is running in a separate terminal
+def test_logout(logfilename):
+    #start client
+    #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run logout call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\logout", "yes")
+    #ensure logout was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[4].strip() == "logout message sent"
+    print("logout test 1 passed")
+
+    #start client
+    #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run logout call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\logout", "no")
+    #ensure logout was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        try: 
+            content[4].strip()
+            assert False
+        except:
+            print("logout test 2 passed")
+
+
+#delete in chat client function tests, assumes server is running in a separate terminal
+def test_delete(logfilename):
+    #start client
+    #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run logout call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\delete", "yes")
+    #ensure logout was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        assert content[4].strip() == "delete message sent"
+    print("delete test 1 passed")
+
+    #start client
+    #clear client log
+    open(logfilename, 'w').close()
+    #setup client
+    cSocket, username = chat_client.Start_Client(client_host, client_port, logfilename, True, "Lauren")
+    #run logout call
+    chat_client.IO_Manager(cSocket, username, logfilename, True, "\\delete", "no")
+    #ensure logout was logged
+    with open(logfilename, 'r') as log:
+        content = log.readlines()
+        try: 
+            content[4].strip()
+            assert False
+        except:
+            print("delete test 2 passed")
+
 
 
 #run tests
@@ -245,13 +302,20 @@ test_server_startup('127.0.0.1', 8080, log_name_t)
 #first, create a socket pointing back to yourself in a different thread
 #clear server log
 open(log_name_s, 'w').close()
-#startup server
-server_socket = chat_server.Start_Server(server_host, server_port, log_name_s, data, users, False)
-#add server socket to list of sockets for selection
-socket_list = [server_socket]
-t1 = threading.Thread(target=remaining_client_tests())
-t1.start()
-run_server(server_socket)
+test_help(log_name_c)
+test_list(log_name_c)
+test_send(log_name_c)
+test_logout(log_name_c)
+test_delete(log_name_c)
+
+
+# #startup server
+# server_socket = chat_server.Start_Server(server_host, server_port, log_name_s, data, users, False)
+# #add server socket to list of sockets for selection
+# socket_list = [server_socket]
+# t1 = threading.Thread(target=remaining_client_tests())
+# t1.start()
+# run_server(server_socket)
 #multithread to run the other tests with a client
 #test_WtoF()
 #test_sSelect()

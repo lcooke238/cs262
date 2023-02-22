@@ -49,8 +49,11 @@ def Rec_Exception(eType, eMsg, logfilename=log_name):
 
 #Display_Message(msg: String, logfilename: String):
     # given a message msg, displays message to user and logs it in text file log called logfilename
-def Display_Message(msg, logfilename=log_name):
-    print(msg)
+def Display_Message(msg, logfilename=log_name,test=False):
+    if not test:
+        print(msg)
+    else:
+        pass
     Log(msg, logfilename)
 
 
@@ -60,12 +63,15 @@ def Display_Message(msg, logfilename=log_name):
     #sends the encoded login username to the server through the client socket
     #logs all progress in log text file called logfilename
     #returns client socket and username in a pair
-def Start_Client(cHost, cPort, logfilename=log_name):
+def Start_Client(cHost, cPort, logfilename=log_name, test=False, testin=None):
     #grab user input for username before starting connection
     user_ok = False
     user = ""
     while not user_ok:
-        user = input("Type a unique username, note all spaces and commas will be removed: ")
+        if not test:
+            user = input("Type a unique username, note all spaces and commas will be removed: ")
+        else:
+            user = testin
         #ensure username is within a given limit before continuing
         #remove spaces and commas
         user = user.strip()
@@ -74,7 +80,7 @@ def Start_Client(cHost, cPort, logfilename=log_name):
             user_ok = True
             break
         #otherwise username invalid, display problem and re-ask
-        Display_Message("input username empty or too long, please try again.", logfilename)
+        Display_Message("input username empty or too long, please try again.", logfilename,test)
 
     #create socket and connect to server socket
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -108,25 +114,29 @@ def Login_Wire(user, wp_version=wp_version, logfilename=log_name):
 
 #input management
     #return false when loop should start over
-def In_Manager(cSocket, user, logfilename=log_name):
+def In_Manager(cSocket, user, logfilename=log_name,test=False, testin=None,confirm=None):
     #get user input
-    cmd = input(f"{user} > ")
+    cmd = None
+    if not test:
+        cmd = input(f"{user} > ")
+    else:
+        cmd = testin
     #Send: if command is in proper send format, activate send protocol
     if (cmd[0:5] == "\\send") and cmd.__contains__(","):
         args = cmd[6:].strip()
-        arg_list = args.split('\,')
+        arg_list = args.split('\\,')
         if len(arg_list) != 2:
-            Display_Message("Improper command format. Did you add an extra \",\"?")
+            Display_Message("Improper command format. Did you add an extra \",\"?",test)
             return False
         msg = arg_list[0].strip()
         usrnm = arg_list[1].strip()
 
         # Ensuring message isn't too long, only have 4 bytes to encode length, so cap of wire protocol is 4MB
         if len(msg) > MAX_MESSAGE_LENGTH:
-            Display_Message(f"Message is too long. Max message length: {MAX_MESSAGE_LENGTH}. Consider splitting into multiple messages")
+            Display_Message(f"Message is too long. Max message length: {MAX_MESSAGE_LENGTH}. Consider splitting into multiple messages",test)
 
         if not msg  or not usrnm:
-            Display_Message("Improper command format. Did you leave an argument blank?")
+            Display_Message("Improper command format. Did you leave an argument blank?",test)
             return False
         #now all formatting should be okay to get request to server
         Send_Message(cSocket, usrnm, msg, logfilename)
@@ -135,18 +145,36 @@ def In_Manager(cSocket, user, logfilename=log_name):
     #Logout: if command is in proper logout format, activate logout protocol
     elif cmd[0:7] == "\\logout":
         #verify logout input
-        verify = input("are you sure you want to log out? Type yes to continue: ")
+        verify = ""
+        if not test:
+            verify = input("are you sure you want to log out? Type yes to continue: ")
+        else:
+            verify = confirm
         if verify.strip() == "yes":
             #call logout function
             Logout(cSocket, user, logfilename)
+            if not test:
+                sys.exit()
+            else:
+                return False
+                
     
     #Delete: if command is in proper delete format, activate delete protocol
     elif cmd[0:7] == "\\delete":
         #verify delete input
-        verify = input("are you sure you want to delete this account? Type yes to continue: ")
+        verify = ""
+        if not test:
+            verify = input("are you sure you want to delete this account? Type yes to continue: ")
+        else:
+            verify = confirm
         if verify.strip() == "yes":
             #call delete function
             Delete(cSocket, user, logfilename)
+            if not test:
+                #kill client
+                sys.exit()
+            else:
+                return False
 
     #List: if command is in proper list format, activate list protocol
     elif cmd[0:5] == "\\list" and cmd[6:].strip() != "":
@@ -156,7 +184,7 @@ def In_Manager(cSocket, user, logfilename=log_name):
 
     #Help: if command is in proper help format, activate help
     elif cmd[0:5] == "\\help":
-        Help(user,logfilename)
+        Help(user,logfilename,test)
         return False
     
     elif cmd[0:6] == "\\clear":
@@ -172,14 +200,14 @@ def In_Manager(cSocket, user, logfilename=log_name):
 
     #otherwise, tell user you don't understand their command and to retry
     else:
-        Display_Message("Improper command syntax. Type \"\\help\" for instructions on how to use the interface.", logfilename)
+        Display_Message("Improper command syntax. Type \"\\help\" for instructions on how to use the interface.", logfilename,test)
         return False
 
 
 #IO management loop
     #return False when loop should start over
-def IO_Manager(cSocket, user, logfilename=log_name):
-    In_Manager(cSocket, user, logfilename)
+def IO_Manager(cSocket, user, logfilename=log_name, test=False, testin=None,confirm=None):
+    In_Manager(cSocket, user, logfilename, test, testin,confirm)
     try:
         #Get first 4 bytes for wire protocol version number
         protocol_version = cSocket.recv(4)
@@ -193,7 +221,7 @@ def IO_Manager(cSocket, user, logfilename=log_name):
         if protocol_version_decoded != wp_version: 
             #get the wrong version, log the error and close the connection
             Rec_Exception(ValueError, "Wire Protocol version does not match. Client expected version " + str(wp_version) + ", got " + str(protocol_version_decoded),logfilename)
-            Display_Message("Wire protocol version mismatch. Shutting down.",logfilename)
+            Display_Message("Wire protocol version mismatch. Shutting down.",logfilename,test)
             sys.exit()
         #otherwise, version is good and we can recieve the operation code
         op_code = cSocket.recv(1)
@@ -213,58 +241,58 @@ def IO_Manager(cSocket, user, logfilename=log_name):
                 l_usr = int(cSocket.recv(1).decode('utf-8').strip())
                 usr = cSocket.recv(l_usr).decode('utf-8').strip()
                 msg = cSocket.recv(in_len_decoded-l_usr-1).decode('utf-8').strip()
-                Display_Message(f"{usr} > {msg}", logfilename)
+                Display_Message(f"{usr} > {msg}", logfilename,test)
 
             #1: logout communication from server
             case 1:
-                Display_Message("Logout Successful. Shutting Down.", logfilename)
+                Display_Message("Logout Successful. Shutting Down.", logfilename,test)
                 sys.exit()
                 
             #2: Delete communication from server
             case 2:
-                Display_Message("Deletion Successful. Shutting Down.", logfilename)
+                Display_Message("Deletion Successful. Shutting Down.", logfilename,test)
                 sys.exit()
                 
             #4: display account list from server
             case 4:
                 lst = cSocket.recv(in_len_decoded).decode('utf-8').strip()
                 act_lst = lst.split(" ")
-                Display_Message("users from query: ", logfilename)
+                Display_Message("users from query: ", logfilename,test)
                 if not act_lst == ['']:
                     for act in act_lst:
-                        Display_Message(act + ", ",logfilename)
+                        Display_Message(act + ", ",logfilename,test)
                
             #5: error from server
             case 5:
                 emsg = cSocket.recv(in_len_decoded).decode('utf-8').strip()
-                Display_Message(emsg, logfilename)
+                Display_Message(emsg, logfilename,test)
     #socket potentially broken
     except IOError as IOE:
         if IOE.errno != errno.EAGAIN and IOE.errno != errno.EWOULDBLOCK:
             Rec_Exception('Reading error: {}. Shutting Down.'.format(str(IOE)),logfilename)
-            Display_Message('Reading error: {}. Shutting Down.'.format(str(IOE)),logfilename)
+            Display_Message('Reading error: {}. Shutting Down.'.format(str(IOE)),logfilename,test)
             sys.exit()
         return False
     #otherwise socket is seriously broken, gotta kill the client
     except Exception as E:
         Rec_Exception('Error: {}. Shutting Down.'.format(str(E)),logfilename)
-        Display_Message('Error: {}. Shutting Down.'.format(str(E)),logfilename)
+        Display_Message('Error: {}. Shutting Down.'.format(str(E)),logfilename,test)
         sys.exit() 
 
 #Help(user: String, logfilename: String):
     #Displays the different commands that the user can use and their syntax.
     #Logs the display in the text log file called logfilename
-def Help(user, logfilename=log_name):
+def Help(user, logfilename=log_name,test=False):
     msg = "Welcome to the chat service, "+user+"""! Here is a list of commands available to you and their syntax: \n
-    \send msg\, usrnm -- sends the message msg to the person with username usrnm. \n
-    \logout -- logs you out of your account. Client will shutdown after. \n
-    \delete -- deletes your account. Client will shutdown after. \n
-    \list ltrs -- provides a list of existing accounts that start with the string ltrs.
+    \\send msg\\, usrnm -- sends the message msg to the person with username usrnm. \n
+    \\logout -- logs you out of your account. Client will shutdown after. \n
+    \\delete -- deletes your account. Client will shutdown after. \n
+    \\list ltrs -- provides a list of existing accounts that start with the string ltrs.
                   Use * to get a list of every existing account. \n
-    \clear -- clears console display thus far. \n
-    \help -- displays the different commands and their syntax.
+    \\clear -- clears console display thus far. \n
+    \\help -- displays the different commands and their syntax.
     """
-    Display_Message(msg, logfilename)
+    Display_Message(msg, logfilename,test)
 
 
 # send msg protocol
@@ -318,8 +346,6 @@ def Logout(cSocket, usrnm, logfilename=log_name):
     cSocket.send(wire)
     #log send
     Log("logout message sent", logfilename)
-    #kill client
-    sys.exit()
 
 
 #delete function
@@ -339,8 +365,6 @@ def Delete(cSocket, usrnm, logfilename=log_name):
     cSocket.send(wire)
     #log send
     Log("delete message sent", logfilename)
-    #kill client
-    sys.exit()
 
 
 #list users fn
@@ -370,7 +394,7 @@ if __name__ == "__main__":
     #setup client
     cSocket, username = Start_Client(client_host, client_port, log_name)
     #display how to access instructions
-    Display_Message("type \help to see instructions. Press Enter to look for buffered returns.", log_name)
+    Display_Message("type \\help to see instructions. Press Enter to look for buffered returns.", log_name)
     #run IO management until kill
     while True:
         #run IO manager until death
