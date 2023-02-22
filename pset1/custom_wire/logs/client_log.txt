@@ -1,7 +1,9 @@
 connected to 127.0.0.1.1234
 wire for client login created
-sent login wire for user: andrew
+sent login wire for user: bob
 type \help to see instructions. Press Enter to look for buffered returns.
 message recieved. Parsing to display...
-bob > hi
+andrew > wioegw
+Wire for delete built to be sent
+delete message sent
 LogError: faulty exception type passed to Rec_Exception, message passed was: ../logs/testing/test_client_log.txt

@@ -10,7 +10,8 @@ server_host = '127.0.0.1'
 server_port = 1234
 socket_list = []
 online_clients = {}
-Head_Len = 4
+HEAD_LEN = 4
+OPCODE_LEN = 1
 wp_version = 0
 log_name = '../logs/server_log.txt'
 data = '../data/data.csv'
@@ -108,7 +109,7 @@ def Start_Server(sHost, sPort, logfilename=log_name, database=data, userbase=use
 def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, loginFlag=False, database=data, userbase=users, logfilename=log_name):
     try:
         #Get first 4 bytes for wire protocol version number
-        protocol_version = cSocket.recv(4)
+        protocol_version = cSocket.recv(HEAD_LEN)
         #if we recieve nothing, socket has been shut down/closed on the other end, so we end the call.
         if not len(protocol_version):
             Log("faulty protocol input W_T_F",logfilename)
@@ -120,7 +121,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
             Rec_Exception(ValueError, "Wire Protocol version does not match. Server expected version " + str(wp_version) + ", got " + str(protocol_version_decoded),logfilename)
             return False
         #otherwise, version is good and we can recieve the operation code
-        op_code = cSocket.recv(1)
+        op_code = cSocket.recv(OPCODE_LEN)
         op_code_decoded = int(op_code.decode('utf-8').strip())
         #check for invalid op code and communicate faulty operation if found
         #pick num of ops, rn 5
@@ -135,7 +136,7 @@ def Wire_to_Function(cSocket, sList=socket_list, onlineClients=online_clients, l
             Send_Error(cSocket, "Operation Code Faulty. Login expected only as first communication.", logfilename)
             return False
         #grab rest of input length and input from socket with default size in wire protocol
-        in_len_decoded = int(cSocket.recv(4).decode('utf-8').strip())
+        in_len_decoded = int(cSocket.recv(HEAD_LEN).decode('utf-8').strip())
         #for the proper operation code, pass rest of input to the respective function
         match op_code_decoded:
             #0: send message to another user
@@ -291,16 +292,16 @@ def Msg_to_Wire(recip, msg, sender, logfilename=log_name):
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{HEAD_LEN}}".encode('utf-8'))
     #add opcode, in this case 0 (already a single byte)
-    wire += (f"{str(0):<{1}}".encode('utf-8'))
-    #add length of rest of input: 4+1+len(recip)+len(msg)
+    wire += (f"{str(0):<{OPCODE_LEN}}".encode('utf-8'))
+    #add length of rest of input: HEAD_LEN+1+len(recip)+len(msg)
     l_send = len(sender)
     l_msg = len(msg)
-    l = 4+1+l_send+l_msg
-    wire += (f"{str(l):<{4}}".encode('utf-8'))
+    l = HEAD_LEN + OPCODE_LEN + l_send + l_msg
+    wire += (f"{str(l):<{HEAD_LEN}}".encode('utf-8'))
     #add byte for length of recipient username (already a single byte)
-    wire += (f"{str(l_send):<{1}}".encode('utf-8'))
+    wire += (f"{str(l_send):<{OPCODE_LEN}}".encode('utf-8'))
     #add recipient username
     wire += (sender.encode('utf-8'))
     #add message
@@ -320,7 +321,7 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
     #decode recipient username and message according to wire protocol
     len_recip = int(cSocket.recv(1).decode('utf-8').strip())
     recip = str(cSocket.recv(len_recip).decode('utf-8').strip())
-    msg = str(cSocket.recv(inlen-1-len_recip).decode('utf-8').strip())
+    msg = str(cSocket.recv(inlen-OPCODE_LEN-len_recip).decode('utf-8').strip())
     #get sender's username from live clients
     sender = onlineClients[cSocket]
     Log("recipient, message, and sender successfully retrieved from socket " + onlineClients[cSocket] ,logfilename)
@@ -371,29 +372,16 @@ def Send_Message(cSocket, inlen, onlineClients, database=data, userbase=users, l
         else:
             new_df = pd.DataFrame({recip: [msg+";;"+sender]})
             new_df_2 = pd.concat([data_df, new_df])
-            print("HERE BOB")
-            print(new_df_2)
-            #drop bad rows
             cols=[]
             for col in new_df_2.columns:
                 cols.append(col)
             print("CHECKPOINT 2")
             GoodRows = []
-            # for i in range(len(new_df_2)):
-            #     Nu = False
-            #     for j in range(len(cols)-1):
-            #         if str(new_df_2[cols[j+1]][i]) != str(new_df_2[cols[0]][i]):
-            #             Nu = True
-            #     GoodRows.append(Nu)
-
-            print("CHECKPOINT 3")
             new_df_3 = new_df_2
             for idx, row in enumerate(GoodRows):
                 if not row:
                     new_df_3 = new_df_3.drop(idx)
             #save dataframe to csv
-            print("CHECKPOINT 4")
-            print(new_df_3)
             new_df_3.to_csv(database, index=False)
 
 
@@ -405,11 +393,11 @@ def Send_Error(cSocket, eMsg, logfilename=log_name):
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{HEAD_LEN}}".encode('utf-8'))
     #add opcode, in this case 5 (already a single byte)
-    wire += (f"{str(5):<{1}}".encode('utf-8'))
+    wire += (f"{str(5):<{OPCODE_LEN}}".encode('utf-8'))
     #add length of message
-    wire += (f"{str(len(eMsg)):<{4}}".encode('utf-8'))
+    wire += (f"{str(len(eMsg)):<{HEAD_LEN}}".encode('utf-8'))
     #add message
     wire += (eMsg.encode('utf-8'))
     #send encoded error
@@ -432,11 +420,11 @@ def Delete_Acct(cSocket, input, onlineClients=online_clients, database=data, use
         #create byte array
         wire = bytearray()
         #first add protocol version number encoded to 4 bits
-        wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
+        wire += (f"{str(wp_version):<{HEAD_LEN}}".encode('utf-8'))
         #add opcode, in this case 2 for delete
-        wire += (f"{str(2):<{1}}".encode('utf-8'))
+        wire += (f"{str(2):<{OPCODE_LEN}}".encode('utf-8'))
         msg = "account deleted. Client shutting down."
-        wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire += (f"{str(len(msg)):<{HEAD_LEN}}".encode('utf-8'))
         wire += (msg.encode('utf-8'))
         user_df = pd.read_csv(userbase)
         lst = list(user_df["ExistingUsers"])
@@ -479,11 +467,11 @@ def Logout(cSocket, input, onlineClients=online_clients, logfilename=log_name):
         #create byte array
         wire = bytearray()
         #first add protocol version number encoded to 4 bits
-        wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
+        wire += (f"{str(wp_version):<{HEAD_LEN}}".encode('utf-8'))
         #add opcode, in this case 1 for logout
-        wire += (f"{str(1):<{1}}".encode('utf-8'))
+        wire += (f"{str(1):<{OPCODE_LEN}}".encode('utf-8'))
         msg = "account logged out. Client shutting down."
-        wire += (f"{str(len(msg)):<{4}}".encode('utf-8'))
+        wire += (f"{str(len(msg)):<{HEAD_LEN}}".encode('utf-8'))
         wire += (msg.encode('utf-8'))
         cSocket.send(wire,logfilename)
         Log("sent logout confirmed message back to client")
@@ -509,8 +497,6 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, 
     ret_list = accounts
     if not confirm.__contains__("*"):
         ret_list = filter(lambda usrnm: usrnm[:len(confirm)-1] == confirm, accounts)
-    # elif confirm.__contains__("*") and len(confirm) > 1:
-    #     ret_list = filter(lambda usrnm: usrnm[:len(confirm)-2] == confirm[:len(confirm)-2], accounts)
     Log("retrieved existing users, sending to client " + onlineClients[cSocket], logfilename)
     #send accounts to client
     msg_accounts = ""
@@ -521,10 +507,10 @@ def List_Accounts(cSocket, input, onlineClients=online_clients, userbase=users, 
     #create byte array
     wire = bytearray()
     #first add protocol version number encoded to 4 bits
-    wire += (f"{str(wp_version):<{4}}".encode('utf-8'))
+    wire += (f"{str(wp_version):<{HEAD_LEN}}".encode('utf-8'))
     #add opcode, in this case 4 for list
-    wire += (f"{str(4):<{1}}".encode('utf-8'))
-    wire += (f"{str(len(msg_accounts)):<{4}}".encode('utf-8'))
+    wire += (f"{str(4):<{OPCODE_LEN}}".encode('utf-8'))
+    wire += (f"{str(len(msg_accounts)):<{HEAD_LEN}}".encode('utf-8'))
     wire += (msg_accounts.encode('utf-8'))
     cSocket.send(wire)
 
