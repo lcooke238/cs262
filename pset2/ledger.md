@@ -44,4 +44,6 @@ Building a model of a small, asynchronous distributed system. Runs on a single m
     - can use whatever packages or support code for the construction of the model machines and for the communication between the processes
     - will turn in both the code and the lab notebook.
     - will demo this, presenting code and choices, on Mar 8 (demo day 2)
+    - 3 machines minimum/required --> can all be run on a single machine
+    - sockets give you an automatic queue?
 
