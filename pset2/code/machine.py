@@ -2,10 +2,17 @@
 import random
 import logging
 import queue
+import socket
 import threading
 import time
 from enum import Enum
+import sys
 # constants
+
+MESSAGE_SIZE = 8
+
+SOCKET_IP = "127.0.0.1"
+SOCKET_PORT_BASE = 8000
 
 class MessageType(Enum):
     RECEIVED = 0
@@ -31,9 +38,8 @@ class Machine():
         self.queue = queue.Queue()
         log_name = "log_" + id + ".txt"
         self.log_file = open(log_name, "w")
-    
-    def init_sockets(self):
-        pass
+        self.listen_socket = None
+        self.write_sockets = []
 
     def send(self, machine_id_list, info):
         # log within the send
@@ -78,19 +84,33 @@ class Machine():
         self.clock += 1
                     
     def listen(self):
-        
-        pass
+        # Handle CTRL+C shutdown etc
+        while True:
+            message = self.listen_socket.recv(MESSAGE_SIZE)
+            self.queue.put(message)
 
+    def init_sockets(self):
+        # Setup our listener socket to listen
+        listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        listen_socket.bind((SOCKET_IP, str(SOCKET_PORT_BASE + self.id)))
+
+        # Wait until we can connect to the other sockets we would like to be able to write to.
+        
 
     def run(self):
+        self.init_sockets()
+        thread = threading.Thread(target=self.listen)
+        thread.daemon = True
+        thread.start()
         interval = 1 / (self.freq)
         while True:
             start_time = time.time()
             self.make_action()
-
+            # Sleeping appropriately to keep clock frequency
             time.sleep(interval - (time.time() - start_time))
 
     def shutdown(self):
+        self.listen_socket.close()
         self.log.close()
 
 # run a clock cycle function:
@@ -127,3 +147,21 @@ class Machine():
 
 # log function
     # given message to log and filename, write message to new line of the file
+
+def main():
+    if len(sys.argv) != 2:
+        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        sys.exit(1)
+    try:
+        id = int(sys.argv[1])
+    except:
+        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        sys.exit(1)
+    if not id in [0, 1, 2]:
+        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        sys.exit(1)
+    machine = Machine(id)
+    machine.run()
+
+if __name__ == "__main__":
+    main()
