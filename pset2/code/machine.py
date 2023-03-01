@@ -2,8 +2,17 @@
 import random
 import logging
 import queue
+import threading
 import time
+from enum import Enum
 # constants
+
+class MessageType(Enum):
+    RECEIVED = 0
+    SENT_ONE = 1
+    SENT_TWO = 2
+    INTERNAL = 3
+
 
 
 # initialization function:
@@ -21,21 +30,39 @@ class Machine():
         self.freq = random.randint(1, 6)
         self.queue = queue.Queue()
         log_name = "log_" + id + ".txt"
-        self.log = open(log_name, "w")
+        self.log_file = open(log_name, "w")
     
     def init_sockets(self):
         pass
 
     def send(self, machine_id_list, info):
         # log within the send
+        for id in machine_id_list:
+            # Send over socket
+            pass
+        if len(machine_id_list) == 1:
+            self.log(MessageType.SENT_ONE)
+        else:
+            self.log(MessageType.SENT_TWO)
+            
         pass
     
-    def log(self):
-        pass
+    def log(self, message_type):
+        match message_type:
+            case MessageType.RECEIVED:
+                self.log_file.write(f"{self.clock} - {time.time()}: Received message. Queue length: {self.queue.qsize}.")
+            case MessageType.SENT_ONE:
+                self.log_file.write(f"{self.clock} - {time.time()}: Sent one message.")
+            case MessageType.SENT_TWO:
+                self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.")
+            case MessageType.INTERNAL:
+                self.log_file.write(f"{self.clock} - {time.time()}: Internal event.")
+        return
 
     def make_action(self):
         if self.queue:
-            pass
+            front = self.queue.get()
+
         else:
             random_action = random.randint(1, 10)
             match (random_action):
@@ -46,16 +73,21 @@ class Machine():
                 case 3:
                     self.send([(self.id + 1) % 3, (self.id + 2) % 3], self.clock)
                 case _:
-                    self.log(INTERNAL_EVENT)
-            self.clock += 1
+                    self.log(MessageType.INTERNAL)
+        # We think log before clock increase, but unclear in spec. Could also go above if/else for opposite effect
+        self.clock += 1
                     
-                    
+    def listen(self):
+        
+        pass
+
 
     def run(self):
         interval = 1 / (self.freq)
         while True:
             start_time = time.time()
             self.make_action()
+
             time.sleep(interval - (time.time() - start_time))
 
     def shutdown(self):
