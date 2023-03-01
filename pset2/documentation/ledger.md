@@ -47,3 +47,15 @@ Building a model of a small, asynchronous distributed system. Runs on a single m
     - 3 machines minimum/required --> can all be run on a single machine
     - sockets give you an automatic queue?
 
+
+## Design
+In writing out the design for a single machine in this mock distributed system, I ran into some initial trouble with how to initially connect all of the different machines. Here are some options I am considering:
+    1. create communications server: initialize a server to handle all message sending between clients. On startup in experimental pipeline, have the machines connect to a set server as clients.
+    2. direct socketing: have each client function as a server and a client. Here, machine initialization would require each machine to setup its own server. Then, after initialization, we would have to connect to all servers and each server would only handle messages for its respective machine.
+Simply based on my familiarity with the first option from the first assignment, I am leaning more towards option 1.
+
+To communicate these messages between clients over the wire, we would need to either setup a custom wire protocol for this assignment or use gRPC to define an encoding. Both will be simpler than the last assignment, as we only have a single type of message to deal with and a single type of input message to handle. 
+
+
+
+## Errors

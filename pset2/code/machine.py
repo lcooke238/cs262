@@ -45,10 +45,3 @@
 
 # log function
     # given message to log and filename, write message to new line of the file
-
-
-# main pipeline:
-    # initalize machine
-    # while True:
-        # maintain queue
-        # clock cycle
