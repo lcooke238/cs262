@@ -5,6 +5,7 @@ import queue
 import socket
 import threading
 import time
+import numpy as np
 from enum import Enum
 import sys
 # constants
@@ -36,23 +37,28 @@ class Machine():
         self.clock = 0
         self.freq = random.randint(1, 6)
         self.queue = queue.Queue()
-        log_name = "log_" + id + ".txt"
+        log_name = "../logs/log_" + str(id) + ".txt"
         self.log_file = open(log_name, "w")
         self.listen_socket = None
-        self.write_sockets = []
+        self.write_sockets = {}
 
     def send(self, machine_id_list):
         # log within the send
         # Remember to send self.clock over the socket
         for id in machine_id_list:
             # Send over socket
-            pass
+            sock = self.write_sockets[id]
+            try:
+                wire = int.to_bytes(self.clock, 8)
+            except OverflowError:
+                print("Overflow error.")
+                sys.exit(1)
+            sock.send(wire)
         if len(machine_id_list) == 1:
             self.log(MessageType.SENT_ONE)
         else:
             self.log(MessageType.SENT_TWO)
-            
-        pass
+        return
     
     def log(self, message_type):
         match message_type:
@@ -93,13 +99,24 @@ class Machine():
     def init_sockets(self):
         # Setup our listener socket to listen
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        listen_socket.bind((SOCKET_IP, str(SOCKET_PORT_BASE + self.id)))
+        listen_socket.bind((SOCKET_IP, SOCKET_PORT_BASE + self.id))
+        self.listen_socket = listen_socket
 
         # Wait until we can connect to the other sockets we would like to be able to write to.
-        
+        for id in [elt for elt in [0, 1, 2] if elt != self.id]:
+            new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            while True:
+                try:
+                    new_socket.connect((SOCKET_IP, SOCKET_PORT_BASE + id))
+                    break
+                except:
+                    continue
+            self.write_sockets[id] = new_socket
 
     def run(self):
         self.init_sockets()
+        print("setup sockets")
+        # Pretty sure we need three threads, 2 listener threads.
         thread = threading.Thread(target=self.listen)
         thread.daemon = True
         thread.start()
