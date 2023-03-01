@@ -2,6 +2,7 @@
 import random
 import logging
 import queue
+import time
 # constants
 
 
@@ -25,9 +26,38 @@ class Machine():
     def init_sockets(self):
         pass
 
-    def run(self):
+    def send(self, machine_id_list, info):
+        # log within the send
         pass
     
+    def log(self):
+        pass
+
+    def make_action(self):
+        if self.queue:
+            pass
+        else:
+            random_action = random.randint(1, 10)
+            match (random_action):
+                case 1:
+                    self.send([(self.id + 1) % 3], self.clock)
+                case 2:
+                    self.send([(self.id + 2) % 3], self.clock)
+                case 3:
+                    self.send([(self.id + 1) % 3, (self.id + 2) % 3], self.clock)
+                case _:
+                    self.log(INTERNAL_EVENT)
+            self.clock += 1
+                    
+                    
+
+    def run(self):
+        interval = 1 / (self.freq)
+        while True:
+            start_time = time.time()
+            self.make_action()
+            time.sleep(interval - (time.time() - start_time))
+
     def shutdown(self):
         self.log.close()
 
