@@ -2,6 +2,7 @@
 
 # constants
 
+
 # initialization function:
     # set clock tick rate bw 1 and 6 randomly
     # connect to other machines in system
@@ -21,16 +22,16 @@
                 # if 1:
                     # send a message to one of the existing machines that contains the local logical clock time
                     # update its own logical clock
-                    # update the log with the send, system time, and logical clock time
+                    # log the send, system time, and logical clock time
                 # if 2:
                     # send to other machine message that is the local logical clock time
                     # update its own logical clock
-                    # update log with the send, system time, and the logical clock time
+                    # log the send, system time, and the logical clock time
                 # if 3: 
                     # send to both other machines message that is the local logical clock time
                     # update its own logical clock
-                    # update the log with the send, system time, and logical clock time
-                # if 4-10:
+                    # log the send, system time, and logical clock time
+                # else:
                     # update local logical clock
                     # log internal event, system time, and logical clock time
 
@@ -42,3 +43,12 @@
         # add it in proper format to network queue
 
 
+# log function
+    # given message to log and filename, write message to new line of the file
+
+
+# main pipeline:
+    # initalize machine
+    # while True:
+        # maintain queue
+        # clock cycle
