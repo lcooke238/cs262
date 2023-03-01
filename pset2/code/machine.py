@@ -1,5 +1,7 @@
 # imports
-
+import random
+import logging
+import queue
 # constants
 
 
@@ -10,6 +12,24 @@
     # create unconstrained network queue to hold incoming messages
     # listen to all sockets for messages
 
+
+class Machine():
+    def __init__(self, id):
+        self.id = id
+        self.clock = 0
+        self.freq = random.randint(1, 6)
+        self.queue = queue.Queue()
+        log_name = "log_" + id + ".txt"
+        self.log = open(log_name, "w")
+    
+    def init_sockets(self):
+        pass
+
+    def run(self):
+        pass
+    
+    def shutdown(self):
+        self.log.close()
 
 # run a clock cycle function:
     # until logical clock steps run out:
