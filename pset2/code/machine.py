@@ -41,8 +41,9 @@ class Machine():
         self.listen_socket = None
         self.write_sockets = []
 
-    def send(self, machine_id_list, info):
+    def send(self, machine_id_list):
         # log within the send
+        # Remember to send self.clock over the socket
         for id in machine_id_list:
             # Send over socket
             pass
@@ -67,17 +68,17 @@ class Machine():
 
     def make_action(self):
         if self.queue:
-            front = self.queue.get()
-
+            _ = self.queue.get()
+            self.log(MessageType.RECEIVED)
         else:
             random_action = random.randint(1, 10)
             match (random_action):
                 case 1:
-                    self.send([(self.id + 1) % 3], self.clock)
+                    self.send([(self.id + 1) % 3])
                 case 2:
-                    self.send([(self.id + 2) % 3], self.clock)
+                    self.send([(self.id + 2) % 3])
                 case 3:
-                    self.send([(self.id + 1) % 3, (self.id + 2) % 3], self.clock)
+                    self.send([(self.id + 1) % 3, (self.id + 2) % 3])
                 case _:
                     self.log(MessageType.INTERNAL)
         # We think log before clock increase, but unclear in spec. Could also go above if/else for opposite effect
