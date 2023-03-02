@@ -41,10 +41,13 @@ class Machine():
         self.log_file = open(log_name, "w")
         self.listen_socket = None
         self.write_sockets = {}
+        self.cv = threading.Condition()
+        self.lock = threading.Lock()
+        self.succesful_connections = 0
+        print(f"Machine with id {self.id} succesfully initialized with clock speed {self.freq}")
+
 
     def send(self, machine_id_list):
-        # log within the send
-        # Remember to send self.clock over the socket
         for id in machine_id_list:
             # Send over socket
             sock = self.write_sockets[id]
@@ -53,7 +56,7 @@ class Machine():
             except OverflowError:
                 print("Overflow error.")
                 sys.exit(1)
-            sock.send(wire)
+            sock.sendall(wire)
         if len(machine_id_list) == 1:
             self.log(MessageType.SENT_ONE)
         else:
@@ -63,17 +66,18 @@ class Machine():
     def log(self, message_type):
         match message_type:
             case MessageType.RECEIVED:
-                self.log_file.write(f"{self.clock} - {time.time()}: Received message. Queue length: {self.queue.qsize}.")
+                self.log_file.write(f"{self.clock} - {time.time()}: Received message. Queue length: {self.queue.qsize}.\n")
             case MessageType.SENT_ONE:
-                self.log_file.write(f"{self.clock} - {time.time()}: Sent one message.")
+                self.log_file.write(f"{self.clock} - {time.time()}: Sent one message.\n")
             case MessageType.SENT_TWO:
-                self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.")
+                self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.\n")
             case MessageType.INTERNAL:
-                self.log_file.write(f"{self.clock} - {time.time()}: Internal event.")
+                self.log_file.write(f"{self.clock} - {time.time()}: Internal event.\n")
+        self.log_file.flush()
         return
 
     def make_action(self):
-        if self.queue:
+        if not self.queue.empty:
             _ = self.queue.get()
             self.log(MessageType.RECEIVED)
         else:
@@ -89,12 +93,32 @@ class Machine():
                     self.log(MessageType.INTERNAL)
         # We think log before clock increase, but unclear in spec. Could also go above if/else for opposite effect
         self.clock += 1
-                    
-    def listen(self):
-        # Handle CTRL+C shutdown etc
+
+    def receive_messages(self, con):
         while True:
-            message = self.listen_socket.recv(MESSAGE_SIZE)
-            self.queue.put(message)
+            try:
+                message = con.recv(MESSAGE_SIZE)
+                self.queue.put(message)
+            except:
+                self.shutdown()
+
+    def listen(self):
+        # TODO: Handle CTRL+C shutdown etc
+        with self.cv:
+            print("Listen socket started listening")
+            self.listen_socket.listen()
+            # Accept 2 connections
+            for i in range(2):
+                con, addr = self.listen_socket.accept() 
+                print(f"succesfully accepted connection {i + 1}")
+                self.succesful_connections += 1
+                thread = threading.Thread(target=self.receive_messages, args=(con, ))
+                thread.daemon = True
+                thread.start()
+            print("Listen socket accepted connections with bother other machines")
+            self.cv.notify_all()
+
+        
 
     def init_sockets(self):
         # Setup our listener socket to listen
@@ -105,31 +129,44 @@ class Machine():
         # Wait until we can connect to the other sockets we would like to be able to write to.
         for id in [elt for elt in [0, 1, 2] if elt != self.id]:
             new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.write_sockets[id] = new_socket
+
+    def connect_write_sockets(self):
+        for id, sock in self.write_sockets.items():
             while True:
                 try:
-                    new_socket.connect((SOCKET_IP, SOCKET_PORT_BASE + id))
+                    sock.connect((SOCKET_IP, SOCKET_PORT_BASE + id))
+                    print(f"Succesfully connected to machine {id} via write socket")
                     break
                 except:
                     continue
-            self.write_sockets[id] = new_socket
+        print("All write sockets connected")
+        return
 
     def run(self):
         self.init_sockets()
-        print("setup sockets")
+        print("Sockets initialized")
         # Pretty sure we need three threads, 2 listener threads.
         thread = threading.Thread(target=self.listen)
         thread.daemon = True
         thread.start()
-        interval = 1 / (self.freq)
-        while True:
-            start_time = time.time()
-            self.make_action()
-            # Sleeping appropriately to keep clock frequency
-            time.sleep(interval - (time.time() - start_time))
+        # If we get past this, we can write to the other two sockets
+        self.connect_write_sockets()
+        with self.cv:
+            print(f"enter main loop, succesful connections: {self.succesful_connections}")
+            interval = 1 / (self.freq)
+            if self.succesful_connections == 2:
+                while True:
+                    start_time = time.time()
+                    self.make_action()
+                    # Sleeping appropriately to keep clock frequency
+                    time.sleep(interval - (time.time() - start_time))
+            else:
+                self.cv.wait()
 
     def shutdown(self):
         self.listen_socket.close()
-        self.log.close()
+        self.log_file.close()
 
 # run a clock cycle function:
     # until logical clock steps run out:
