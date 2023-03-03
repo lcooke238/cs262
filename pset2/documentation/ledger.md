@@ -55,9 +55,43 @@ In writing out the design for a single machine in this mock distributed system, 
 
 2. direct socketing: have each client function as a server and a client. Here, machine initialization would require each machine to setup its own server. Then, after initialization, we would have to connect to all servers and each server would only handle messages for its respective machine.
 
-Simply based on my familiarity with the first option from the first assignment, I am leaning more towards option 1.
-
 To communicate these messages between clients over the wire, we would need to either setup a custom wire protocol for this assignment or use gRPC to define an encoding. Both will be simpler than the last assignment, as we only have a single type of message to deal with and a single type of input message to handle. 
+
+Ultimately, we chose to use direct socketing and a custom wire protocol. This was the pseudocode for our plan:
+```
+# run a clock cycle function:
+    # until logical clock steps run out:
+        # if there is a message in the queue for the machine (do some select work here):
+            # take message off queue
+            # update logical clock
+            # log message reciept, global system time, length of network queue, logical clock time
+        # if there is no message in queue:
+            # generate random number between 1 and 10 inclusive:
+                # if 1:
+                    # send a message to one of the existing machines that contains the local logical clock time
+                    # update its own logical clock
+                    # log the send, system time, and logical clock time
+                # if 2:
+                    # send to other machine message that is the local logical clock time
+                    # update its own logical clock
+                    # log the send, system time, and the logical clock time
+                # if 3: 
+                    # send to both other machines message that is the local logical clock time
+                    # update its own logical clock
+                    # log the send, system time, and logical clock time
+                # else:
+                    # update local logical clock
+                    # log internal event, system time, and logical clock time
+
+# maintain queue function (probably should run before each clock cycle, unrestricted power): 
+    # find sockets with information on them (messages for reciept)
+    # per message on socket:
+        # recieve it according to wp spec
+        # add it in proper format to network queue
+
+# log function
+    # given message to log and filename, write message to new line of the file
+```
 
 ## Errors
 

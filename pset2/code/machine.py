@@ -7,13 +7,14 @@ import time
 import numpy as np
 from enum import Enum
 import sys
+
 # constants
-
 MESSAGE_SIZE = 8
-
 SOCKET_IP = "127.0.0.1"
 SOCKET_PORT_BASE = 8000
 
+
+# MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
     RECEIVED = 0
     SENT_ONE = 1
@@ -74,6 +75,8 @@ class Machine():
                 self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.\n")
             case MessageType.INTERNAL:
                 self.log_file.write(f"{self.clock} - {time.time()}: Internal event.\n")
+            case _:
+                self.log_file.write(f"{self.clock} - {time.time()}: ERROR, Invalid message type.\n")
         self.log_file.flush()
         return
 
@@ -206,40 +209,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# Original pseudocode plan:
-
-# run a clock cycle function:
-    # until logical clock steps run out:
-        # if there is a message in the queue for the machine (do some select work here):
-            # take message off queue
-            # update logical clock
-            # log message reciept, global system time, length of network queue, logical clock time
-        # if there is no message in queue:
-            # generate random number between 1 and 10 inclusive:
-                # if 1:
-                    # send a message to one of the existing machines that contains the local logical clock time
-                    # update its own logical clock
-                    # log the send, system time, and logical clock time
-                # if 2:
-                    # send to other machine message that is the local logical clock time
-                    # update its own logical clock
-                    # log the send, system time, and the logical clock time
-                # if 3: 
-                    # send to both other machines message that is the local logical clock time
-                    # update its own logical clock
-                    # log the send, system time, and logical clock time
-                # else:
-                    # update local logical clock
-                    # log internal event, system time, and logical clock time
-
-
-# maintain queue function (probably should run before each clock cycle, unrestricted power): 
-    # find sockets with information on them (messages for reciept)
-    # per message on socket:
-        # recieve it according to wp spec
-        # add it in proper format to network queue
-
-
-# log function
-    # given message to log and filename, write message to new line of the file
