@@ -51,9 +51,9 @@ Building a model of a small, asynchronous distributed system. Runs on a single m
 ## Design
 In writing out the design for a single machine in this mock distributed system, I ran into some initial trouble with how to initially connect all of the different machines. Here are some options I am considering:
 
-    1. create communications server: initialize a server to handle all message sending between clients. On startup in experimental pipeline, have the machines connect to a set server as clients.
+1. create communications server: initialize a server to handle all message sending between clients. On startup in experimental pipeline, have the machines connect to a set server as clients.
 
-    2. direct socketing: have each client function as a server and a client. Here, machine initialization would require each machine to setup its own server. Then, after initialization, we would have to connect to all servers and each server would only handle messages for its respective machine.
+2. direct socketing: have each client function as a server and a client. Here, machine initialization would require each machine to setup its own server. Then, after initialization, we would have to connect to all servers and each server would only handle messages for its respective machine.
 
 Simply based on my familiarity with the first option from the first assignment, I am leaning more towards option 1.
 
@@ -61,7 +61,7 @@ To communicate these messages between clients over the wire, we would need to ei
 
 ## Errors
 
-    1. Socket closure - if one of the machines shuts down, we can no longer send messages to them from the other machines, nor receive messages. This will mess with all of our results, so this will be treated as a catastrophic failure where every machine shuts down.
+1. Socket closure - if one of the machines shuts down, we can no longer send messages to them from the other machines, nor receive messages. This will mess with all of our results, so this will be treated as a catastrophic failure where every machine shuts down.
 
 ## Day-by-day
 
@@ -71,17 +71,17 @@ Today I set up the framework for all the machine logic except the actual socket 
 
 We decided to attempt direct communication to try something new. Our idea is:
 
-    * Each machine listens on the same IP (running on the same laptop, callback address) but with a different port (some set BASE_PORT + the id of the machine, so that each machine has a unique port to make life easier). Each machine attempts to connect to the other two possible ports.
+* Each machine listens on the same IP (running on the same laptop, callback address) but with a different port (some set BASE_PORT + the id of the machine, so that each machine has a unique port to make life easier). Each machine attempts to connect to the other two possible ports.
 
-    * This will be tricky without probably a few layers of multi-threading. When a machine runs, we want it to:
+* This will be tricky without probably a few layers of multi-threading. When a machine runs, we want it to:
 
-        -> Setup a port to listen on and wait until it accepts 2 connections
+    * Setup a port to listen on and wait until it accepts 2 connections
 
-        -> Attempt to connect to each of the other 2 machines
-    
-    * We can't do simply do this in a single-threaded system. If we had every machine listen for connections, and then attempt to connect to the other machines, they would all get stuck listening for each other while none of them would ever actually attempt a connection.
+    * Attempt to connect to each of the other 2 machines
 
-    * As such, we created a listen method for the machine which will run in its own thread. However, we still need to do some more thinking about how to get this to work nicely - it seems like condition variables will be useful to communicate between the threads that the listener thread has accepted all the connections and the main thread has succesfully connected to the other two sockets.
+* We can't do simply do this in a single-threaded system. If we had every machine listen for connections, and then attempt to connect to the other machines, they would all get stuck listening for each other while none of them would ever actually attempt a connection.
+
+* As such, we created a listen method for the machine which will run in its own thread. However, we still need to do some more thinking about how to get this to work nicely - it seems like condition variables will be useful to communicate between the threads that the listener thread has accepted all the connections and the main thread has succesfully connected to the other two sockets.
 
 While we figure those issues out, we tried to layout the bulk of the other code (i.e all the stuff that doesn't involve the socket communication, which isn't that much honestly). Each machine has a queue (we could just use the socket, but it felt cleanest to have an explicit queue).
 
@@ -93,21 +93,21 @@ Now we're cooking. Here's how my socket communication works:
 
 * In the run method of the machine, we do the following:
 
-    -> Initialize the sockets using `init_sockets`. This simply creates the socket objects for the socket we will listen on, and the two sockets we will use to send messages to the other two machines.
+    * Initialize the sockets using `init_sockets`. This simply creates the socket objects for the socket we will listen on, and the two sockets we will use to send messages to the other two machines.
 
-    -> We setup a thread that runs the `listen` method.
+    * We setup a thread that runs the `listen` method.
 
-        -> This thread acquires the condition variable and starts listening with our listener socket. It accepts two connections.
+        * This thread acquires the condition variable and starts listening with our listener socket. It accepts two connections.
 
-            -> For each connection it accepts, we start a new thread that receives messages from that connection.
+            * For each connection it accepts, we start a new thread that receives messages from that connection.
         
-        -> Once it has done its job and started those other two threads, this thread uses `notify_all` to notify the main thread that it is about to release the condition variable, and then exits.
+        * Once it has done its job and started those other two threads, this thread uses `notify_all` to notify the main thread that it is about to release the condition variable, and then exits.
     
-    -> In the main thread, we poll to try to connect to the other two sockets we are expecting to be opened by the other machines.
+    * In the main thread, we poll to try to connect to the other two sockets we are expecting to be opened by the other machines.
 
-    -> If we get past that in the main thread, we have established a write connection to the other two. We attempt to gain the condition variable: this ensures that we wait for the listener thread to have accepted the two listen connections too.
+    * If we get past that in the main thread, we have established a write connection to the other two. We attempt to gain the condition variable: this ensures that we wait for the listener thread to have accepted the two listen connections too.
 
-    -> We then loop forever, making an action as our clock frequency permits. We sleep the relevant amount of time after each action to ensure that we do at most `self.freq` actions per second.
+    * We then loop forever, making an action as our clock frequency permits. We sleep the relevant amount of time after each action to ensure that we do at most `self.freq` actions per second.
 
 This all seems to work and behave reasonably nicely. The main things that clearly need to be worked on are whether I can do this without the condition variable (it certaintly seems like the else condition is unnecessary), there is a redundant lock that I'm about to remove, and reformatting the times more nicely. I'm also interested if we can use the library mentioned on Ed to avoid having to do the three terminal setup.
 
