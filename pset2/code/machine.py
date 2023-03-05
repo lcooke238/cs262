@@ -124,7 +124,7 @@ class Machine():
                 thread = threading.Thread(target=self.receive_messages, args=(con, ))
                 thread.daemon = True
                 thread.start()
-            print("Listen socket accepted connections with bother other machines")
+            print("Listen socket accepted connections with both other machines")
             # All listen connections established, notify main thread that, if it has completed all of its write connections
             # it is good to go.
             self.cv.notify_all()
