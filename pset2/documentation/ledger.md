@@ -59,6 +59,13 @@ To communicate these messages between clients over the wire, we would need to ei
 
 Ultimately, we chose to use direct socketing and a custom wire protocol. This was the pseudocode for our plan:
 ```
+# initialization function:
+    # set clock tick rate bw 1 and 6 randomly
+    # connect to other machines in system
+    # open a log file
+    # create unconstrained network queue to hold incoming messages
+    # listen to all sockets for messages
+
 # run a clock cycle function:
     # until logical clock steps run out:
         # if there is a message in the queue for the machine (do some select work here):

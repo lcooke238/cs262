@@ -13,3 +13,11 @@ This readme gives a high level overview of the entire repository. This assignmen
     - ```log_2.txt```: text log for the machine with id 2.
 - tests
     - ```test_machine.py```: test suite for the implementation of a single machine
+
+## To Run The Experiment
+1. Make sure that you have python 3.10 or later installed.
+
+2. run the following lines in three separate terminals:
+    ```python3 machine.py 0```
+    ```python3 machine.py 1```
+    ```python3 machine.py 2```
