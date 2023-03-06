@@ -104,6 +104,8 @@ Ultimately, we chose to use direct socketing and a custom wire protocol. This wa
 
 1. Socket closure - if one of the machines shuts down, we can no longer send messages to them from the other machines, nor receive messages. This will mess with all of our results, so this will be treated as a catastrophic failure where every machine shuts down.
 
+2. Operating System Differences - on Windows and Linux, when we run our code it works perfectly, however on MacOS the code can only connect to sockets that were created before the thread was created, despite polling working correctly. To fix this, we added a pause in our code using an input statement that allows the user to wait for all three machines to be created and have their sockets created before threading begins on any machine.
+
 ## Day-by-day
 
 ### Wednesday 1st March
