@@ -161,7 +161,9 @@ class Machine():
     def run(self):
         # Initialize sockets
         self.init_sockets()
-        print("Sockets initialized")
+        print("Sockets Initialized.")
+        # UNCOMMENT THE LINE BELOW FOR MACOS
+        # input("Once all machines you want to run are initialized, press enter here: ")
         # Setup the listening system. This will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
         thread.daemon = True
