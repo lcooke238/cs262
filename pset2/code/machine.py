@@ -4,7 +4,6 @@ import queue
 import socket
 import threading
 import time
-import numpy as np
 from enum import Enum
 import sys
 
@@ -13,23 +12,12 @@ MESSAGE_SIZE = 8
 SOCKET_IP = "127.0.0.1"
 SOCKET_PORT_BASE = 8000
 
-
 # MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
     RECEIVED = 0
     SENT_ONE = 1
     SENT_TWO = 2
     INTERNAL = 3
-
-
-
-# initialization function:
-    # set clock tick rate bw 1 and 6 randomly
-    # connect to other machines in system
-    # open a log file
-    # create unconstrained network queue to hold incoming messages
-    # listen to all sockets for messages
-
 
 class Machine():
     def __init__(self, id):
@@ -59,18 +47,17 @@ class Machine():
             sock.sendall(wire)
         # Log appropriately
         if len(machine_id_list) == 1:
-            self.log(MessageType.SENT_ONE)
+            self.log(MessageType.SENT_ONE, data=machine_id_list[0])
         else:
             self.log(MessageType.SENT_TWO)
-        return
     
-    def log(self, message_type):
+    def log(self, message_type, data=None):
         # Depending on message type, log a standard log message to the log file for this machine
         match message_type:
-            case MessageType.RECEIVED:
-                self.log_file.write(f"{self.clock} - {time.time()}: Received message. Queue length: {self.queue.qsize}.\n")
-            case MessageType.SENT_ONE:
-                self.log_file.write(f"{self.clock} - {time.time()}: Sent one message.\n")
+            case MessageType.RECEIVED if data:
+                self.log_file.write(f"{self.clock} - {time.time()}: Received message: {data}. Queue length: {self.queue.qsize()}.\n")
+            case MessageType.SENT_ONE if data:
+                self.log_file.write(f"{self.clock} - {time.time()}: Sent one message to machine {data}.\n")
             case MessageType.SENT_TWO:
                 self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.\n")
             case MessageType.INTERNAL:
@@ -78,17 +65,18 @@ class Machine():
             case _:
                 self.log_file.write(f"{self.clock} - {time.time()}: ERROR, Invalid message type.\n")
         self.log_file.flush()
-        return
 
     def make_action(self):
         # If the queue is not empty, use that
-        if not self.queue.empty:
-            _ = self.queue.get()
-            self.log(MessageType.RECEIVED)
+        if not self.queue.empty():
+            clock = int.from_bytes(self.queue.get())
+            self.clock = max(self.clock, clock) + 1
+            self.log(MessageType.RECEIVED, data=clock)
         # If the queue is empty, randomize between sending or internal event
         else:
+            self.clock += 1
             random_action = random.randint(1, 10)
-            match (random_action):
+            match random_action:
                 case 1:
                     self.send([(self.id + 1) % 3])
                 case 2:
@@ -97,8 +85,6 @@ class Machine():
                     self.send([(self.id + 1) % 3, (self.id + 2) % 3])
                 case _:
                     self.log(MessageType.INTERNAL)
-        # We think log before clock increase, but unclear in spec. Could also go above if/else for opposite effect
-        self.clock += 1
 
     def receive_messages(self, con):
         # Handles a single connection run by a single thread
@@ -131,8 +117,6 @@ class Machine():
             # it is good to go.
             self.cv.notify_all()
 
-        
-
     def init_sockets(self):
         # Setup our listener socket to listen
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -161,9 +145,8 @@ class Machine():
     def run(self):
         # Initialize sockets
         self.init_sockets()
-        print("Sockets Initialized.")
-        # UNCOMMENT THE LINE BELOW FOR MACOS
-        # input("Once all machines you want to run are initialized, press enter here: ")
+        print("Sockets initialized")
+        input("WELCOME TO THE MACHINE. WAIT FOR CONSENSUS, THEN CONFIRM YOUR MISSION. HELL TO THE YEAH BROTHERS N SISTERS.")
         # Setup the listening system. This will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
         thread.daemon = True
@@ -177,17 +160,15 @@ class Machine():
         # and run the main logic, or it hasn't, and we block here until those are set, when we will get notified and run.
         with self.cv:
             print(f"enter main loop, succesful connections: {self.succesful_connections}")
-            interval = 1 / (self.freq)
-            if self.succesful_connections == 2:
-                # Both listen and write sockets are setup, so we loop forever, making actions as our clock speed allows
-                while True:
-                    start_time = time.time()
-                    self.make_action()
-                    # Sleeping appropriately to keep clock frequency
-                    time.sleep(interval - (time.time() - start_time))
-            else:
-                # Do I need to notify here to be safe?
+            interval = 1 / self.freq
+            while not self.succesful_connections == 2:
                 self.cv.wait()
+            # Both listen and write sockets are setup, so we loop forever, making actions as our clock speed allows
+            while True:
+                start_time = time.time()
+                self.make_action()
+                # Sleeping appropriately to keep clock frequency
+                time.sleep(interval - (time.time() - start_time))
 
     def shutdown(self):
         # Cleanup our sockets and our log files
