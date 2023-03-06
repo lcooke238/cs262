@@ -27,32 +27,34 @@ class Machine():
         self.queue = queue.Queue()
         log_name = "../logs/log_" + str(id) + ".txt"
         self.log_file = open(log_name, "w")
+        self.log_file.write(f"LOG FOR MACHINE {self.id} WITH CLOCK SPEED {self.freq}\n")
+        self.log_file.flush()
         self.listen_socket = None
         self.write_sockets = {}
         self.cv = threading.Condition()
-        self.succesful_connections = 0
-        print(f"Machine with id {self.id} succesfully initialized with clock speed {self.freq}")
-
+        self.successful_connections = 0
+        print(f"Machine with id {self.id} successfully initialized with clock speed {self.freq}")
 
     def send(self, machine_id_list):
         for id in machine_id_list:
-            # Get socket and attempt to convert message to send
+            # get socket and attempt to convert message to send
             sock = self.write_sockets[id]
             try:
-                wire = int.to_bytes(self.clock, 8)
+                wire = int.to_bytes(self.clock, MESSAGE_SIZE)
             except OverflowError:
                 print("Overflow error.")
                 sys.exit(1)
-            # Send over socket
+            # send over socket
             sock.sendall(wire)
-        # Log appropriately
+
+        # log appropriately
         if len(machine_id_list) == 1:
             self.log(MessageType.SENT_ONE, data=machine_id_list[0])
         else:
             self.log(MessageType.SENT_TWO)
-    
+
     def log(self, message_type, data=None):
-        # Depending on message type, log a standard log message to the log file for this machine
+        # depending on message type, log a standard log message to the log file for this machine
         match message_type:
             case MessageType.RECEIVED if data:
                 self.log_file.write(f"{self.clock} - {time.time()}: Received message: {data}. Queue length: {self.queue.qsize()}.\n")
@@ -67,12 +69,13 @@ class Machine():
         self.log_file.flush()
 
     def make_action(self):
-        # If the queue is not empty, use that
+        # if the queue is not empty, use that
         if not self.queue.empty():
             clock = int.from_bytes(self.queue.get())
             self.clock = max(self.clock, clock) + 1
             self.log(MessageType.RECEIVED, data=clock)
-        # If the queue is empty, randomize between sending or internal event
+
+        # if the queue is empty, randomize between sending or internal event
         else:
             self.clock += 1
             random_action = random.randint(1, 10)
@@ -86,9 +89,9 @@ class Machine():
                 case _:
                     self.log(MessageType.INTERNAL)
 
+    # handles a single connection, run by a single thread
     def receive_messages(self, con):
-        # Handles a single connection run by a single thread
-        # Polls for messages
+        # polls for messages
         while True:
             try:
                 message = con.recv(MESSAGE_SIZE)
@@ -103,39 +106,42 @@ class Machine():
         with self.cv:
             print("Listen socket started listening")
             self.listen_socket.listen()
-            # Accept 2 connections
+
+            # accept 2 connections
             for i in range(2):
                 con, addr = self.listen_socket.accept() 
-                print(f"succesfully accepted connection {i + 1}")
-                self.succesful_connections += 1
+                print(f"successfully accepted connection {i + 1}")
+                self.successful_connections += 1
                 # Setup a thread to receive messages on that connection
                 thread = threading.Thread(target=self.receive_messages, args=(con, ))
                 thread.daemon = True
                 thread.start()
+
             print("Listen socket accepted connections with both other machines")
-            # All listen connections established, notify main thread that, if it has completed all of its write connections
-            # it is good to go.
+
+            # all listen connections established; notify main thread that
+            # if it has completed all of its write connections, it is good to go.
             self.cv.notify_all()
 
     def init_sockets(self):
-        # Setup our listener socket to listen
+        # setup our listener socket to listen
         listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listen_socket.bind((SOCKET_IP, SOCKET_PORT_BASE + self.id))
         self.listen_socket = listen_socket
 
-        # Create sockets that we will use to write to the two other machines
+        # create sockets that we will use to write to the two other machines
         for id in [elt for elt in [0, 1, 2] if elt != self.id]:
             new_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.write_sockets[id] = new_socket
 
     def connect_write_sockets(self):
-        # For each socket we want to connect to
+        # for each socket we want to connect to
         for id, sock in self.write_sockets.items():
-            # Simply poll, attempt to connect. If fail, try again. 
+            # simply poll, attempt to connect. if fail, try again. 
             while True:
                 try:
                     sock.connect((SOCKET_IP, SOCKET_PORT_BASE + id))
-                    print(f"Succesfully connected to machine {id} via write socket")
+                    print(f"Successfully connected to machine {id} via write socket")
                     break
                 except:
                     continue
@@ -143,26 +149,30 @@ class Machine():
         return
 
     def run(self):
-        # Initialize sockets
+        # initialize sockets
         self.init_sockets()
         print("Sockets initialized")
         input("WELCOME TO THE MACHINE. WAIT FOR CONSENSUS, THEN CONFIRM YOUR MISSION. HELL TO THE YEAH BROTHERS N SISTERS.")
-        # Setup the listening system. This will then create its own children threads for each connection
+
+        # setup the listening system. this will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
         thread.daemon = True
         thread.start()
-        # In the main thread, attempt to connect to the two write sockets
+
+        # in the main thread, attempt to connect to the two write sockets
         self.connect_write_sockets()
+
         # If we reach here, we have connected to the two write sockets.
         # It might be the listener thread hasn't started (seems unlikely) in which case main thread
         # will acquire this cv first. But then it will fail the self.successfull_connections check, and let the listener thread go.
         # In what seems more likely, the listener is already going. Either it has completed, in which case we can acquire this cv
         # and run the main logic, or it hasn't, and we block here until those are set, when we will get notified and run.
         with self.cv:
-            print(f"enter main loop, succesful connections: {self.succesful_connections}")
+            print(f"enter main loop, successful connections: {self.successful_connections}")
             interval = 1 / self.freq
-            while not self.succesful_connections == 2:
+            while not self.successful_connections == 2:
                 self.cv.wait()
+
             # Both listen and write sockets are setup, so we loop forever, making actions as our clock speed allows
             while True:
                 start_time = time.time()
