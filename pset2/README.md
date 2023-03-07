@@ -5,6 +5,7 @@ This readme gives a high level overview of the entire repository. This assignmen
 - code
     - ```machine.py```: code to run a single machine for the mock system.
 - documentation
+    - ```analysis.ipynb```: jupyter notebook to compute trends from experimental logs
     - ```ledger.md```: notebook for design decisions
     - ```lab_notebook.md```: notebook for analyzing experimental results
 - logs
