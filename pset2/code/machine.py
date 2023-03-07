@@ -13,7 +13,7 @@ SOCKET_IP = "127.0.0.1"
 SOCKET_PORT_BASE = 8000
 
 # experimental constants; adjust for testing's sake
-MAX_RANDOM_STATE = 10
+MAX_RANDOM_STATE = 3
 USE_MANUAL_CLOCK_RATES = False
 manual_clock_rates = {
             0: 1,
@@ -38,7 +38,7 @@ class Machine():
     def __init__(self, id):
         self.id = id
         self.clock = 0
-        self.freq = random.randint(1, 6)
+        self.freq =6#random.randint(1, 6)
         if USE_MANUAL_CLOCK_RATES:
             self.freq = manual_clock_rates[self.id]
         self.queue = queue.Queue()

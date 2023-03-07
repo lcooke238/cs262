@@ -1,267 +1,408 @@
-LOG FOR MACHINE 2 WITH CLOCK SPEED 3
-2 - 1678148709.0629828: Received message: 1. Queue length: 0.
-4 - 1678148709.4030569: Received message: 3. Queue length: 0.
-5 - 1678148709.740198: Received message: 4. Queue length: 1.
-6 - 1678148710.0785978: Received message: 5. Queue length: 2.
-7 - 1678148710.416963: Received message: 6. Queue length: 3.
-8 - 1678148710.755506: Received message: 7. Queue length: 3.
-9 - 1678148711.091053: Received message: 8. Queue length: 3.
-10 - 1678148711.427685: Received message: 9. Queue length: 4.
-12 - 1678148711.7660658: Received message: 11. Queue length: 5.
-13 - 1678148712.104457: Received message: 12. Queue length: 6.
-15 - 1678148712.442872: Received message: 14. Queue length: 6.
-16 - 1678148712.779377: Received message: 15. Queue length: 5.
-17 - 1678148713.113323: Received message: 16. Queue length: 4.
-18 - 1678148713.447586: Received message: 17. Queue length: 5.
-19 - 1678148713.783354: Received message: 18. Queue length: 6.
-20 - 1678148714.1208398: Received message: 19. Queue length: 7.
-22 - 1678148714.459244: Received message: 21. Queue length: 7.
-27 - 1678148714.795861: Received message: 26. Queue length: 8.
-28 - 1678148715.134272: Received message: 27. Queue length: 9.
-29 - 1678148715.467817: Received message: 28. Queue length: 10.
-30 - 1678148715.8038359: Received message: 29. Queue length: 11.
-31 - 1678148716.142087: Received message: 30. Queue length: 10.
-32 - 1678148716.4776819: Received message: 31. Queue length: 11.
-34 - 1678148716.814535: Received message: 33. Queue length: 12.
-35 - 1678148717.15093: Received message: 34. Queue length: 13.
-36 - 1678148717.487539: Received message: 35. Queue length: 14.
-37 - 1678148717.824438: Received message: 36. Queue length: 14.
-38 - 1678148718.1610181: Received message: 37. Queue length: 14.
-39 - 1678148718.494781: Received message: 38. Queue length: 14.
-40 - 1678148718.83325: Received message: 39. Queue length: 13.
-41 - 1678148719.1708539: Received message: 40. Queue length: 13.
-42 - 1678148719.50694: Received message: 41. Queue length: 13.
-45 - 1678148719.84432: Received message: 44. Queue length: 14.
-46 - 1678148720.179163: Received message: 45. Queue length: 14.
-47 - 1678148720.517546: Received message: 46. Queue length: 15.
-48 - 1678148720.8549728: Received message: 47. Queue length: 14.
-49 - 1678148721.193357: Received message: 48. Queue length: 14.
-50 - 1678148721.527636: Received message: 49. Queue length: 14.
-51 - 1678148721.862692: Received message: 50. Queue length: 14.
-52 - 1678148722.200994: Received message: 51. Queue length: 14.
-53 - 1678148722.536052: Received message: 52. Queue length: 13.
-55 - 1678148722.870998: Received message: 54. Queue length: 12.
-58 - 1678148723.209474: Received message: 57. Queue length: 13.
-62 - 1678148723.5458791: Received message: 61. Queue length: 14.
-63 - 1678148723.883013: Received message: 62. Queue length: 14.
-65 - 1678148724.219338: Received message: 64. Queue length: 15.
-66 - 1678148724.5547662: Received message: 65. Queue length: 15.
-67 - 1678148724.889916: Received message: 66. Queue length: 16.
-69 - 1678148725.227684: Received message: 68. Queue length: 16.
-70 - 1678148725.5661461: Received message: 69. Queue length: 16.
-74 - 1678148725.9041972: Received message: 73. Queue length: 15.
-75 - 1678148726.2425652: Received message: 74. Queue length: 16.
-77 - 1678148726.579241: Received message: 76. Queue length: 17.
-79 - 1678148726.9149911: Received message: 78. Queue length: 16.
-84 - 1678148727.252629: Received message: 83. Queue length: 17.
-85 - 1678148727.586668: Received message: 84. Queue length: 17.
-86 - 1678148727.925077: Received message: 85. Queue length: 17.
-87 - 1678148728.262578: Received message: 86. Queue length: 18.
-88 - 1678148728.600908: Received message: 87. Queue length: 19.
-90 - 1678148728.9360168: Received message: 89. Queue length: 20.
-91 - 1678148729.271508: Received message: 90. Queue length: 20.
-93 - 1678148729.6051881: Received message: 92. Queue length: 20.
-94 - 1678148729.9413528: Received message: 93. Queue length: 21.
-95 - 1678148730.2791219: Received message: 94. Queue length: 20.
-96 - 1678148730.6153789: Received message: 95. Queue length: 21.
-98 - 1678148730.9527638: Received message: 97. Queue length: 22.
-102 - 1678148731.288609: Received message: 101. Queue length: 22.
-103 - 1678148731.627035: Received message: 102. Queue length: 23.
-104 - 1678148731.960862: Received message: 103. Queue length: 23.
-105 - 1678148732.2958689: Received message: 104. Queue length: 24.
-108 - 1678148732.634261: Received message: 107. Queue length: 25.
-109 - 1678148732.972667: Received message: 108. Queue length: 25.
-110 - 1678148733.311008: Received message: 109. Queue length: 26.
-112 - 1678148733.648586: Received message: 111. Queue length: 26.
-114 - 1678148733.985861: Received message: 113. Queue length: 27.
-115 - 1678148734.319414: Received message: 114. Queue length: 27.
-116 - 1678148734.654314: Received message: 115. Queue length: 27.
-117 - 1678148734.98777: Received message: 116. Queue length: 27.
-118 - 1678148735.3261728: Received message: 117. Queue length: 28.
-119 - 1678148735.6609862: Received message: 118. Queue length: 29.
-120 - 1678148735.999378: Received message: 119. Queue length: 30.
-123 - 1678148736.336064: Received message: 122. Queue length: 31.
-124 - 1678148736.6711302: Received message: 123. Queue length: 32.
-125 - 1678148737.0095282: Received message: 124. Queue length: 33.
-128 - 1678148737.345854: Received message: 127. Queue length: 34.
-129 - 1678148737.684265: Received message: 128. Queue length: 34.
-130 - 1678148738.019279: Received message: 129. Queue length: 35.
-131 - 1678148738.356672: Received message: 130. Queue length: 35.
-132 - 1678148738.694315: Received message: 131. Queue length: 35.
-134 - 1678148739.0292008: Received message: 133. Queue length: 36.
-135 - 1678148739.365869: Received message: 134. Queue length: 36.
-137 - 1678148739.7043798: Received message: 136. Queue length: 36.
-138 - 1678148740.04283: Received message: 137. Queue length: 37.
-139 - 1678148740.379464: Received message: 138. Queue length: 37.
-140 - 1678148740.717929: Received message: 139. Queue length: 37.
-141 - 1678148741.0551538: Received message: 140. Queue length: 36.
-143 - 1678148741.393339: Received message: 142. Queue length: 37.
-144 - 1678148741.7304: Received message: 143. Queue length: 38.
-145 - 1678148742.068767: Received message: 144. Queue length: 38.
-146 - 1678148742.4033952: Received message: 145. Queue length: 37.
-148 - 1678148742.7392: Received message: 147. Queue length: 37.
-149 - 1678148743.077492: Received message: 148. Queue length: 37.
-150 - 1678148743.411556: Received message: 149. Queue length: 38.
-153 - 1678148743.7460978: Received message: 152. Queue length: 39.
-154 - 1678148744.084507: Received message: 153. Queue length: 39.
-156 - 1678148744.419326: Received message: 155. Queue length: 40.
-157 - 1678148744.756135: Received message: 156. Queue length: 41.
-158 - 1678148745.09552: Received message: 157. Queue length: 41.
-159 - 1678148745.433901: Received message: 158. Queue length: 42.
-160 - 1678148745.769563: Received message: 159. Queue length: 42.
-161 - 1678148746.107761: Received message: 160. Queue length: 42.
-162 - 1678148746.444318: Received message: 161. Queue length: 43.
-163 - 1678148746.7798982: Received message: 162. Queue length: 44.
-164 - 1678148747.118413: Received message: 163. Queue length: 44.
-165 - 1678148747.455128: Received message: 164. Queue length: 43.
-166 - 1678148747.788934: Received message: 165. Queue length: 43.
-167 - 1678148748.122946: Received message: 166. Queue length: 42.
-168 - 1678148748.4615328: Received message: 167. Queue length: 42.
-169 - 1678148748.799878: Received message: 168. Queue length: 43.
-170 - 1678148749.136451: Received message: 169. Queue length: 43.
-172 - 1678148749.470955: Received message: 171. Queue length: 42.
-173 - 1678148749.809356: Received message: 172. Queue length: 41.
-174 - 1678148750.145762: Received message: 173. Queue length: 41.
-176 - 1678148750.4795468: Received message: 175. Queue length: 41.
-178 - 1678148750.817875: Received message: 177. Queue length: 41.
-179 - 1678148751.154142: Received message: 178. Queue length: 42.
-180 - 1678148751.49256: Received message: 179. Queue length: 43.
-182 - 1678148751.827627: Received message: 181. Queue length: 43.
-183 - 1678148752.166014: Received message: 182. Queue length: 44.
-184 - 1678148752.502657: Received message: 183. Queue length: 44.
-185 - 1678148752.839859: Received message: 184. Queue length: 45.
-187 - 1678148753.178221: Received message: 186. Queue length: 45.
-191 - 1678148753.516617: Received message: 190. Queue length: 46.
-192 - 1678148753.852607: Received message: 191. Queue length: 47.
-193 - 1678148754.18884: Received message: 192. Queue length: 46.
-194 - 1678148754.5264351: Received message: 193. Queue length: 47.
-196 - 1678148754.862452: Received message: 195. Queue length: 48.
-199 - 1678148755.2008572: Received message: 198. Queue length: 49.
-201 - 1678148755.534581: Received message: 200. Queue length: 49.
-203 - 1678148755.870911: Received message: 202. Queue length: 49.
-204 - 1678148756.209277: Received message: 203. Queue length: 50.
-205 - 1678148756.544236: Received message: 204. Queue length: 51.
-206 - 1678148756.881849: Received message: 205. Queue length: 52.
-208 - 1678148757.220169: Received message: 207. Queue length: 51.
-209 - 1678148757.554326: Received message: 208. Queue length: 52.
-210 - 1678148757.887722: Received message: 209. Queue length: 53.
-211 - 1678148758.22424: Received message: 210. Queue length: 53.
-212 - 1678148758.561815: Received message: 211. Queue length: 52.
-214 - 1678148758.899122: Received message: 213. Queue length: 52.
-215 - 1678148759.2379131: Received message: 214. Queue length: 52.
-216 - 1678148759.576315: Received message: 215. Queue length: 53.
-217 - 1678148759.9113631: Received message: 216. Queue length: 53.
-220 - 1678148760.2461262: Received message: 219. Queue length: 53.
-221 - 1678148760.584523: Received message: 220. Queue length: 52.
-222 - 1678148760.921108: Received message: 221. Queue length: 53.
-223 - 1678148761.2549381: Received message: 222. Queue length: 52.
-224 - 1678148761.592921: Received message: 223. Queue length: 52.
-225 - 1678148761.931205: Received message: 224. Queue length: 53.
-229 - 1678148762.269351: Received message: 228. Queue length: 54.
-233 - 1678148762.6069582: Received message: 232. Queue length: 54.
-235 - 1678148762.943657: Received message: 234. Queue length: 54.
-236 - 1678148763.279967: Received message: 235. Queue length: 55.
-238 - 1678148763.615616: Received message: 237. Queue length: 56.
-243 - 1678148763.9517372: Received message: 242. Queue length: 57.
-245 - 1678148764.2859552: Received message: 244. Queue length: 58.
-247 - 1678148764.621925: Received message: 246. Queue length: 59.
-249 - 1678148764.9602811: Received message: 248. Queue length: 60.
-250 - 1678148765.295626: Received message: 249. Queue length: 60.
-251 - 1678148765.6328042: Received message: 250. Queue length: 61.
-252 - 1678148765.9693: Received message: 251. Queue length: 62.
-254 - 1678148766.304311: Received message: 253. Queue length: 62.
-255 - 1678148766.6427178: Received message: 254. Queue length: 61.
-256 - 1678148766.978401: Received message: 255. Queue length: 61.
-257 - 1678148767.316753: Received message: 256. Queue length: 62.
-259 - 1678148767.6542: Received message: 258. Queue length: 63.
-260 - 1678148767.992619: Received message: 259. Queue length: 64.
-261 - 1678148768.327616: Received message: 260. Queue length: 65.
-263 - 1678148768.665985: Received message: 262. Queue length: 65.
-264 - 1678148769.0026162: Received message: 263. Queue length: 65.
-265 - 1678148769.337683: Received message: 264. Queue length: 65.
-266 - 1678148769.675313: Received message: 265. Queue length: 66.
-269 - 1678148770.0129678: Received message: 268. Queue length: 66.
-270 - 1678148770.346368: Received message: 269. Queue length: 67.
-271 - 1678148770.682821: Received message: 270. Queue length: 67.
-272 - 1678148771.019352: Received message: 271. Queue length: 68.
-273 - 1678148771.355977: Received message: 272. Queue length: 68.
-274 - 1678148771.691173: Received message: 273. Queue length: 69.
-276 - 1678148772.028299: Received message: 275. Queue length: 69.
-277 - 1678148772.362588: Received message: 276. Queue length: 68.
-279 - 1678148772.7009459: Received message: 278. Queue length: 69.
-280 - 1678148773.035923: Received message: 279. Queue length: 69.
-281 - 1678148773.370811: Received message: 280. Queue length: 70.
-282 - 1678148773.70662: Received message: 281. Queue length: 71.
-283 - 1678148774.0449831: Received message: 282. Queue length: 72.
-284 - 1678148774.379207: Received message: 283. Queue length: 72.
-287 - 1678148774.714418: Received message: 286. Queue length: 73.
-288 - 1678148775.0528178: Received message: 287. Queue length: 73.
-289 - 1678148775.387764: Received message: 288. Queue length: 73.
-290 - 1678148775.7261388: Received message: 289. Queue length: 73.
-291 - 1678148776.064546: Received message: 290. Queue length: 74.
-294 - 1678148776.4014652: Received message: 293. Queue length: 74.
-296 - 1678148776.737584: Received message: 295. Queue length: 75.
-298 - 1678148777.0710132: Received message: 297. Queue length: 76.
-299 - 1678148777.409429: Received message: 298. Queue length: 77.
-301 - 1678148777.746725: Received message: 300. Queue length: 77.
-302 - 1678148778.085523: Received message: 301. Queue length: 76.
-306 - 1678148778.423719: Received message: 305. Queue length: 76.
-307 - 1678148778.7619112: Received message: 306. Queue length: 76.
-311 - 1678148779.0965152: Received message: 310. Queue length: 77.
-312 - 1678148779.431836: Received message: 311. Queue length: 77.
-313 - 1678148779.7693539: Received message: 312. Queue length: 78.
-314 - 1678148780.1032908: Received message: 313. Queue length: 79.
-315 - 1678148780.437643: Received message: 314. Queue length: 79.
-317 - 1678148780.7728279: Received message: 316. Queue length: 79.
-318 - 1678148781.110929: Received message: 317. Queue length: 80.
-320 - 1678148781.445921: Received message: 319. Queue length: 81.
-321 - 1678148781.7842822: Received message: 320. Queue length: 81.
-322 - 1678148782.1227572: Received message: 321. Queue length: 80.
-323 - 1678148782.459695: Received message: 322. Queue length: 81.
-324 - 1678148782.79585: Received message: 323. Queue length: 82.
-325 - 1678148783.1342971: Received message: 324. Queue length: 82.
-326 - 1678148783.4692428: Received message: 325. Queue length: 83.
-327 - 1678148783.8079271: Received message: 326. Queue length: 83.
-328 - 1678148784.141595: Received message: 327. Queue length: 84.
-329 - 1678148784.4793: Received message: 328. Queue length: 84.
-330 - 1678148784.8161302: Received message: 329. Queue length: 84.
-331 - 1678148785.1525602: Received message: 330. Queue length: 85.
-332 - 1678148785.490011: Received message: 331. Queue length: 85.
-334 - 1678148785.82597: Received message: 333. Queue length: 85.
-335 - 1678148786.161296: Received message: 334. Queue length: 85.
-336 - 1678148786.4957929: Received message: 335. Queue length: 86.
-337 - 1678148786.834035: Received message: 336. Queue length: 87.
-339 - 1678148787.1694348: Received message: 338. Queue length: 88.
-342 - 1678148787.504144: Received message: 341. Queue length: 87.
-344 - 1678148787.837779: Received message: 343. Queue length: 87.
-345 - 1678148788.176118: Received message: 344. Queue length: 88.
-346 - 1678148788.511433: Received message: 345. Queue length: 89.
-347 - 1678148788.845825: Received message: 346. Queue length: 88.
-348 - 1678148789.1842182: Received message: 347. Queue length: 87.
-349 - 1678148789.519247: Received message: 348. Queue length: 87.
-350 - 1678148789.854099: Received message: 349. Queue length: 88.
-351 - 1678148790.1933298: Received message: 350. Queue length: 88.
-353 - 1678148790.528265: Received message: 352. Queue length: 88.
-355 - 1678148790.862704: Received message: 354. Queue length: 89.
-356 - 1678148791.201161: Received message: 355. Queue length: 89.
-358 - 1678148791.534983: Received message: 357. Queue length: 89.
-359 - 1678148791.868829: Received message: 358. Queue length: 89.
-360 - 1678148792.2046552: Received message: 359. Queue length: 89.
-362 - 1678148792.543078: Received message: 361. Queue length: 88.
-363 - 1678148792.87999: Received message: 362. Queue length: 89.
-365 - 1678148793.213453: Received message: 364. Queue length: 89.
-366 - 1678148793.5518138: Received message: 365. Queue length: 89.
-367 - 1678148793.887083: Received message: 366. Queue length: 90.
-368 - 1678148794.223582: Received message: 367. Queue length: 91.
-370 - 1678148794.557185: Received message: 369. Queue length: 92.
-371 - 1678148794.895572: Received message: 370. Queue length: 92.
-372 - 1678148795.2339342: Received message: 371. Queue length: 93.
-376 - 1678148795.572305: Received message: 375. Queue length: 93.
-377 - 1678148795.906763: Received message: 376. Queue length: 93.
-379 - 1678148796.244164: Received message: 378. Queue length: 58176.
-380 - 1678148796.579962: Received message: 379. Queue length: 434394.
-381 - 1678148796.9183202: Received message: 380. Queue length: 825038.
-382 - 1678148797.2566772: Received message: 381. Queue length: 1187522.
-383 - 1678148797.595111: Received message: 382. Queue length: 1476750.
-384 - 1678148797.9315982: Received message: 383. Queue length: 1755778.
-385 - 1678148798.269152: Received message: 384. Queue length: 2043204.
+LOG FOR MACHINE 2 WITH CLOCK SPEED 6
+1 - 1678207051.387063: Sent one message to machine 0.
+3 - 1678207051.55878: Received message: 2. Queue length: 0.
+4 - 1678207051.730464: Sent one message to machine 1.
+5 - 1678207051.897483: Sent one message to machine 1.
+6 - 1678207052.066989: Sent two messages.
+7 - 1678207052.2387478: Sent one message to machine 0.
+8 - 1678207052.407351: Sent two messages.
+9 - 1678207052.574167: Sent one message to machine 0.
+10 - 1678207052.745584: Sent two messages.
+11 - 1678207052.912638: Sent one message to machine 1.
+12 - 1678207053.081194: Sent one message to machine 1.
+13 - 1678207053.2480562: Sent one message to machine 1.
+14 - 1678207053.418793: Sent one message to machine 0.
+15 - 1678207053.590493: Sent one message to machine 1.
+16 - 1678207053.757689: Sent one message to machine 0.
+17 - 1678207053.9324539: Sent one message to machine 0.
+18 - 1678207054.097026: Sent one message to machine 0.
+19 - 1678207054.26864: Sent one message to machine 1.
+20 - 1678207054.440447: Sent one message to machine 1.
+21 - 1678207054.610125: Sent one message to machine 1.
+22 - 1678207054.779916: Sent two messages.
+23 - 1678207054.949564: Sent two messages.
+24 - 1678207055.116256: Sent one message to machine 1.
+25 - 1678207055.282892: Sent one message to machine 1.
+26 - 1678207055.45471: Sent one message to machine 1.
+27 - 1678207055.625133: Sent one message to machine 0.
+28 - 1678207055.796802: Sent one message to machine 0.
+29 - 1678207055.9686458: Sent two messages.
+30 - 1678207056.1400802: Sent two messages.
+31 - 1678207056.3119512: Sent one message to machine 0.
+32 - 1678207056.482501: Sent one message to machine 0.
+33 - 1678207056.653677: Sent two messages.
+34 - 1678207056.825484: Sent one message to machine 1.
+35 - 1678207056.9931579: Sent one message to machine 1.
+36 - 1678207057.162994: Sent one message to machine 0.
+37 - 1678207057.330579: Sent one message to machine 1.
+38 - 1678207057.497943: Sent one message to machine 1.
+39 - 1678207057.668342: Sent one message to machine 0.
+40 - 1678207057.835131: Sent one message to machine 1.
+41 - 1678207058.005195: Sent one message to machine 1.
+42 - 1678207058.172238: Sent one message to machine 1.
+43 - 1678207058.34395: Sent one message to machine 0.
+44 - 1678207058.513132: Sent one message to machine 0.
+45 - 1678207058.684753: Sent two messages.
+46 - 1678207058.856493: Sent two messages.
+47 - 1678207059.024678: Sent two messages.
+48 - 1678207059.193323: Sent two messages.
+49 - 1678207059.364813: Sent one message to machine 0.
+50 - 1678207059.5343769: Sent two messages.
+51 - 1678207059.7051241: Sent one message to machine 1.
+52 - 1678207059.8769028: Sent one message to machine 0.
+53 - 1678207060.0463538: Sent one message to machine 1.
+54 - 1678207060.218088: Sent two messages.
+55 - 1678207060.385927: Sent two messages.
+56 - 1678207060.557293: Sent one message to machine 0.
+57 - 1678207060.727135: Sent two messages.
+58 - 1678207060.896702: Sent one message to machine 1.
+59 - 1678207061.0648372: Sent one message to machine 1.
+60 - 1678207061.234018: Sent two messages.
+61 - 1678207061.405806: Sent two messages.
+62 - 1678207061.5792809: Sent one message to machine 0.
+63 - 1678207061.748588: Sent one message to machine 0.
+64 - 1678207061.9190679: Sent one message to machine 1.
+65 - 1678207062.0878358: Sent two messages.
+66 - 1678207062.259089: Sent two messages.
+67 - 1678207062.4269261: Sent one message to machine 0.
+68 - 1678207062.598589: Sent one message to machine 0.
+69 - 1678207062.768815: Sent one message to machine 1.
+70 - 1678207062.938303: Sent one message to machine 1.
+71 - 1678207063.105473: Sent one message to machine 0.
+72 - 1678207063.276211: Sent one message to machine 0.
+73 - 1678207063.4472268: Sent one message to machine 1.
+74 - 1678207063.6192892: Sent two messages.
+75 - 1678207063.785846: Sent two messages.
+76 - 1678207063.955918: Sent two messages.
+77 - 1678207064.125495: Sent one message to machine 1.
+78 - 1678207064.29683: Sent one message to machine 1.
+79 - 1678207064.4662452: Sent one message to machine 1.
+80 - 1678207064.633822: Sent two messages.
+81 - 1678207064.805583: Sent one message to machine 1.
+82 - 1678207064.975918: Sent one message to machine 1.
+83 - 1678207065.147433: Sent one message to machine 1.
+84 - 1678207065.3150778: Sent one message to machine 0.
+85 - 1678207065.483941: Sent two messages.
+86 - 1678207065.652962: Sent two messages.
+87 - 1678207065.8224268: Sent one message to machine 1.
+88 - 1678207065.993113: Sent one message to machine 1.
+89 - 1678207066.1639261: Sent two messages.
+90 - 1678207066.3316128: Sent one message to machine 0.
+91 - 1678207066.500959: Sent two messages.
+92 - 1678207066.672619: Sent two messages.
+93 - 1678207066.842693: Sent one message to machine 0.
+94 - 1678207067.0130959: Sent one message to machine 0.
+95 - 1678207067.184839: Sent one message to machine 0.
+96 - 1678207067.357048: Sent two messages.
+97 - 1678207067.528875: Sent one message to machine 0.
+98 - 1678207067.699471: Sent one message to machine 1.
+99 - 1678207067.8698938: Sent one message to machine 1.
+100 - 1678207068.038798: Sent one message to machine 0.
+101 - 1678207068.208989: Sent one message to machine 1.
+102 - 1678207068.380799: Sent one message to machine 0.
+103 - 1678207068.5495622: Sent two messages.
+104 - 1678207068.720753: Sent two messages.
+105 - 1678207068.892815: Sent two messages.
+106 - 1678207069.0621681: Sent two messages.
+107 - 1678207069.23279: Sent one message to machine 0.
+108 - 1678207069.402795: Sent one message to machine 1.
+109 - 1678207069.574583: Sent two messages.
+110 - 1678207069.7422311: Sent two messages.
+111 - 1678207069.913685: Sent one message to machine 1.
+112 - 1678207070.082047: Sent one message to machine 0.
+113 - 1678207070.2514281: Sent one message to machine 1.
+114 - 1678207070.4232059: Sent one message to machine 0.
+115 - 1678207070.590889: Sent one message to machine 0.
+116 - 1678207070.758671: Sent two messages.
+117 - 1678207070.929269: Sent one message to machine 0.
+118 - 1678207071.098468: Sent two messages.
+119 - 1678207071.2689862: Sent one message to machine 0.
+120 - 1678207071.4411352: Sent two messages.
+121 - 1678207071.6129122: Sent one message to machine 1.
+122 - 1678207071.780687: Sent one message to machine 1.
+123 - 1678207071.9489532: Sent two messages.
+124 - 1678207072.120097: Sent one message to machine 1.
+125 - 1678207072.288733: Sent two messages.
+126 - 1678207072.45697: Sent two messages.
+127 - 1678207072.628702: Sent one message to machine 0.
+128 - 1678207072.800504: Sent one message to machine 1.
+129 - 1678207072.972129: Sent one message to machine 1.
+130 - 1678207073.143141: Sent one message to machine 0.
+131 - 1678207073.313289: Sent two messages.
+132 - 1678207073.4807308: Sent two messages.
+133 - 1678207073.6481988: Sent two messages.
+134 - 1678207073.817277: Sent two messages.
+135 - 1678207073.985609: Sent one message to machine 1.
+136 - 1678207074.15771: Sent one message to machine 1.
+137 - 1678207074.3290088: Sent one message to machine 0.
+138 - 1678207074.495724: Sent one message to machine 0.
+139 - 1678207074.66766: Sent one message to machine 0.
+140 - 1678207074.8394141: Sent one message to machine 1.
+141 - 1678207075.010829: Sent one message to machine 1.
+142 - 1678207075.18243: Sent two messages.
+143 - 1678207075.3494148: Sent one message to machine 0.
+144 - 1678207075.517525: Sent one message to machine 0.
+145 - 1678207075.687802: Sent one message to machine 1.
+146 - 1678207075.859494: Sent two messages.
+147 - 1678207076.0313861: Sent two messages.
+148 - 1678207076.20097: Sent one message to machine 1.
+149 - 1678207076.3717718: Sent two messages.
+150 - 1678207076.53881: Sent one message to machine 0.
+151 - 1678207076.708427: Sent two messages.
+152 - 1678207076.8802419: Sent one message to machine 1.
+153 - 1678207077.049026: Sent one message to machine 1.
+154 - 1678207077.220814: Sent two messages.
+155 - 1678207077.392374: Sent one message to machine 1.
+156 - 1678207077.560383: Sent two messages.
+157 - 1678207077.728929: Sent one message to machine 1.
+158 - 1678207077.897165: Sent two messages.
+159 - 1678207078.0689468: Sent one message to machine 0.
+160 - 1678207078.240556: Sent one message to machine 1.
+161 - 1678207078.4122958: Sent one message to machine 1.
+162 - 1678207078.5840352: Sent one message to machine 0.
+163 - 1678207078.753098: Sent two messages.
+164 - 1678207078.925014: Sent one message to machine 0.
+165 - 1678207079.09671: Sent one message to machine 1.
+166 - 1678207079.263991: Sent one message to machine 0.
+167 - 1678207079.4311109: Sent one message to machine 1.
+168 - 1678207079.602793: Sent one message to machine 0.
+169 - 1678207079.769866: Sent one message to machine 1.
+170 - 1678207079.9375098: Sent one message to machine 0.
+171 - 1678207080.1050072: Sent one message to machine 0.
+172 - 1678207080.2733161: Sent one message to machine 0.
+173 - 1678207080.444075: Sent one message to machine 0.
+174 - 1678207080.615801: Sent two messages.
+175 - 1678207080.784457: Sent one message to machine 1.
+176 - 1678207080.956256: Sent two messages.
+177 - 1678207081.127962: Sent one message to machine 0.
+178 - 1678207081.295734: Sent one message to machine 1.
+179 - 1678207081.467517: Sent one message to machine 0.
+180 - 1678207081.6393511: Sent two messages.
+181 - 1678207081.810977: Sent two messages.
+182 - 1678207081.982721: Sent one message to machine 1.
+183 - 1678207082.154479: Sent one message to machine 1.
+184 - 1678207082.321355: Sent two messages.
+185 - 1678207082.4908822: Sent two messages.
+186 - 1678207082.6624541: Sent one message to machine 0.
+187 - 1678207082.833816: Sent one message to machine 1.
+188 - 1678207083.005017: Sent one message to machine 1.
+189 - 1678207083.174004: Sent one message to machine 1.
+190 - 1678207083.345776: Sent two messages.
+191 - 1678207083.513139: Sent one message to machine 1.
+192 - 1678207083.68288: Sent two messages.
+193 - 1678207083.850361: Sent one message to machine 0.
+194 - 1678207084.021913: Sent one message to machine 1.
+195 - 1678207084.1906729: Sent one message to machine 0.
+196 - 1678207084.359802: Sent one message to machine 1.
+197 - 1678207084.526637: Sent one message to machine 0.
+198 - 1678207084.694388: Sent one message to machine 0.
+199 - 1678207084.863028: Sent two messages.
+200 - 1678207085.033952: Sent one message to machine 0.
+201 - 1678207085.2009091: Sent one message to machine 0.
+202 - 1678207085.36881: Sent two messages.
+203 - 1678207085.536905: Sent one message to machine 0.
+204 - 1678207085.704166: Sent two messages.
+205 - 1678207085.873068: Sent two messages.
+206 - 1678207086.0447412: Sent one message to machine 1.
+207 - 1678207086.216177: Sent one message to machine 0.
+208 - 1678207086.3849092: Sent one message to machine 1.
+209 - 1678207086.553864: Sent two messages.
+210 - 1678207086.721235: Sent one message to machine 1.
+211 - 1678207086.890353: Sent one message to machine 0.
+212 - 1678207087.0607831: Sent two messages.
+213 - 1678207087.2324219: Sent one message to machine 1.
+214 - 1678207087.404181: Sent one message to machine 0.
+215 - 1678207087.575828: Sent one message to machine 0.
+216 - 1678207087.7453482: Sent one message to machine 1.
+217 - 1678207087.9160378: Sent two messages.
+218 - 1678207088.0810199: Sent one message to machine 1.
+219 - 1678207088.252794: Sent one message to machine 0.
+220 - 1678207088.4244428: Sent one message to machine 1.
+221 - 1678207088.5915341: Sent one message to machine 0.
+222 - 1678207088.7632189: Sent one message to machine 1.
+223 - 1678207088.935053: Sent one message to machine 1.
+224 - 1678207089.102714: Sent one message to machine 1.
+225 - 1678207089.274144: Sent two messages.
+226 - 1678207089.445856: Sent two messages.
+227 - 1678207089.6175208: Sent one message to machine 0.
+228 - 1678207089.789377: Sent two messages.
+229 - 1678207089.9562502: Sent two messages.
+230 - 1678207090.125901: Sent one message to machine 1.
+231 - 1678207090.293559: Sent two messages.
+232 - 1678207090.460887: Sent two messages.
+233 - 1678207090.629138: Sent one message to machine 0.
+234 - 1678207090.80086: Sent one message to machine 0.
+235 - 1678207090.972621: Sent one message to machine 0.
+236 - 1678207091.140307: Sent two messages.
+237 - 1678207091.3120158: Sent one message to machine 0.
+238 - 1678207091.482195: Sent one message to machine 0.
+239 - 1678207091.651923: Sent two messages.
+240 - 1678207091.818562: Sent one message to machine 1.
+241 - 1678207091.987179: Sent one message to machine 1.
+242 - 1678207092.157205: Sent one message to machine 0.
+243 - 1678207092.326515: Sent two messages.
+244 - 1678207092.49736: Sent one message to machine 0.
+245 - 1678207092.664799: Sent one message to machine 1.
+246 - 1678207092.836677: Sent one message to machine 1.
+247 - 1678207093.005912: Sent one message to machine 0.
+248 - 1678207093.177241: Sent two messages.
+249 - 1678207093.34481: Sent two messages.
+250 - 1678207093.516381: Sent one message to machine 0.
+251 - 1678207093.6881468: Sent one message to machine 1.
+252 - 1678207093.8570812: Sent one message to machine 0.
+253 - 1678207094.0291991: Sent one message to machine 0.
+254 - 1678207094.198684: Sent one message to machine 1.
+255 - 1678207094.370322: Sent one message to machine 0.
+256 - 1678207094.541784: Sent one message to machine 1.
+257 - 1678207094.7136111: Sent one message to machine 1.
+258 - 1678207094.882019: Sent one message to machine 1.
+259 - 1678207095.053689: Sent two messages.
+260 - 1678207095.221301: Sent one message to machine 0.
+261 - 1678207095.392822: Sent one message to machine 1.
+262 - 1678207095.560496: Sent two messages.
+263 - 1678207095.7284129: Sent two messages.
+264 - 1678207095.899348: Sent two messages.
+265 - 1678207096.070957: Sent two messages.
+266 - 1678207096.241806: Sent one message to machine 0.
+267 - 1678207096.409487: Sent one message to machine 1.
+268 - 1678207096.576975: Sent one message to machine 1.
+269 - 1678207096.748717: Sent one message to machine 1.
+270 - 1678207096.91545: Sent two messages.
+271 - 1678207097.084893: Sent two messages.
+272 - 1678207097.252523: Sent two messages.
+273 - 1678207097.422584: Sent two messages.
+274 - 1678207097.5899231: Sent one message to machine 1.
+275 - 1678207097.7597399: Sent one message to machine 0.
+276 - 1678207097.928098: Sent one message to machine 1.
+277 - 1678207098.099943: Sent two messages.
+278 - 1678207098.271529: Sent one message to machine 1.
+279 - 1678207098.443339: Sent two messages.
+280 - 1678207098.61357: Sent one message to machine 0.
+281 - 1678207098.785254: Sent one message to machine 0.
+282 - 1678207098.952917: Sent one message to machine 1.
+283 - 1678207099.1246169: Sent one message to machine 1.
+284 - 1678207099.2963579: Sent one message to machine 1.
+285 - 1678207099.4680939: Sent two messages.
+286 - 1678207099.638197: Sent two messages.
+287 - 1678207099.805624: Sent two messages.
+288 - 1678207099.976913: Sent one message to machine 1.
+289 - 1678207100.144929: Sent one message to machine 0.
+290 - 1678207100.3129652: Sent one message to machine 0.
+291 - 1678207100.483603: Sent one message to machine 1.
+292 - 1678207100.655574: Sent two messages.
+293 - 1678207100.825011: Sent one message to machine 1.
+294 - 1678207100.995664: Sent two messages.
+295 - 1678207101.1673799: Sent one message to machine 1.
+296 - 1678207101.336777: Sent two messages.
+297 - 1678207101.504504: Sent one message to machine 1.
+298 - 1678207101.6763232: Sent one message to machine 1.
+299 - 1678207101.848094: Sent one message to machine 0.
+300 - 1678207102.01987: Sent one message to machine 0.
+301 - 1678207102.188122: Sent one message to machine 0.
+302 - 1678207102.359676: Sent two messages.
+303 - 1678207102.531272: Sent two messages.
+304 - 1678207102.702993: Sent one message to machine 0.
+305 - 1678207102.870674: Sent one message to machine 0.
+306 - 1678207103.04228: Sent one message to machine 0.
+307 - 1678207103.2140758: Sent one message to machine 0.
+308 - 1678207103.3857212: Sent one message to machine 1.
+309 - 1678207103.55282: Sent one message to machine 0.
+310 - 1678207103.7228632: Sent one message to machine 1.
+311 - 1678207103.894602: Sent one message to machine 0.
+312 - 1678207104.066327: Sent two messages.
+313 - 1678207104.234398: Sent one message to machine 0.
+314 - 1678207104.404403: Sent one message to machine 1.
+315 - 1678207104.572267: Sent one message to machine 1.
+316 - 1678207104.7439182: Sent one message to machine 1.
+317 - 1678207104.912875: Sent one message to machine 1.
+318 - 1678207105.080019: Sent one message to machine 1.
+319 - 1678207105.251723: Sent two messages.
+320 - 1678207105.423533: Sent two messages.
+321 - 1678207105.592869: Sent two messages.
+322 - 1678207105.76371: Sent one message to machine 1.
+323 - 1678207105.935511: Sent one message to machine 0.
+324 - 1678207106.103909: Sent one message to machine 0.
+325 - 1678207106.2735622: Sent two messages.
+326 - 1678207106.446444: Sent one message to machine 0.
+327 - 1678207106.6178591: Sent two messages.
+328 - 1678207106.7874272: Sent two messages.
+329 - 1678207106.954428: Sent two messages.
+330 - 1678207107.12347: Sent one message to machine 0.
+331 - 1678207107.295209: Sent two messages.
+332 - 1678207107.4653099: Sent two messages.
+333 - 1678207107.636276: Sent one message to machine 1.
+334 - 1678207107.8049521: Sent two messages.
+335 - 1678207107.976778: Sent two messages.
+336 - 1678207108.1464472: Sent one message to machine 0.
+337 - 1678207108.315: Sent one message to machine 0.
+338 - 1678207108.484938: Sent one message to machine 1.
+339 - 1678207108.6534982: Sent one message to machine 0.
+340 - 1678207108.824974: Sent one message to machine 1.
+341 - 1678207108.995414: Sent one message to machine 1.
+342 - 1678207109.164125: Sent one message to machine 0.
+343 - 1678207109.336471: Sent two messages.
+344 - 1678207109.505014: Sent two messages.
+345 - 1678207109.676647: Sent one message to machine 0.
+346 - 1678207109.848265: Sent two messages.
+347 - 1678207110.019231: Sent one message to machine 1.
+348 - 1678207110.189336: Sent one message to machine 0.
+349 - 1678207110.3610308: Sent one message to machine 1.
+350 - 1678207110.528469: Sent one message to machine 1.
+351 - 1678207110.700497: Sent one message to machine 0.
+352 - 1678207110.868602: Sent two messages.
+353 - 1678207111.0369642: Sent two messages.
+354 - 1678207111.2083: Sent one message to machine 1.
+355 - 1678207111.3770702: Sent one message to machine 0.
+356 - 1678207111.54769: Sent one message to machine 0.
+357 - 1678207111.7193868: Sent two messages.
+358 - 1678207111.887142: Sent one message to machine 0.
+359 - 1678207112.0564501: Sent one message to machine 0.
+360 - 1678207112.222465: Sent one message to machine 0.
+361 - 1678207112.3930671: Sent two messages.
+362 - 1678207112.563264: Sent two messages.
+363 - 1678207112.734751: Sent one message to machine 1.
+364 - 1678207112.904785: Sent one message to machine 0.
+365 - 1678207113.076514: Sent one message to machine 1.
+366 - 1678207113.24822: Sent two messages.
+367 - 1678207113.419966: Sent one message to machine 0.
+368 - 1678207113.5916579: Sent one message to machine 1.
+369 - 1678207113.75985: Sent one message to machine 0.
+370 - 1678207113.93035: Sent one message to machine 1.
+371 - 1678207114.100756: Sent two messages.
+372 - 1678207114.2704132: Sent one message to machine 1.
+373 - 1678207114.440772: Sent two messages.
+374 - 1678207114.6095119: Sent one message to machine 0.
+375 - 1678207114.7781188: Sent one message to machine 1.
+376 - 1678207114.948386: Sent one message to machine 0.
+377 - 1678207115.120304: Sent one message to machine 0.
+378 - 1678207115.291265: Sent two messages.
+379 - 1678207115.4641302: Sent one message to machine 0.
+380 - 1678207115.6299908: Sent one message to machine 1.
+381 - 1678207115.798053: Sent two messages.
+382 - 1678207115.967991: Sent one message to machine 1.
+383 - 1678207116.137553: Sent one message to machine 1.
+384 - 1678207116.304854: Sent two messages.
+385 - 1678207116.4745338: Sent one message to machine 1.
+386 - 1678207116.646142: Sent two messages.
+387 - 1678207116.813042: Sent two messages.
+388 - 1678207116.984561: Sent one message to machine 0.
+389 - 1678207117.156192: Sent one message to machine 1.
+390 - 1678207117.324629: Sent two messages.
+391 - 1678207117.495164: Sent one message to machine 0.
+392 - 1678207117.66191: Sent one message to machine 0.
+393 - 1678207117.829721: Sent one message to machine 0.
+394 - 1678207118.001472: Sent one message to machine 1.
+395 - 1678207118.179231: Sent two messages.
+396 - 1678207118.342943: Sent one message to machine 1.
+397 - 1678207118.5130508: Sent two messages.
+398 - 1678207118.681565: Sent two messages.
+399 - 1678207118.853326: Sent one message to machine 0.
+400 - 1678207119.021503: Sent two messages.
+401 - 1678207119.1916611: Sent one message to machine 0.
+402 - 1678207119.362751: Sent one message to machine 0.
+403 - 1678207119.533275: Sent one message to machine 1.
+404 - 1678207119.7049742: Sent two messages.
+405 - 1678207119.876787: Sent one message to machine 1.
+406 - 1678207120.048539: Sent one message to machine 1.
+407 - 1678207120.218591: Sent one message to machine 0.
+408 - 1678207120.390353: Sent one message to machine 1.

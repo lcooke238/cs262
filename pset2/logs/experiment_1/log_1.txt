@@ -1,504 +1,455 @@
 LOG FOR MACHINE 1 WITH CLOCK SPEED 6
-1 - 1678148259.2610571: Internal event.
-2 - 1678148259.432595: Sent one message to machine 2.
-3 - 1678148259.599825: Internal event.
-4 - 1678148259.7699258: Internal event.
-5 - 1678148259.9417899: Internal event.
-6 - 1678148260.111315: Internal event.
-7 - 1678148260.279949: Internal event.
-8 - 1678148260.451895: Sent one message to machine 2.
-9 - 1678148260.620636: Sent two messages.
-10 - 1678148260.790889: Internal event.
-11 - 1678148260.9626088: Internal event.
-12 - 1678148261.134332: Received message: 11. Queue length: 0.
-13 - 1678148261.301119: Internal event.
-14 - 1678148261.469975: Received message: 12. Queue length: 0.
-15 - 1678148261.6416519: Internal event.
-16 - 1678148261.8134441: Received message: 13. Queue length: 0.
-17 - 1678148261.980491: Internal event.
-18 - 1678148262.150372: Received message: 14. Queue length: 0.
-19 - 1678148262.322061: Internal event.
-20 - 1678148262.4937441: Internal event.
-21 - 1678148262.665503: Internal event.
-22 - 1678148262.837227: Received message: 16. Queue length: 0.
-23 - 1678148263.0089269: Sent one message to machine 2.
-24 - 1678148263.180554: Internal event.
-25 - 1678148263.3522382: Internal event.
-26 - 1678148263.5204191: Received message: 18. Queue length: 0.
-27 - 1678148263.692093: Internal event.
-28 - 1678148263.863851: ERROR, Invalid message type.
-29 - 1678148264.035532: Internal event.
-30 - 1678148264.205246: Sent one message to machine 2.
-31 - 1678148264.37694: Internal event.
-32 - 1678148264.548003: Internal event.
-33 - 1678148264.7197728: Internal event.
-34 - 1678148264.891525: Internal event.
-35 - 1678148265.063415: Sent two messages.
-36 - 1678148265.230305: ERROR, Invalid message type.
-37 - 1678148265.401765: Internal event.
-38 - 1678148265.573496: Internal event.
-39 - 1678148265.743722: Internal event.
-40 - 1678148265.913909: ERROR, Invalid message type.
-41 - 1678148266.0855029: Internal event.
-42 - 1678148266.257268: Internal event.
-43 - 1678148266.42633: Internal event.
-44 - 1678148266.5944629: Internal event.
-45 - 1678148266.761806: Internal event.
-46 - 1678148266.932491: Received message: 43. Queue length: 0.
-47 - 1678148267.1037812: Internal event.
-48 - 1678148267.275529: Internal event.
-49 - 1678148267.447016: Internal event.
-50 - 1678148267.618743: Internal event.
-51 - 1678148267.7866611: Internal event.
-52 - 1678148267.9551182: Internal event.
-53 - 1678148268.1268191: Internal event.
-54 - 1678148268.2958348: Sent two messages.
-55 - 1678148268.468266: Internal event.
-56 - 1678148268.64004: Internal event.
-57 - 1678148268.8091571: ERROR, Invalid message type.
-58 - 1678148268.975832: Internal event.
-59 - 1678148269.145579: Internal event.
-60 - 1678148269.317984: Internal event.
-61 - 1678148269.487513: Internal event.
-62 - 1678148269.655993: Internal event.
-63 - 1678148269.824873: Received message: 60. Queue length: 0.
-64 - 1678148269.994684: Internal event.
-65 - 1678148270.166357: ERROR, Invalid message type.
-66 - 1678148270.337742: Sent one message to machine 2.
-67 - 1678148270.507933: Sent two messages.
-68 - 1678148270.675221: Internal event.
-69 - 1678148270.846951: Internal event.
-70 - 1678148271.013963: Internal event.
-71 - 1678148271.1841888: Sent one message to machine 2.
-72 - 1678148271.3509219: Internal event.
-73 - 1678148271.5228522: Sent two messages.
-74 - 1678148271.694587: ERROR, Invalid message type.
-75 - 1678148271.866563: Sent one message to machine 2.
-76 - 1678148272.033482: Sent two messages.
-77 - 1678148272.201864: Internal event.
-78 - 1678148272.37268: Internal event.
-79 - 1678148272.539544: Sent two messages.
-80 - 1678148272.707205: Internal event.
-81 - 1678148272.874727: Internal event.
-82 - 1678148273.042511: Internal event.
-83 - 1678148273.209415: Internal event.
-84 - 1678148273.377259: Sent one message to machine 2.
-85 - 1678148273.544862: Sent one message to machine 2.
-86 - 1678148273.716168: ERROR, Invalid message type.
-87 - 1678148273.8840609: Internal event.
-88 - 1678148274.054773: Internal event.
-89 - 1678148274.225863: Received message: 88. Queue length: 0.
-90 - 1678148274.392999: Internal event.
-91 - 1678148274.560447: Internal event.
-92 - 1678148274.729874: Internal event.
-93 - 1678148274.9006562: Internal event.
-94 - 1678148275.0692701: Internal event.
-95 - 1678148275.2397819: Received message: 91. Queue length: 0.
-96 - 1678148275.4084601: Internal event.
-97 - 1678148275.58014: Internal event.
-98 - 1678148275.749834: Internal event.
-99 - 1678148275.92151: Received message: 93. Queue length: 0.
-100 - 1678148276.090924: Internal event.
-101 - 1678148276.2578309: Received message: 94. Queue length: 0.
-102 - 1678148276.4296079: ERROR, Invalid message type.
-103 - 1678148276.601343: Internal event.
-104 - 1678148276.772994: Internal event.
-105 - 1678148276.944768: Internal event.
-106 - 1678148277.115892: Internal event.
-107 - 1678148277.2827892: Internal event.
-108 - 1678148277.453645: Sent one message to machine 2.
-109 - 1678148277.620214: Received message: 106. Queue length: 0.
-110 - 1678148277.7919319: Internal event.
-111 - 1678148277.963734: Sent two messages.
-112 - 1678148278.133852: Internal event.
-113 - 1678148278.3032131: Internal event.
-114 - 1678148278.474896: Internal event.
-115 - 1678148278.646621: Internal event.
-116 - 1678148278.815744: Internal event.
-117 - 1678148278.9874449: Internal event.
-118 - 1678148279.157567: Sent two messages.
-119 - 1678148279.3291461: Internal event.
-120 - 1678148279.500831: Internal event.
-121 - 1678148279.6725361: Internal event.
-122 - 1678148279.842292: Internal event.
-123 - 1678148280.01437: Received message: 121. Queue length: 0.
-124 - 1678148280.182463: Internal event.
-125 - 1678148280.349746: ERROR, Invalid message type.
-126 - 1678148280.5213351: Internal event.
-127 - 1678148280.693012: Internal event.
-128 - 1678148280.8647249: Internal event.
-129 - 1678148281.0364249: Internal event.
-130 - 1678148281.2084732: Internal event.
-131 - 1678148281.378484: Internal event.
-132 - 1678148281.545901: Sent one message to machine 2.
-133 - 1678148281.717333: Sent two messages.
-134 - 1678148281.884063: Sent one message to machine 2.
-135 - 1678148282.055789: Internal event.
-136 - 1678148282.2277749: Sent one message to machine 2.
-137 - 1678148282.3948002: Internal event.
-138 - 1678148282.566713: Internal event.
-139 - 1678148282.734056: Internal event.
-140 - 1678148282.903399: Internal event.
-141 - 1678148283.0741508: Internal event.
-142 - 1678148283.242462: Internal event.
-143 - 1678148283.414211: Internal event.
-144 - 1678148283.584384: Sent one message to machine 2.
-145 - 1678148283.755945: Internal event.
-146 - 1678148283.927665: Internal event.
-147 - 1678148284.099536: Internal event.
-148 - 1678148284.267641: Internal event.
-149 - 1678148284.4393642: Internal event.
-150 - 1678148284.6079738: ERROR, Invalid message type.
-151 - 1678148284.7787268: Internal event.
-152 - 1678148284.949707: Sent two messages.
-153 - 1678148285.120251: Internal event.
-154 - 1678148285.2914188: Internal event.
-155 - 1678148285.4632561: Sent two messages.
-156 - 1678148285.630382: Sent one message to machine 2.
-157 - 1678148285.8020742: Internal event.
-158 - 1678148285.9713678: Internal event.
-159 - 1678148286.1417248: Internal event.
-160 - 1678148286.31349: Sent two messages.
-161 - 1678148286.485128: Internal event.
-162 - 1678148286.656815: Internal event.
-163 - 1678148286.828541: Internal event.
-164 - 1678148286.9998841: Internal event.
-165 - 1678148287.17156: Internal event.
-166 - 1678148287.3432572: Received message: 163. Queue length: 0.
-167 - 1678148287.5149639: Internal event.
-168 - 1678148287.682828: Internal event.
-169 - 1678148287.854509: Internal event.
-170 - 1678148288.027093: Received message: 165. Queue length: 0.
-171 - 1678148288.1955478: Sent two messages.
-172 - 1678148288.366955: ERROR, Invalid message type.
-173 - 1678148288.534006: Internal event.
-174 - 1678148288.7057369: Internal event.
-175 - 1678148288.874998: Internal event.
-176 - 1678148289.0466602: Received message: 174. Queue length: 0.
-177 - 1678148289.21842: Internal event.
-178 - 1678148289.390144: Internal event.
-179 - 1678148289.558635: Internal event.
-180 - 1678148289.7258308: Internal event.
-181 - 1678148289.8949199: Sent two messages.
-182 - 1678148290.066606: Sent two messages.
-183 - 1678148290.2365508: Internal event.
-184 - 1678148290.408237: Internal event.
-185 - 1678148290.575389: Internal event.
-186 - 1678148290.7471948: Sent one message to machine 2.
-187 - 1678148290.91442: Internal event.
-188 - 1678148291.086097: Received message: 185. Queue length: 0.
-189 - 1678148291.2574668: Sent two messages.
-190 - 1678148291.4243069: Internal event.
-191 - 1678148291.591352: Sent one message to machine 2.
-192 - 1678148291.7591512: Sent two messages.
-193 - 1678148291.930924: Sent two messages.
-194 - 1678148292.102577: Internal event.
-195 - 1678148292.274128: Internal event.
-196 - 1678148292.44584: Internal event.
-197 - 1678148292.6175082: Internal event.
-198 - 1678148292.789291: Sent one message to machine 2.
-199 - 1678148292.9609442: Internal event.
-200 - 1678148293.1326358: Internal event.
-201 - 1678148293.3003142: Internal event.
-202 - 1678148293.471977: Received message: 197. Queue length: 0.
-203 - 1678148293.639719: Sent one message to machine 2.
-204 - 1678148293.81139: Received message: 198. Queue length: 0.
-205 - 1678148293.983047: Internal event.
-206 - 1678148294.15473: Received message: 199. Queue length: 0.
-207 - 1678148294.32449: Internal event.
-208 - 1678148294.494899: Internal event.
-209 - 1678148294.666645: ERROR, Invalid message type.
-210 - 1678148294.837398: Internal event.
-211 - 1678148295.00837: Internal event.
-212 - 1678148295.180048: Received message: 211. Queue length: 0.
-213 - 1678148295.349849: ERROR, Invalid message type.
-214 - 1678148295.521625: ERROR, Invalid message type.
-215 - 1678148295.6932218: Internal event.
-216 - 1678148295.8649228: Internal event.
-217 - 1678148296.036662: Internal event.
-218 - 1678148296.212397: Internal event.
-219 - 1678148296.382775: Internal event.
-220 - 1678148296.554497: Received message: 217. Queue length: 0.
-221 - 1678148296.7226582: Internal event.
-222 - 1678148296.890599: Sent two messages.
-223 - 1678148297.062283: Internal event.
-224 - 1678148297.2350888: ERROR, Invalid message type.
-225 - 1678148297.40366: Internal event.
-226 - 1678148297.5750232: Internal event.
-227 - 1678148297.7459998: Internal event.
-228 - 1678148297.914577: Internal event.
-229 - 1678148298.085809: Sent two messages.
-230 - 1678148298.252799: Internal event.
-231 - 1678148298.424768: Sent one message to machine 2.
-232 - 1678148298.5944068: Internal event.
-233 - 1678148298.761584: Internal event.
-234 - 1678148298.9312441: Received message: 232. Queue length: 0.
-235 - 1678148299.099154: Internal event.
-236 - 1678148299.269877: Internal event.
-237 - 1678148299.4407659: Internal event.
-238 - 1678148299.6095629: Sent one message to machine 2.
-239 - 1678148299.780694: Internal event.
-240 - 1678148299.9508638: Sent two messages.
-241 - 1678148300.117714: Sent one message to machine 2.
-242 - 1678148300.285553: Sent one message to machine 2.
-243 - 1678148300.452527: Internal event.
-244 - 1678148300.6243289: Sent two messages.
-245 - 1678148300.7962189: Internal event.
-246 - 1678148300.9655218: Internal event.
-247 - 1678148301.137182: Internal event.
-248 - 1678148301.30916: Sent two messages.
-249 - 1678148301.478652: Sent two messages.
-250 - 1678148301.6495948: Internal event.
-251 - 1678148301.821273: Internal event.
-252 - 1678148301.9930408: Internal event.
-253 - 1678148302.161736: Received message: 251. Queue length: 0.
-254 - 1678148302.32956: Internal event.
-255 - 1678148302.498982: ERROR, Invalid message type.
-256 - 1678148302.667153: Internal event.
-257 - 1678148302.834141: Internal event.
-258 - 1678148303.003218: Internal event.
-259 - 1678148303.1740422: Received message: 257. Queue length: 0.
-260 - 1678148303.344872: Internal event.
-261 - 1678148303.5157619: Sent one message to machine 2.
-262 - 1678148303.683949: Sent one message to machine 2.
-263 - 1678148303.855647: Internal event.
-264 - 1678148304.025881: Internal event.
-265 - 1678148304.197608: Internal event.
-266 - 1678148304.36935: Internal event.
-267 - 1678148304.5413709: Internal event.
-268 - 1678148304.713044: Internal event.
-269 - 1678148304.881788: Sent one message to machine 2.
-270 - 1678148305.0491588: Internal event.
-271 - 1678148305.220852: Received message: 263. Queue length: 0.
-272 - 1678148305.390757: Internal event.
-273 - 1678148305.561907: Internal event.
-274 - 1678148305.73297: Internal event.
-275 - 1678148305.904091: Sent two messages.
-276 - 1678148306.075754: Sent two messages.
-277 - 1678148306.2448902: Internal event.
-278 - 1678148306.416852: ERROR, Invalid message type.
-279 - 1678148306.585901: Internal event.
-280 - 1678148306.757797: Sent one message to machine 2.
-281 - 1678148306.929255: Sent one message to machine 2.
-282 - 1678148307.095894: Internal event.
-283 - 1678148307.267572: Internal event.
-284 - 1678148307.438839: Sent two messages.
-285 - 1678148307.610216: ERROR, Invalid message type.
-286 - 1678148307.7816691: Internal event.
-287 - 1678148307.9524548: Internal event.
-288 - 1678148308.122815: Internal event.
-289 - 1678148308.290729: Internal event.
-290 - 1678148308.458783: Internal event.
-291 - 1678148308.625569: Internal event.
-292 - 1678148308.7923489: Internal event.
-293 - 1678148308.959262: Internal event.
-294 - 1678148309.131061: Internal event.
-295 - 1678148309.2987142: Internal event.
-296 - 1678148309.466055: Sent one message to machine 2.
-297 - 1678148309.635849: Internal event.
-298 - 1678148309.804502: Internal event.
-299 - 1678148309.975578: Received message: 292. Queue length: 0.
-300 - 1678148310.1458938: Internal event.
-301 - 1678148310.3176162: Internal event.
-302 - 1678148310.4893959: Internal event.
-303 - 1678148310.661176: ERROR, Invalid message type.
-304 - 1678148310.8331368: Sent one message to machine 2.
-305 - 1678148311.003503: ERROR, Invalid message type.
-306 - 1678148311.1709492: Internal event.
-307 - 1678148311.341401: ERROR, Invalid message type.
-308 - 1678148311.511727: Internal event.
-309 - 1678148311.684441: Internal event.
-310 - 1678148311.8534248: Internal event.
-311 - 1678148312.025459: Internal event.
-312 - 1678148312.197391: Internal event.
-313 - 1678148312.365773: Internal event.
-314 - 1678148312.536907: ERROR, Invalid message type.
-315 - 1678148312.7083242: ERROR, Invalid message type.
-316 - 1678148312.879988: Internal event.
-317 - 1678148313.050751: Internal event.
-318 - 1678148313.21996: Internal event.
-319 - 1678148313.391691: Received message: 317. Queue length: 0.
-320 - 1678148313.560438: Internal event.
-321 - 1678148313.727778: Sent two messages.
-322 - 1678148313.899136: Internal event.
-323 - 1678148314.0706282: Internal event.
-324 - 1678148314.240742: Internal event.
-325 - 1678148314.411564: Internal event.
-326 - 1678148314.583425: Sent one message to machine 2.
-327 - 1678148314.754255: Internal event.
-328 - 1678148314.9241998: Internal event.
-329 - 1678148315.094941: Internal event.
-330 - 1678148315.265804: Internal event.
-331 - 1678148315.437695: Sent two messages.
-332 - 1678148315.609205: Internal event.
-333 - 1678148315.7789571: Sent two messages.
-334 - 1678148315.949134: Internal event.
-335 - 1678148316.121081: Sent two messages.
-336 - 1678148316.289749: Internal event.
-337 - 1678148316.461462: Sent two messages.
-338 - 1678148316.628257: Internal event.
-339 - 1678148316.80094: Internal event.
-340 - 1678148316.969941: Internal event.
-341 - 1678148317.138389: Received message: 339. Queue length: 0.
-342 - 1678148317.3077672: Internal event.
-343 - 1678148317.478239: Received message: 340. Queue length: 0.
-344 - 1678148317.649972: Sent two messages.
-345 - 1678148317.820804: Sent two messages.
-346 - 1678148317.9906602: ERROR, Invalid message type.
-347 - 1678148318.162483: Sent two messages.
-348 - 1678148318.3340402: Internal event.
-349 - 1678148318.50322: Internal event.
-350 - 1678148318.670437: Internal event.
-351 - 1678148318.842174: ERROR, Invalid message type.
-352 - 1678148319.0128179: Internal event.
-353 - 1678148319.184545: Internal event.
-354 - 1678148319.352915: Internal event.
-355 - 1678148319.521319: Internal event.
-356 - 1678148319.693032: Internal event.
-357 - 1678148319.8647602: Internal event.
-358 - 1678148320.0364668: Internal event.
-359 - 1678148320.204156: Internal event.
-360 - 1678148320.371673: Internal event.
-361 - 1678148320.543631: Sent one message to machine 2.
-362 - 1678148320.711633: Internal event.
-363 - 1678148320.8820422: Internal event.
-364 - 1678148321.053893: Sent one message to machine 2.
-365 - 1678148321.2229881: Internal event.
-366 - 1678148321.3940108: Received message: 358. Queue length: 0.
-367 - 1678148321.561686: Internal event.
-368 - 1678148321.733375: Received message: 359. Queue length: 0.
-369 - 1678148321.903596: ERROR, Invalid message type.
-370 - 1678148322.07197: Internal event.
-371 - 1678148322.243721: Sent one message to machine 2.
-372 - 1678148322.412997: Internal event.
-373 - 1678148322.579946: Internal event.
-374 - 1678148322.751628: Internal event.
-375 - 1678148322.923394: ERROR, Invalid message type.
-376 - 1678148323.0949912: Internal event.
-377 - 1678148323.266711: Internal event.
-378 - 1678148323.438443: Sent one message to machine 2.
-379 - 1678148323.610102: Internal event.
-380 - 1678148323.7818089: Received message: 378. Queue length: 0.
-381 - 1678148323.953582: ERROR, Invalid message type.
-382 - 1678148324.121563: Internal event.
-383 - 1678148324.293258: Internal event.
-384 - 1678148324.464951: Internal event.
-385 - 1678148324.636697: ERROR, Invalid message type.
-386 - 1678148324.808345: Internal event.
-387 - 1678148324.980032: Internal event.
-388 - 1678148325.151793: Internal event.
-389 - 1678148325.323479: Internal event.
-390 - 1678148325.494595: Internal event.
-391 - 1678148325.66309: Internal event.
-392 - 1678148325.830245: Internal event.
-393 - 1678148325.999007: Internal event.
-394 - 1678148326.1696908: Internal event.
-395 - 1678148326.3407092: Internal event.
-396 - 1678148326.511355: Internal event.
-397 - 1678148326.6797838: ERROR, Invalid message type.
-398 - 1678148326.8505468: Internal event.
-399 - 1678148327.0194628: Internal event.
-400 - 1678148327.1865542: Received message: 399. Queue length: 0.
-401 - 1678148327.358237: Internal event.
-402 - 1678148327.529749: Internal event.
-403 - 1678148327.700477: Internal event.
-404 - 1678148327.869248: Internal event.
-405 - 1678148328.0383492: Internal event.
-406 - 1678148328.210411: Sent two messages.
-407 - 1678148328.380756: ERROR, Invalid message type.
-408 - 1678148328.54754: Sent one message to machine 2.
-409 - 1678148328.719319: ERROR, Invalid message type.
-410 - 1678148328.890784: Internal event.
-411 - 1678148329.061665: Internal event.
-412 - 1678148329.2300642: ERROR, Invalid message type.
-413 - 1678148329.399225: Internal event.
-414 - 1678148329.570011: ERROR, Invalid message type.
-415 - 1678148329.741589: Internal event.
-416 - 1678148329.913336: Internal event.
-417 - 1678148330.0852711: Sent one message to machine 2.
-418 - 1678148330.254095: Internal event.
-419 - 1678148330.42133: Internal event.
-420 - 1678148330.5880692: Internal event.
-421 - 1678148330.758533: Sent one message to machine 2.
-422 - 1678148330.9269278: Sent two messages.
-423 - 1678148331.0987918: Internal event.
-424 - 1678148331.269013: Internal event.
-425 - 1678148331.439657: Internal event.
-426 - 1678148331.608533: Internal event.
-427 - 1678148331.776543: Sent one message to machine 2.
-428 - 1678148331.945662: Internal event.
-429 - 1678148332.117739: Sent two messages.
-430 - 1678148332.295712: Sent one message to machine 2.
-431 - 1678148332.466583: Sent two messages.
-432 - 1678148332.634067: Internal event.
-433 - 1678148332.805849: ERROR, Invalid message type.
-434 - 1678148332.9775062: ERROR, Invalid message type.
-435 - 1678148333.149128: Internal event.
-436 - 1678148333.320833: Internal event.
-437 - 1678148333.490193: Internal event.
-438 - 1678148333.661933: Internal event.
-439 - 1678148333.8341382: Sent two messages.
-440 - 1678148334.003212: Internal event.
-441 - 1678148334.172739: Sent two messages.
-442 - 1678148334.3406951: Internal event.
-443 - 1678148334.512236: ERROR, Invalid message type.
-444 - 1678148334.6794739: Internal event.
-445 - 1678148334.8464499: Internal event.
-446 - 1678148335.0171149: ERROR, Invalid message type.
-447 - 1678148335.188063: Internal event.
-448 - 1678148335.357525: Sent one message to machine 2.
-449 - 1678148335.529063: Internal event.
-450 - 1678148335.696627: Sent one message to machine 2.
-451 - 1678148335.865661: Received message: 449. Queue length: 0.
-452 - 1678148336.035558: ERROR, Invalid message type.
-453 - 1678148336.2031949: Internal event.
-454 - 1678148336.374039: Internal event.
-455 - 1678148336.546174: ERROR, Invalid message type.
-456 - 1678148336.715756: Internal event.
-457 - 1678148336.885376: Internal event.
-458 - 1678148337.053441: Sent two messages.
-459 - 1678148337.223852: Sent two messages.
-460 - 1678148337.395225: ERROR, Invalid message type.
-461 - 1678148337.564147: Internal event.
-462 - 1678148337.734142: Internal event.
-463 - 1678148337.9033349: Internal event.
-464 - 1678148338.074019: Internal event.
-465 - 1678148338.245703: Internal event.
-466 - 1678148338.413114: Internal event.
-467 - 1678148338.58234: Received message: 463. Queue length: 0.
-468 - 1678148338.753848: Internal event.
-469 - 1678148338.924033: Received message: 464. Queue length: 0.
-470 - 1678148339.0953522: Sent one message to machine 2.
-471 - 1678148339.263339: Received message: 465. Queue length: 0.
-472 - 1678148339.430182: Sent one message to machine 2.
-473 - 1678148339.601841: Sent two messages.
-474 - 1678148339.773462: Internal event.
-475 - 1678148339.945264: Sent one message to machine 2.
-476 - 1678148340.116905: Internal event.
-477 - 1678148340.2885592: Received message: 475. Queue length: 0.
-478 - 1678148340.4603379: Sent two messages.
-479 - 1678148340.631961: Internal event.
-480 - 1678148340.8038552: Internal event.
-481 - 1678148340.974099: Internal event.
-482 - 1678148341.145809: Sent one message to machine 2.
-483 - 1678148341.317107: Internal event.
-484 - 1678148341.488174: Internal event.
-485 - 1678148341.6596549: Internal event.
-486 - 1678148341.831531: ERROR, Invalid message type.
-487 - 1678148342.001781: Internal event.
-488 - 1678148342.173503: Internal event.
-489 - 1678148342.344148: ERROR, Invalid message type.
-490 - 1678148342.514519: Sent one message to machine 2.
-491 - 1678148342.681995: Internal event.
-492 - 1678148342.853747: Internal event.
-493 - 1678148343.025439: Internal event.
-494 - 1678148343.194816: Internal event.
-495 - 1678148343.365686: Received message: 492. Queue length: 0.
-496 - 1678148343.5373561: Internal event.
-497 - 1678148343.706594: Internal event.
-498 - 1678148343.873663: ERROR, Invalid message type.
-499 - 1678148344.04543: ERROR, Invalid message type.
-500 - 1678148344.21716: ERROR, Invalid message type.
-501 - 1678148344.388876: ERROR, Invalid message type.
-502 - 1678148344.555755: ERROR, Invalid message type.
-503 - 1678148344.723988: ERROR, Invalid message type.
+2 - 1678205100.6962821: Received message: 1. Queue length: 0.
+3 - 1678205100.868115: Internal event.
+4 - 1678205101.040023: Sent one message to machine 1.
+5 - 1678205101.2117188: Internal event.
+6 - 1678205101.382665: Internal event.
+7 - 1678205101.554411: Internal event.
+8 - 1678205101.726093: Received message: 6. Queue length: 0.
+9 - 1678205101.8977869: Sent one message to machine 1.
+10 - 1678205102.066425: Sent one message to machine 1.
+11 - 1678205102.238225: Internal event.
+12 - 1678205102.4088662: Internal event.
+13 - 1678205102.580617: Internal event.
+14 - 1678205102.7523499: Received message: 12. Queue length: 0.
+15 - 1678205102.922558: Sent two messages.
+16 - 1678205103.09423: Sent one message to machine 0.
+17 - 1678205103.265256: Internal event.
+18 - 1678205103.435887: Internal event.
+19 - 1678205103.605382: Sent one message to machine 0.
+20 - 1678205103.776684: Sent one message to machine 0.
+21 - 1678205103.948249: Internal event.
+22 - 1678205104.119013: Sent two messages.
+23 - 1678205104.290657: Sent one message to machine 1.
+24 - 1678205104.4622002: Internal event.
+25 - 1678205104.629396: Internal event.
+26 - 1678205104.801134: Sent one message to machine 1.
+27 - 1678205104.972864: Internal event.
+28 - 1678205105.1445959: Sent two messages.
+29 - 1678205105.316184: Internal event.
+30 - 1678205105.48797: Internal event.
+31 - 1678205105.6599529: Sent two messages.
+32 - 1678205105.831413: Internal event.
+33 - 1678205106.003104: Internal event.
+34 - 1678205106.174815: Internal event.
+35 - 1678205106.3468301: Sent two messages.
+36 - 1678205106.514924: Internal event.
+37 - 1678205106.686809: Sent two messages.
+38 - 1678205106.8535979: Internal event.
+39 - 1678205107.0254312: Sent one message to machine 0.
+40 - 1678205107.194897: Internal event.
+41 - 1678205107.366631: Sent two messages.
+42 - 1678205107.535624: Internal event.
+43 - 1678205107.707287: Internal event.
+44 - 1678205107.875641: Internal event.
+45 - 1678205108.047331: Received message: 43. Queue length: 0.
+46 - 1678205108.214967: Internal event.
+47 - 1678205108.386623: Received message: 44. Queue length: 0.
+48 - 1678205108.554518: Internal event.
+49 - 1678205108.726537: Sent two messages.
+50 - 1678205108.894778: Internal event.
+51 - 1678205109.063533: Internal event.
+52 - 1678205109.234856: Internal event.
+53 - 1678205109.40356: Sent one message to machine 0.
+54 - 1678205109.575298: Sent one message to machine 0.
+55 - 1678205109.744551: Received message: 52. Queue length: 0.
+56 - 1678205109.914877: Internal event.
+57 - 1678205110.0865998: Internal event.
+58 - 1678205110.2585511: Internal event.
+59 - 1678205110.429384: Internal event.
+60 - 1678205110.596498: Internal event.
+61 - 1678205110.7639701: Received message: 55. Queue length: 0.
+62 - 1678205110.935675: Internal event.
+63 - 1678205111.107023: Received message: 56. Queue length: 0.
+64 - 1678205111.2749481: Internal event.
+65 - 1678205111.4444082: Received message: 57. Queue length: 0.
+66 - 1678205111.615637: Internal event.
+67 - 1678205111.786804: Received message: 58. Queue length: 0.
+68 - 1678205111.955112: Internal event.
+69 - 1678205112.126776: Internal event.
+70 - 1678205112.29851: Internal event.
+71 - 1678205112.466887: Internal event.
+72 - 1678205112.638717: Sent one message to machine 1.
+73 - 1678205112.8057039: Internal event.
+74 - 1678205112.977737: Sent two messages.
+75 - 1678205113.146476: Internal event.
+76 - 1678205113.3174222: Sent two messages.
+77 - 1678205113.483795: Sent one message to machine 1.
+78 - 1678205113.653308: Sent two messages.
+79 - 1678205113.8234801: Internal event.
+80 - 1678205113.9946072: Internal event.
+81 - 1678205114.1630888: Sent one message to machine 0.
+82 - 1678205114.330343: Internal event.
+83 - 1678205114.5012321: Internal event.
+84 - 1678205114.673015: Internal event.
+85 - 1678205114.847801: Sent one message to machine 0.
+86 - 1678205115.0165482: Internal event.
+87 - 1678205115.188297: Internal event.
+88 - 1678205115.359819: Internal event.
+89 - 1678205115.527895: Internal event.
+90 - 1678205115.69962: Internal event.
+91 - 1678205115.867137: Internal event.
+92 - 1678205116.034922: Internal event.
+93 - 1678205116.206655: Internal event.
+94 - 1678205116.373759: Internal event.
+95 - 1678205116.545591: Internal event.
+96 - 1678205116.7149189: Internal event.
+97 - 1678205116.8869839: Sent two messages.
+98 - 1678205117.058173: Internal event.
+99 - 1678205117.2304718: Internal event.
+100 - 1678205117.402412: Sent two messages.
+101 - 1678205117.57148: Internal event.
+102 - 1678205117.74087: Sent one message to machine 0.
+103 - 1678205117.912226: Internal event.
+104 - 1678205118.083637: Internal event.
+105 - 1678205118.2554271: Internal event.
+106 - 1678205118.423819: Internal event.
+107 - 1678205118.5912771: Sent one message to machine 1.
+108 - 1678205118.762725: Internal event.
+109 - 1678205118.9343948: Internal event.
+110 - 1678205119.106142: Internal event.
+111 - 1678205119.27792: Received message: 109. Queue length: 0.
+112 - 1678205119.445685: Internal event.
+113 - 1678205119.615998: Sent one message to machine 0.
+114 - 1678205119.7875898: Sent one message to machine 0.
+115 - 1678205119.95821: Internal event.
+116 - 1678205120.12988: Sent one message to machine 1.
+117 - 1678205120.301634: Sent one message to machine 1.
+118 - 1678205120.472086: Internal event.
+119 - 1678205120.6410282: Internal event.
+120 - 1678205120.8104541: Internal event.
+121 - 1678205120.978956: Sent two messages.
+122 - 1678205121.147252: Internal event.
+123 - 1678205121.315009: Internal event.
+124 - 1678205121.48685: Internal event.
+125 - 1678205121.657414: Internal event.
+126 - 1678205121.8257148: Received message: 124. Queue length: 0.
+127 - 1678205121.997437: Internal event.
+128 - 1678205122.1659698: Received message: 125. Queue length: 0.
+129 - 1678205122.33379: Internal event.
+130 - 1678205122.505664: Sent one message to machine 0.
+131 - 1678205122.675748: Internal event.
+132 - 1678205122.8432078: Internal event.
+133 - 1678205123.014826: Internal event.
+134 - 1678205123.18649: Received message: 128. Queue length: 0.
+135 - 1678205123.358667: Sent one message to machine 1.
+136 - 1678205123.5266109: Internal event.
+137 - 1678205123.698337: Internal event.
+138 - 1678205123.869519: Internal event.
+139 - 1678205124.04123: Internal event.
+140 - 1678205124.213135: Sent one message to machine 1.
+141 - 1678205124.3814368: Sent two messages.
+142 - 1678205124.550102: Sent one message to machine 1.
+143 - 1678205124.717855: Internal event.
+144 - 1678205124.8870468: Internal event.
+145 - 1678205125.058839: Internal event.
+146 - 1678205125.2268028: Internal event.
+147 - 1678205125.398497: Internal event.
+148 - 1678205125.570304: Sent two messages.
+149 - 1678205125.7419388: Internal event.
+150 - 1678205125.913672: Internal event.
+151 - 1678205126.085471: Internal event.
+152 - 1678205126.2547898: Sent two messages.
+153 - 1678205126.426356: Internal event.
+154 - 1678205126.594742: Internal event.
+155 - 1678205126.7650611: Internal event.
+156 - 1678205126.93679: Received message: 154. Queue length: 0.
+157 - 1678205127.10872: Sent one message to machine 1.
+158 - 1678205127.2802382: Internal event.
+159 - 1678205127.4488719: Sent one message to machine 1.
+160 - 1678205127.619452: Internal event.
+161 - 1678205127.7911391: Internal event.
+162 - 1678205127.9630542: Received message: 161. Queue length: 0.
+163 - 1678205128.132482: Sent one message to machine 1.
+164 - 1678205128.303966: Internal event.
+165 - 1678205128.473147: Internal event.
+166 - 1678205128.644662: Internal event.
+167 - 1678205128.814743: Internal event.
+168 - 1678205128.986476: Internal event.
+169 - 1678205129.155034: Internal event.
+170 - 1678205129.3244312: Sent one message to machine 0.
+171 - 1678205129.496087: Sent one message to machine 1.
+172 - 1678205129.66678: Internal event.
+173 - 1678205129.836233: Sent one message to machine 0.
+174 - 1678205130.00772: Received message: 173. Queue length: 0.
+175 - 1678205130.174858: Sent two messages.
+176 - 1678205130.343946: Internal event.
+177 - 1678205130.5149262: Internal event.
+178 - 1678205130.68261: Internal event.
+179 - 1678205130.849907: Sent one message to machine 1.
+180 - 1678205131.018392: Internal event.
+181 - 1678205131.190128: Internal event.
+182 - 1678205131.359313: Internal event.
+183 - 1678205131.531283: Sent two messages.
+184 - 1678205131.703326: Internal event.
+185 - 1678205131.87358: Internal event.
+186 - 1678205132.045414: Sent one message to machine 1.
+187 - 1678205132.215692: Internal event.
+188 - 1678205132.3873432: Internal event.
+189 - 1678205132.554815: Internal event.
+190 - 1678205132.722819: Internal event.
+191 - 1678205132.894484: Internal event.
+192 - 1678205133.063523: Received message: 189. Queue length: 0.
+193 - 1678205133.234786: Internal event.
+194 - 1678205133.403379: Sent one message to machine 1.
+195 - 1678205133.574843: Internal event.
+196 - 1678205133.741764: Internal event.
+197 - 1678205133.909408: Internal event.
+198 - 1678205134.081281: Sent one message to machine 0.
+199 - 1678205134.249393: Internal event.
+200 - 1678205134.418721: Internal event.
+201 - 1678205134.587845: Internal event.
+202 - 1678205134.755035: Internal event.
+203 - 1678205134.926691: Internal event.
+204 - 1678205135.0984461: Internal event.
+205 - 1678205135.267107: Sent two messages.
+206 - 1678205135.434686: Internal event.
+207 - 1678205135.603256: Internal event.
+208 - 1678205135.774205: Sent one message to machine 1.
+209 - 1678205135.945775: Internal event.
+210 - 1678205136.1146529: Internal event.
+211 - 1678205136.2864041: Internal event.
+212 - 1678205136.458427: Received message: 210. Queue length: 0.
+213 - 1678205136.630309: Sent one message to machine 1.
+214 - 1678205136.800989: Internal event.
+215 - 1678205136.971924: Sent two messages.
+216 - 1678205137.140756: Internal event.
+217 - 1678205137.30883: Internal event.
+218 - 1678205137.479031: Internal event.
+219 - 1678205137.6509929: Sent two messages.
+220 - 1678205137.821524: Sent one message to machine 1.
+221 - 1678205137.9905689: Internal event.
+222 - 1678205138.162519: Internal event.
+223 - 1678205138.334187: Received message: 222. Queue length: 0.
+224 - 1678205138.503204: Internal event.
+225 - 1678205138.674894: Internal event.
+226 - 1678205138.8431518: Internal event.
+227 - 1678205139.014852: Internal event.
+228 - 1678205139.186657: Internal event.
+229 - 1678205139.3573592: Received message: 225. Queue length: 0.
+230 - 1678205139.529296: Sent one message to machine 1.
+231 - 1678205139.699095: Internal event.
+232 - 1678205139.8694122: Internal event.
+233 - 1678205140.039158: Internal event.
+234 - 1678205140.2107892: Internal event.
+235 - 1678205140.377972: Internal event.
+236 - 1678205140.548981: Internal event.
+237 - 1678205140.720682: Internal event.
+238 - 1678205140.892566: Sent one message to machine 0.
+239 - 1678205141.063095: Internal event.
+240 - 1678205141.233969: Internal event.
+241 - 1678205141.405638: Internal event.
+242 - 1678205141.574225: Sent one message to machine 1.
+243 - 1678205141.745501: Internal event.
+244 - 1678205141.9147048: Internal event.
+245 - 1678205142.083425: Internal event.
+246 - 1678205142.255178: Internal event.
+247 - 1678205142.426742: Received message: 245. Queue length: 0.
+248 - 1678205142.598486: Internal event.
+249 - 1678205142.768846: Internal event.
+250 - 1678205142.940508: Internal event.
+251 - 1678205143.1124349: Sent one message to machine 1.
+252 - 1678205143.2829309: Sent one message to machine 1.
+253 - 1678205143.4510238: Internal event.
+254 - 1678205143.619477: Internal event.
+255 - 1678205143.791391: Sent one message to machine 1.
+256 - 1678205143.958673: Internal event.
+257 - 1678205144.126111: Sent one message to machine 0.
+258 - 1678205144.2938051: Internal event.
+259 - 1678205144.460573: Received message: 257. Queue length: 0.
+260 - 1678205144.631753: Internal event.
+261 - 1678205144.803424: Internal event.
+262 - 1678205144.974108: Internal event.
+263 - 1678205145.144375: Sent one message to machine 1.
+264 - 1678205145.316106: Internal event.
+265 - 1678205145.4877498: Internal event.
+266 - 1678205145.656546: Internal event.
+267 - 1678205145.828238: Internal event.
+268 - 1678205146.000952: Internal event.
+269 - 1678205146.171534: Internal event.
+270 - 1678205146.343352: Internal event.
+271 - 1678205146.514696: Received message: 267. Queue length: 0.
+272 - 1678205146.6855092: Internal event.
+273 - 1678205146.857246: Sent one message to machine 0.
+274 - 1678205147.028916: Internal event.
+275 - 1678205147.200952: Sent one message to machine 0.
+276 - 1678205147.369493: Sent two messages.
+277 - 1678205147.539652: Internal event.
+278 - 1678205147.709514: Sent one message to machine 0.
+279 - 1678205147.878127: Internal event.
+280 - 1678205148.049131: Sent two messages.
+281 - 1678205148.2199628: Internal event.
+282 - 1678205148.387715: Internal event.
+283 - 1678205148.5571682: Internal event.
+284 - 1678205148.728853: Internal event.
+285 - 1678205148.895898: Internal event.
+286 - 1678205149.065635: Internal event.
+287 - 1678205149.237034: Internal event.
+288 - 1678205149.4070249: Internal event.
+289 - 1678205149.575211: Internal event.
+290 - 1678205149.746782: Internal event.
+291 - 1678205149.917844: Internal event.
+292 - 1678205150.089237: Internal event.
+293 - 1678205150.257429: Sent two messages.
+294 - 1678205150.429214: Sent two messages.
+295 - 1678205150.598919: Internal event.
+296 - 1678205150.770706: Internal event.
+297 - 1678205150.9420202: Internal event.
+298 - 1678205151.111517: Internal event.
+299 - 1678205151.2822669: Internal event.
+300 - 1678205151.453841: Sent one message to machine 0.
+301 - 1678205151.625505: Received message: 297. Queue length: 0.
+302 - 1678205151.795124: Internal event.
+303 - 1678205151.965682: Internal event.
+304 - 1678205152.135454: Internal event.
+305 - 1678205152.3027232: Internal event.
+306 - 1678205152.4701: Internal event.
+307 - 1678205152.640838: Received message: 300. Queue length: 0.
+308 - 1678205152.8102348: Sent one message to machine 1.
+309 - 1678205152.9796538: Internal event.
+310 - 1678205153.148878: Sent two messages.
+311 - 1678205153.3204212: Internal event.
+312 - 1678205153.492138: Internal event.
+313 - 1678205153.661087: Received message: 312. Queue length: 0.
+314 - 1678205153.833537: Internal event.
+315 - 1678205154.002908: Sent one message to machine 1.
+316 - 1678205154.174171: Internal event.
+317 - 1678205154.3442318: Sent one message to machine 0.
+318 - 1678205154.5148978: Sent two messages.
+319 - 1678205154.6864572: Internal event.
+320 - 1678205154.85814: Internal event.
+321 - 1678205155.025654: Internal event.
+322 - 1678205155.195242: Internal event.
+323 - 1678205155.362645: Internal event.
+324 - 1678205155.5324988: Internal event.
+325 - 1678205155.7031932: Internal event.
+326 - 1678205155.871834: Received message: 323. Queue length: 0.
+327 - 1678205156.039767: Internal event.
+328 - 1678205156.208364: Received message: 324. Queue length: 0.
+329 - 1678205156.380117: Internal event.
+330 - 1678205156.5481331: Internal event.
+331 - 1678205156.719861: Internal event.
+332 - 1678205156.8905878: Internal event.
+333 - 1678205157.061717: Internal event.
+334 - 1678205157.229959: Sent two messages.
+335 - 1678205157.400231: Internal event.
+336 - 1678205157.571989: Internal event.
+337 - 1678205157.740727: Sent two messages.
+338 - 1678205157.912626: Sent one message to machine 1.
+339 - 1678205158.083646: Internal event.
+340 - 1678205158.250497: Internal event.
+341 - 1678205158.422472: Sent one message to machine 0.
+342 - 1678205158.593929: Internal event.
+343 - 1678205158.7612622: Internal event.
+344 - 1678205158.932949: Internal event.
+345 - 1678205159.100509: Sent one message to machine 1.
+346 - 1678205159.272034: Internal event.
+347 - 1678205159.4395971: Internal event.
+348 - 1678205159.607022: Internal event.
+349 - 1678205159.778839: Internal event.
+350 - 1678205159.946711: Internal event.
+351 - 1678205160.1146948: Internal event.
+352 - 1678205160.28636: Internal event.
+353 - 1678205160.4573262: Internal event.
+354 - 1678205160.626636: Internal event.
+355 - 1678205160.79568: Internal event.
+356 - 1678205160.966298: Internal event.
+357 - 1678205161.1346729: Sent one message to machine 1.
+358 - 1678205161.3064609: Sent one message to machine 0.
+359 - 1678205161.4780228: Internal event.
+360 - 1678205161.64919: Internal event.
+361 - 1678205161.8159769: Internal event.
+362 - 1678205161.984593: Received message: 360. Queue length: 0.
+363 - 1678205162.156236: Internal event.
+364 - 1678205162.323034: Internal event.
+365 - 1678205162.494772: Internal event.
+366 - 1678205162.6657379: Internal event.
+367 - 1678205162.837473: Internal event.
+368 - 1678205163.0074508: Internal event.
+369 - 1678205163.1794071: Sent one message to machine 1.
+370 - 1678205163.347863: Internal event.
+371 - 1678205163.514646: Internal event.
+372 - 1678205163.683537: Received message: 371. Queue length: 0.
+373 - 1678205163.852586: Sent two messages.
+374 - 1678205164.024052: Internal event.
+375 - 1678205164.193613: Internal event.
+376 - 1678205164.362602: Internal event.
+377 - 1678205164.533522: Internal event.
+378 - 1678205164.7036228: Internal event.
+379 - 1678205164.8720782: Internal event.
+380 - 1678205165.043818: Internal event.
+381 - 1678205165.215832: Internal event.
+382 - 1678205165.3840032: Received message: 378. Queue length: 0.
+383 - 1678205165.555692: Internal event.
+384 - 1678205165.723713: Internal event.
+385 - 1678205165.8954408: Internal event.
+386 - 1678205166.0673568: Sent one message to machine 1.
+387 - 1678205166.236311: Internal event.
+388 - 1678205166.4043689: Internal event.
+389 - 1678205166.573929: Internal event.
+390 - 1678205166.744413: Sent one message to machine 0.
+391 - 1678205166.915916: Internal event.
+392 - 1678205167.083798: Sent two messages.
+393 - 1678205167.251171: Internal event.
+394 - 1678205167.4195461: Internal event.
+395 - 1678205167.5870988: Sent one message to machine 0.
+396 - 1678205167.758826: Received message: 394. Queue length: 0.
+397 - 1678205167.930492: Internal event.
+398 - 1678205168.10218: Received message: 395. Queue length: 0.
+399 - 1678205168.273931: Internal event.
+400 - 1678205168.445683: Received message: 396. Queue length: 0.
+401 - 1678205168.614772: Sent two messages.
+402 - 1678205168.786428: Sent one message to machine 1.
+403 - 1678205168.957993: Internal event.
+404 - 1678205169.126852: Internal event.
+405 - 1678205169.2985878: Internal event.
+406 - 1678205169.466163: Internal event.
+407 - 1678205169.6380029: Internal event.
+408 - 1678205169.809676: Internal event.
+409 - 1678205169.981376: Internal event.
+410 - 1678205170.153074: Received message: 406. Queue length: 0.
+411 - 1678205170.320378: Sent one message to machine 1.
+412 - 1678205170.4875169: Internal event.
+413 - 1678205170.6593149: Internal event.
+414 - 1678205170.8265972: Internal event.
+415 - 1678205170.998724: Sent one message to machine 0.
+416 - 1678205171.1682281: Sent one message to machine 0.
+417 - 1678205171.338312: Sent two messages.
+418 - 1678205171.5098722: Internal event.
+419 - 1678205171.6819682: Sent two messages.
+420 - 1678205171.850563: Internal event.
+421 - 1678205172.0222578: Internal event.
+422 - 1678205172.19222: Received message: 421. Queue length: 0.
+423 - 1678205172.363913: Internal event.
+424 - 1678205172.53565: Received message: 422. Queue length: 0.
+425 - 1678205172.706911: Internal event.
+426 - 1678205172.875364: Received message: 423. Queue length: 0.
+427 - 1678205173.047018: Internal event.
+428 - 1678205173.217988: Sent two messages.
+429 - 1678205173.3886342: Internal event.
+430 - 1678205173.5578492: Internal event.
+431 - 1678205173.729207: Sent one message to machine 1.
+432 - 1678205173.9006898: Sent two messages.
+433 - 1678205174.072628: Sent one message to machine 0.
+434 - 1678205174.242024: Internal event.
+435 - 1678205174.4109771: Sent one message to machine 0.
+436 - 1678205174.582653: Sent one message to machine 1.
+437 - 1678205174.753528: Sent one message to machine 1.
+438 - 1678205174.9251761: Internal event.
+439 - 1678205175.094696: Internal event.
+440 - 1678205175.26638: Internal event.
+441 - 1678205175.438074: Received message: 439. Queue length: 0.
+442 - 1678205175.606258: Internal event.
+443 - 1678205175.777813: Internal event.
+444 - 1678205175.946482: Internal event.
+445 - 1678205176.1152189: Sent one message to machine 0.
+446 - 1678205176.284891: Internal event.
+447 - 1678205176.4550688: Internal event.
+448 - 1678205176.622953: Internal event.
+449 - 1678205176.794679: Internal event.
+450 - 1678205176.9664772: Sent one message to machine 0.
+451 - 1678205177.1381361: Internal event.
+452 - 1678205177.3063118: Sent one message to machine 0.
+453 - 1678205177.475851: Received message: 445. Queue length: 0.
+454 - 1678205177.645659: Sent one message to machine 0.
+455 - 1678205177.814548: Internal event.
