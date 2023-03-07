@@ -1,0 +1,519 @@
+LOG FOR MACHINE 1 WITH CLOCK SPEED 6
+2 - 1678148709.06284: Received message: 1. Queue length: 0.
+3 - 1678148709.234755: Sent one message to machine 2.
+4 - 1678148709.406506: Sent two messages.
+5 - 1678148709.575393: Sent one message to machine 2.
+6 - 1678148709.747069: Sent two messages.
+7 - 1678148709.918754: Sent one message to machine 2.
+8 - 1678148710.090473: Sent two messages.
+9 - 1678148710.2613068: Sent two messages.
+10 - 1678148710.429019: ERROR, Invalid message type.
+11 - 1678148710.600758: Sent two messages.
+12 - 1678148710.7726011: Sent two messages.
+13 - 1678148710.9392488: ERROR, Invalid message type.
+14 - 1678148711.111233: Sent two messages.
+15 - 1678148711.281949: Sent one message to machine 2.
+16 - 1678148711.4537442: Sent one message to machine 2.
+17 - 1678148711.62397: Sent two messages.
+18 - 1678148711.7936919: Sent one message to machine 2.
+19 - 1678148711.9609861: Sent one message to machine 2.
+20 - 1678148712.132674: ERROR, Invalid message type.
+21 - 1678148712.304555: Sent two messages.
+22 - 1678148712.471597: ERROR, Invalid message type.
+23 - 1678148712.6433191: ERROR, Invalid message type.
+24 - 1678148712.8115351: ERROR, Invalid message type.
+25 - 1678148712.982947: ERROR, Invalid message type.
+26 - 1678148713.1542761: Sent two messages.
+27 - 1678148713.325936: Sent one message to machine 2.
+28 - 1678148713.4977548: Sent one message to machine 2.
+29 - 1678148713.669636: Sent one message to machine 2.
+30 - 1678148713.841355: Sent two messages.
+31 - 1678148714.013061: Sent one message to machine 2.
+32 - 1678148714.1816971: ERROR, Invalid message type.
+33 - 1678148714.35346: Sent one message to machine 2.
+34 - 1678148714.5228758: Sent two messages.
+35 - 1678148714.694567: Sent one message to machine 2.
+36 - 1678148714.8661718: Sent one message to machine 2.
+37 - 1678148715.038038: Sent one message to machine 2.
+38 - 1678148715.209871: Sent one message to machine 2.
+39 - 1678148715.378295: Sent one message to machine 2.
+40 - 1678148715.550068: Sent two messages.
+41 - 1678148715.721663: Sent two messages.
+42 - 1678148715.892957: ERROR, Invalid message type.
+43 - 1678148716.064687: ERROR, Invalid message type.
+44 - 1678148716.2363698: Sent two messages.
+45 - 1678148716.406361: Sent one message to machine 2.
+46 - 1678148716.578176: Sent one message to machine 2.
+47 - 1678148716.747468: Sent one message to machine 2.
+48 - 1678148716.919157: Sent one message to machine 2.
+49 - 1678148717.089407: Sent one message to machine 2.
+50 - 1678148717.261385: Sent one message to machine 2.
+51 - 1678148717.42941: Sent one message to machine 2.
+52 - 1678148717.598473: Sent two messages.
+53 - 1678148717.770159: ERROR, Invalid message type.
+54 - 1678148717.941798: Sent two messages.
+55 - 1678148718.112669: ERROR, Invalid message type.
+56 - 1678148718.284446: ERROR, Invalid message type.
+57 - 1678148718.455107: Sent one message to machine 2.
+58 - 1678148718.626805: ERROR, Invalid message type.
+59 - 1678148718.798645: ERROR, Invalid message type.
+60 - 1678148718.969821: ERROR, Invalid message type.
+61 - 1678148719.1416268: Sent one message to machine 2.
+62 - 1678148719.313293: Sent one message to machine 2.
+63 - 1678148719.485017: ERROR, Invalid message type.
+64 - 1678148719.656088: Sent one message to machine 2.
+65 - 1678148719.8281128: Sent one message to machine 2.
+66 - 1678148719.996475: Sent one message to machine 2.
+67 - 1678148720.1671958: ERROR, Invalid message type.
+68 - 1678148720.33602: Sent two messages.
+69 - 1678148720.507555: Sent two messages.
+70 - 1678148720.677875: ERROR, Invalid message type.
+71 - 1678148720.8459861: ERROR, Invalid message type.
+72 - 1678148721.0129862: ERROR, Invalid message type.
+73 - 1678148721.181532: Sent two messages.
+74 - 1678148721.352997: Sent two messages.
+75 - 1678148721.5209558: ERROR, Invalid message type.
+76 - 1678148721.6911669: Sent two messages.
+77 - 1678148721.8611982: ERROR, Invalid message type.
+78 - 1678148722.029363: Sent one message to machine 2.
+79 - 1678148722.201153: ERROR, Invalid message type.
+80 - 1678148722.370948: ERROR, Invalid message type.
+81 - 1678148722.5426822: ERROR, Invalid message type.
+82 - 1678148722.712598: ERROR, Invalid message type.
+83 - 1678148722.880828: Sent one message to machine 2.
+84 - 1678148723.048463: Sent two messages.
+85 - 1678148723.220122: Sent two messages.
+86 - 1678148723.387867: Sent two messages.
+87 - 1678148723.5596328: Sent two messages.
+88 - 1678148723.7288709: ERROR, Invalid message type.
+89 - 1678148723.900525: Sent two messages.
+90 - 1678148724.069679: Sent one message to machine 2.
+91 - 1678148724.23807: ERROR, Invalid message type.
+92 - 1678148724.409753: Sent one message to machine 2.
+93 - 1678148724.576688: Sent one message to machine 2.
+94 - 1678148724.7471092: Sent one message to machine 2.
+95 - 1678148724.9188402: Sent one message to machine 2.
+96 - 1678148725.086609: ERROR, Invalid message type.
+97 - 1678148725.255177: Sent two messages.
+98 - 1678148725.426878: ERROR, Invalid message type.
+99 - 1678148725.5958889: ERROR, Invalid message type.
+100 - 1678148725.7689369: ERROR, Invalid message type.
+101 - 1678148725.937524: Sent two messages.
+102 - 1678148726.1049669: Sent one message to machine 2.
+103 - 1678148726.2765498: Sent two messages.
+104 - 1678148726.447283: Sent two messages.
+105 - 1678148726.618911: ERROR, Invalid message type.
+106 - 1678148726.7876108: ERROR, Invalid message type.
+107 - 1678148726.959313: Sent one message to machine 2.
+108 - 1678148727.127831: Sent one message to machine 2.
+109 - 1678148727.296105: Sent one message to machine 2.
+110 - 1678148727.466675: ERROR, Invalid message type.
+111 - 1678148727.6376672: Sent two messages.
+112 - 1678148727.809319: ERROR, Invalid message type.
+113 - 1678148727.977998: Sent one message to machine 2.
+114 - 1678148728.1466188: Sent one message to machine 2.
+115 - 1678148728.314007: Sent two messages.
+116 - 1678148728.486037: Sent one message to machine 2.
+117 - 1678148728.6552079: Sent two messages.
+118 - 1678148728.827052: Sent two messages.
+119 - 1678148728.994766: Sent two messages.
+120 - 1678148729.16265: ERROR, Invalid message type.
+121 - 1678148729.3343492: ERROR, Invalid message type.
+122 - 1678148729.505428: Sent two messages.
+123 - 1678148729.676461: Sent one message to machine 2.
+124 - 1678148729.844504: Sent two messages.
+125 - 1678148730.015954: ERROR, Invalid message type.
+126 - 1678148730.186283: ERROR, Invalid message type.
+127 - 1678148730.354315: Sent two messages.
+128 - 1678148730.525965: Sent two messages.
+129 - 1678148730.695141: Sent two messages.
+130 - 1678148730.86451: Sent two messages.
+131 - 1678148731.036381: Sent one message to machine 2.
+132 - 1678148731.204756: ERROR, Invalid message type.
+133 - 1678148731.37651: Sent one message to machine 2.
+134 - 1678148731.546199: Sent one message to machine 2.
+135 - 1678148731.715445: ERROR, Invalid message type.
+136 - 1678148731.883966: Sent one message to machine 2.
+137 - 1678148732.0551412: Sent one message to machine 2.
+138 - 1678148732.226829: Sent one message to machine 2.
+139 - 1678148732.394638: Sent one message to machine 2.
+140 - 1678148732.56638: Sent two messages.
+141 - 1678148732.736356: ERROR, Invalid message type.
+142 - 1678148732.9071: Sent one message to machine 2.
+143 - 1678148733.078017: Sent two messages.
+144 - 1678148733.246043: Sent two messages.
+145 - 1678148733.4128242: Sent one message to machine 2.
+146 - 1678148733.5844429: ERROR, Invalid message type.
+147 - 1678148733.754286: Sent two messages.
+148 - 1678148733.9228532: Sent two messages.
+149 - 1678148734.09474: Sent two messages.
+150 - 1678148734.2618802: ERROR, Invalid message type.
+151 - 1678148734.433579: ERROR, Invalid message type.
+152 - 1678148734.603146: Sent one message to machine 2.
+153 - 1678148734.774567: Sent two messages.
+154 - 1678148734.9446988: ERROR, Invalid message type.
+155 - 1678148735.115218: Sent two messages.
+156 - 1678148735.286428: Sent one message to machine 2.
+157 - 1678148735.455229: Sent one message to machine 2.
+158 - 1678148735.627075: Sent one message to machine 2.
+159 - 1678148735.797579: Sent two messages.
+160 - 1678148735.9627452: Sent two messages.
+161 - 1678148736.133125: Sent two messages.
+162 - 1678148736.303083: Sent two messages.
+163 - 1678148736.470979: Sent two messages.
+164 - 1678148736.6426508: Sent one message to machine 2.
+165 - 1678148736.8113852: Sent two messages.
+166 - 1678148736.9825332: Sent two messages.
+167 - 1678148737.149303: Sent one message to machine 2.
+168 - 1678148737.32112: Sent one message to machine 2.
+169 - 1678148737.492617: Sent one message to machine 2.
+170 - 1678148737.6614919: ERROR, Invalid message type.
+171 - 1678148737.829254: Sent two messages.
+172 - 1678148738.000965: Sent two messages.
+173 - 1678148738.169753: Sent two messages.
+174 - 1678148738.34046: ERROR, Invalid message type.
+175 - 1678148738.512217: Sent one message to machine 2.
+176 - 1678148738.679329: ERROR, Invalid message type.
+177 - 1678148738.85104: Sent one message to machine 2.
+178 - 1678148739.022706: Sent one message to machine 2.
+179 - 1678148739.194775: Sent two messages.
+180 - 1678148739.365623: ERROR, Invalid message type.
+181 - 1678148739.536486: Sent two messages.
+182 - 1678148739.707979: Sent one message to machine 2.
+183 - 1678148739.874998: Sent one message to machine 2.
+184 - 1678148740.042997: Sent two messages.
+185 - 1678148740.212974: ERROR, Invalid message type.
+186 - 1678148740.3845701: Sent two messages.
+187 - 1678148740.5545: ERROR, Invalid message type.
+188 - 1678148740.726187: ERROR, Invalid message type.
+189 - 1678148740.8963578: ERROR, Invalid message type.
+190 - 1678148741.068031: Sent one message to machine 2.
+191 - 1678148741.236525: Sent two messages.
+192 - 1678148741.404723: Sent one message to machine 2.
+193 - 1678148741.576195: Sent one message to machine 2.
+194 - 1678148741.746289: ERROR, Invalid message type.
+195 - 1678148741.9180999: Sent one message to machine 2.
+196 - 1678148742.0861928: ERROR, Invalid message type.
+197 - 1678148742.254177: ERROR, Invalid message type.
+198 - 1678148742.4211562: Sent two messages.
+199 - 1678148742.589731: ERROR, Invalid message type.
+200 - 1678148742.761746: Sent one message to machine 2.
+201 - 1678148742.929247: ERROR, Invalid message type.
+202 - 1678148743.100951: Sent one message to machine 2.
+203 - 1678148743.272746: Sent two messages.
+204 - 1678148743.444727: Sent two messages.
+205 - 1678148743.613709: Sent two messages.
+206 - 1678148743.7810729: ERROR, Invalid message type.
+207 - 1678148743.953038: Sent one message to machine 2.
+208 - 1678148744.12444: Sent one message to machine 2.
+209 - 1678148744.296268: Sent two messages.
+210 - 1678148744.4684749: Sent two messages.
+211 - 1678148744.637682: Sent two messages.
+212 - 1678148744.809485: ERROR, Invalid message type.
+213 - 1678148744.979396: Sent two messages.
+214 - 1678148745.14604: Sent two messages.
+215 - 1678148745.317766: Sent two messages.
+216 - 1678148745.4864051: Sent two messages.
+217 - 1678148745.6570292: ERROR, Invalid message type.
+218 - 1678148745.8287091: ERROR, Invalid message type.
+219 - 1678148745.99943: Sent two messages.
+220 - 1678148746.169722: Sent two messages.
+221 - 1678148746.337673: Sent two messages.
+222 - 1678148746.509344: Sent one message to machine 2.
+223 - 1678148746.6780102: Sent two messages.
+224 - 1678148746.8459342: Sent two messages.
+225 - 1678148747.013151: ERROR, Invalid message type.
+226 - 1678148747.18261: ERROR, Invalid message type.
+227 - 1678148747.3528981: ERROR, Invalid message type.
+228 - 1678148747.521245: Sent two messages.
+229 - 1678148747.692904: ERROR, Invalid message type.
+230 - 1678148747.864628: ERROR, Invalid message type.
+231 - 1678148748.036268: ERROR, Invalid message type.
+232 - 1678148748.207084: Sent two messages.
+233 - 1678148748.378666: ERROR, Invalid message type.
+234 - 1678148748.5463512: Sent two messages.
+235 - 1678148748.7137291: Sent one message to machine 2.
+236 - 1678148748.885372: ERROR, Invalid message type.
+237 - 1678148749.055265: Sent one message to machine 2.
+238 - 1678148749.227037: ERROR, Invalid message type.
+239 - 1678148749.3988218: ERROR, Invalid message type.
+240 - 1678148749.5696151: ERROR, Invalid message type.
+241 - 1678148749.7375848: ERROR, Invalid message type.
+242 - 1678148749.9056718: Sent two messages.
+243 - 1678148750.0773828: ERROR, Invalid message type.
+244 - 1678148750.245904: Sent two messages.
+245 - 1678148750.413274: ERROR, Invalid message type.
+246 - 1678148750.584922: Sent two messages.
+247 - 1678148750.756212: ERROR, Invalid message type.
+248 - 1678148750.928123: Sent one message to machine 2.
+249 - 1678148751.100924: Sent two messages.
+250 - 1678148751.2729971: Sent two messages.
+251 - 1678148751.443378: Sent one message to machine 2.
+252 - 1678148751.615076: ERROR, Invalid message type.
+253 - 1678148751.78688: Sent one message to machine 2.
+254 - 1678148751.9543092: Sent one message to machine 2.
+255 - 1678148752.126157: Sent two messages.
+256 - 1678148752.294583: Sent one message to machine 2.
+257 - 1678148752.464763: ERROR, Invalid message type.
+258 - 1678148752.636354: Sent one message to machine 2.
+259 - 1678148752.804349: Sent two messages.
+260 - 1678148752.971214: Sent one message to machine 2.
+261 - 1678148753.142873: ERROR, Invalid message type.
+262 - 1678148753.311324: Sent one message to machine 2.
+263 - 1678148753.478291: Sent one message to machine 2.
+264 - 1678148753.6453629: Sent one message to machine 2.
+265 - 1678148753.812932: Sent two messages.
+266 - 1678148753.982687: ERROR, Invalid message type.
+267 - 1678148754.150632: ERROR, Invalid message type.
+268 - 1678148754.3195782: Sent one message to machine 2.
+269 - 1678148754.4877062: Sent one message to machine 2.
+270 - 1678148754.654711: Sent two messages.
+271 - 1678148754.826302: Sent one message to machine 2.
+272 - 1678148754.994802: Sent one message to machine 2.
+273 - 1678148755.16589: Sent two messages.
+274 - 1678148755.336467: ERROR, Invalid message type.
+275 - 1678148755.5079029: Sent one message to machine 2.
+276 - 1678148755.6796129: Sent one message to machine 2.
+277 - 1678148755.851469: ERROR, Invalid message type.
+278 - 1678148756.0196412: Sent one message to machine 2.
+279 - 1678148756.188452: Sent two messages.
+280 - 1678148756.360115: Sent one message to machine 2.
+281 - 1678148756.529261: Sent one message to machine 2.
+282 - 1678148756.6960042: Sent one message to machine 2.
+283 - 1678148756.867297: Sent one message to machine 2.
+284 - 1678148757.0344808: ERROR, Invalid message type.
+285 - 1678148757.2030878: ERROR, Invalid message type.
+286 - 1678148757.3716228: Sent two messages.
+287 - 1678148757.543245: Sent two messages.
+288 - 1678148757.711395: Sent two messages.
+289 - 1678148757.88229: Sent two messages.
+290 - 1678148758.049498: Sent two messages.
+291 - 1678148758.220924: ERROR, Invalid message type.
+292 - 1678148758.390146: ERROR, Invalid message type.
+293 - 1678148758.5620182: Sent two messages.
+294 - 1678148758.7333279: ERROR, Invalid message type.
+295 - 1678148758.900321: Sent two messages.
+296 - 1678148759.07064: ERROR, Invalid message type.
+297 - 1678148759.2393112: Sent two messages.
+298 - 1678148759.411477: Sent two messages.
+299 - 1678148759.578986: ERROR, Invalid message type.
+300 - 1678148759.745738: Sent two messages.
+301 - 1678148759.9174058: Sent two messages.
+302 - 1678148760.086963: ERROR, Invalid message type.
+303 - 1678148760.25437: ERROR, Invalid message type.
+304 - 1678148760.423666: ERROR, Invalid message type.
+305 - 1678148760.594846: Sent two messages.
+306 - 1678148760.766069: Sent two messages.
+307 - 1678148760.9355469: ERROR, Invalid message type.
+308 - 1678148761.104018: ERROR, Invalid message type.
+309 - 1678148761.2721071: ERROR, Invalid message type.
+310 - 1678148761.442963: Sent one message to machine 2.
+311 - 1678148761.612214: Sent one message to machine 2.
+312 - 1678148761.7797701: Sent one message to machine 2.
+313 - 1678148761.948833: Sent one message to machine 2.
+314 - 1678148762.120657: Sent one message to machine 2.
+315 - 1678148762.295712: ERROR, Invalid message type.
+316 - 1678148762.467398: Sent one message to machine 2.
+317 - 1678148762.6367612: Sent two messages.
+318 - 1678148762.8044941: ERROR, Invalid message type.
+319 - 1678148762.975617: Sent two messages.
+320 - 1678148763.144693: Sent two messages.
+321 - 1678148763.313893: Sent two messages.
+322 - 1678148763.481217: Sent two messages.
+323 - 1678148763.653003: Sent two messages.
+324 - 1678148763.822062: Sent two messages.
+325 - 1678148763.9916108: Sent two messages.
+326 - 1678148764.162893: Sent two messages.
+327 - 1678148764.329366: Sent one message to machine 2.
+328 - 1678148764.501127: Sent one message to machine 2.
+329 - 1678148764.671983: Sent two messages.
+330 - 1678148764.843581: Sent one message to machine 2.
+331 - 1678148765.017031: Sent one message to machine 2.
+332 - 1678148765.188087: ERROR, Invalid message type.
+333 - 1678148765.35989: Sent two messages.
+334 - 1678148765.5281768: Sent two messages.
+335 - 1678148765.6996212: Sent two messages.
+336 - 1678148765.8669162: Sent two messages.
+337 - 1678148766.0336452: ERROR, Invalid message type.
+338 - 1678148766.20496: Sent one message to machine 2.
+339 - 1678148766.37668: ERROR, Invalid message type.
+340 - 1678148766.548574: ERROR, Invalid message type.
+341 - 1678148766.720042: Sent one message to machine 2.
+342 - 1678148766.891398: ERROR, Invalid message type.
+343 - 1678148767.062699: Sent two messages.
+344 - 1678148767.233883: Sent two messages.
+345 - 1678148767.404277: Sent two messages.
+346 - 1678148767.576076: Sent one message to machine 2.
+347 - 1678148767.745195: Sent one message to machine 2.
+348 - 1678148767.9158652: Sent two messages.
+349 - 1678148768.086339: Sent one message to machine 2.
+350 - 1678148768.255265: Sent one message to machine 2.
+351 - 1678148768.426633: ERROR, Invalid message type.
+352 - 1678148768.5946429: Sent two messages.
+353 - 1678148768.7653859: ERROR, Invalid message type.
+354 - 1678148768.93252: Sent one message to machine 2.
+355 - 1678148769.104223: Sent one message to machine 2.
+356 - 1678148769.275504: ERROR, Invalid message type.
+357 - 1678148769.4447649: Sent two messages.
+358 - 1678148769.616705: Sent one message to machine 2.
+359 - 1678148769.7863739: Sent one message to machine 2.
+360 - 1678148769.9570718: ERROR, Invalid message type.
+361 - 1678148770.1263611: Sent two messages.
+362 - 1678148770.2947898: Sent two messages.
+363 - 1678148770.4627829: ERROR, Invalid message type.
+364 - 1678148770.6308842: Sent two messages.
+365 - 1678148770.8025138: Sent one message to machine 2.
+366 - 1678148770.9712682: Sent one message to machine 2.
+367 - 1678148771.143052: Sent one message to machine 2.
+368 - 1678148771.31184: ERROR, Invalid message type.
+369 - 1678148771.4792829: Sent one message to machine 2.
+370 - 1678148771.649971: Sent one message to machine 2.
+371 - 1678148771.819772: Sent one message to machine 2.
+372 - 1678148771.989374: ERROR, Invalid message type.
+373 - 1678148772.1614301: ERROR, Invalid message type.
+374 - 1678148772.332635: ERROR, Invalid message type.
+375 - 1678148772.504216: Sent two messages.
+376 - 1678148772.6724448: Sent two messages.
+377 - 1678148772.843937: ERROR, Invalid message type.
+378 - 1678148773.011741: Sent two messages.
+379 - 1678148773.181825: Sent one message to machine 2.
+380 - 1678148773.35311: Sent one message to machine 2.
+381 - 1678148773.524457: Sent two messages.
+382 - 1678148773.696057: Sent one message to machine 2.
+383 - 1678148773.8650749: Sent one message to machine 2.
+384 - 1678148774.033396: Sent one message to machine 2.
+385 - 1678148774.2046568: ERROR, Invalid message type.
+386 - 1678148774.3733928: Sent two messages.
+387 - 1678148774.545108: Sent one message to machine 2.
+388 - 1678148774.713748: Sent two messages.
+389 - 1678148774.885618: Sent one message to machine 2.
+390 - 1678148775.055943: Sent one message to machine 2.
+391 - 1678148775.223047: ERROR, Invalid message type.
+392 - 1678148775.394318: ERROR, Invalid message type.
+393 - 1678148775.5662458: Sent two messages.
+394 - 1678148775.737516: Sent one message to machine 2.
+395 - 1678148775.9093702: Sent two messages.
+396 - 1678148776.078689: ERROR, Invalid message type.
+397 - 1678148776.2466931: Sent one message to machine 2.
+398 - 1678148776.419631: Sent one message to machine 2.
+399 - 1678148776.589532: Sent two messages.
+400 - 1678148776.761077: Sent one message to machine 2.
+401 - 1678148776.927792: Sent two messages.
+402 - 1678148777.096145: Sent one message to machine 2.
+403 - 1678148777.266816: Sent one message to machine 2.
+404 - 1678148777.436495: Sent one message to machine 2.
+405 - 1678148777.603942: ERROR, Invalid message type.
+406 - 1678148777.771341: ERROR, Invalid message type.
+407 - 1678148777.93914: ERROR, Invalid message type.
+408 - 1678148778.111037: ERROR, Invalid message type.
+409 - 1678148778.280115: Sent two messages.
+410 - 1678148778.455363: Sent one message to machine 2.
+411 - 1678148778.6261199: ERROR, Invalid message type.
+412 - 1678148778.7951329: Sent one message to machine 2.
+413 - 1678148778.96693: Sent two messages.
+414 - 1678148779.1363719: ERROR, Invalid message type.
+415 - 1678148779.3046882: Sent two messages.
+416 - 1678148779.472505: Sent one message to machine 2.
+417 - 1678148779.640898: Sent one message to machine 2.
+418 - 1678148779.812515: Sent one message to machine 2.
+419 - 1678148779.9793139: Sent one message to machine 2.
+420 - 1678148780.1473868: ERROR, Invalid message type.
+421 - 1678148780.316166: Sent two messages.
+422 - 1678148780.484876: ERROR, Invalid message type.
+423 - 1678148780.6543202: Sent one message to machine 2.
+424 - 1678148780.8259242: Sent one message to machine 2.
+425 - 1678148780.9959402: Sent one message to machine 2.
+426 - 1678148781.1667688: Sent one message to machine 2.
+427 - 1678148781.337578: Sent one message to machine 2.
+428 - 1678148781.509378: Sent one message to machine 2.
+429 - 1678148781.679312: ERROR, Invalid message type.
+430 - 1678148781.8499851: ERROR, Invalid message type.
+431 - 1678148782.0192058: ERROR, Invalid message type.
+432 - 1678148782.18627: Sent two messages.
+433 - 1678148782.357734: Sent two messages.
+434 - 1678148782.529335: Sent two messages.
+435 - 1678148782.7020411: Sent two messages.
+436 - 1678148782.87251: ERROR, Invalid message type.
+437 - 1678148783.045197: Sent two messages.
+438 - 1678148783.213405: Sent one message to machine 2.
+439 - 1678148783.382324: Sent two messages.
+440 - 1678148783.552774: ERROR, Invalid message type.
+441 - 1678148783.721674: Sent two messages.
+442 - 1678148783.893266: Sent two messages.
+443 - 1678148784.064375: Sent one message to machine 2.
+444 - 1678148784.2399628: ERROR, Invalid message type.
+445 - 1678148784.4115589: Sent two messages.
+446 - 1678148784.583024: ERROR, Invalid message type.
+447 - 1678148784.752929: Sent one message to machine 2.
+448 - 1678148784.9244318: Sent one message to machine 2.
+449 - 1678148785.095943: Sent two messages.
+450 - 1678148785.2640781: ERROR, Invalid message type.
+451 - 1678148785.435949: Sent two messages.
+452 - 1678148785.6042151: ERROR, Invalid message type.
+453 - 1678148785.7711518: Sent one message to machine 2.
+454 - 1678148785.942723: ERROR, Invalid message type.
+455 - 1678148786.11249: Sent one message to machine 2.
+456 - 1678148786.2801821: Sent two messages.
+457 - 1678148786.452106: Sent one message to machine 2.
+458 - 1678148786.6210408: Sent two messages.
+459 - 1678148786.792634: Sent one message to machine 2.
+460 - 1678148786.963011: Sent one message to machine 2.
+461 - 1678148787.134773: Sent two messages.
+462 - 1678148787.304227: ERROR, Invalid message type.
+463 - 1678148787.476028: ERROR, Invalid message type.
+464 - 1678148787.651928: Sent two messages.
+465 - 1678148787.822878: ERROR, Invalid message type.
+466 - 1678148787.9964: Sent one message to machine 2.
+467 - 1678148788.16667: Sent one message to machine 2.
+468 - 1678148788.3357499: Sent two messages.
+469 - 1678148788.507432: Sent one message to machine 2.
+470 - 1678148788.6776981: ERROR, Invalid message type.
+471 - 1678148788.845975: ERROR, Invalid message type.
+472 - 1678148789.0126982: ERROR, Invalid message type.
+473 - 1678148789.1824782: ERROR, Invalid message type.
+474 - 1678148789.353459: Sent one message to machine 2.
+475 - 1678148789.525058: Sent two messages.
+476 - 1678148789.694633: Sent one message to machine 2.
+477 - 1678148789.862168: Sent one message to machine 2.
+478 - 1678148790.029243: ERROR, Invalid message type.
+479 - 1678148790.200917: Sent two messages.
+480 - 1678148790.372684: ERROR, Invalid message type.
+481 - 1678148790.5428789: Sent one message to machine 2.
+482 - 1678148790.7127109: Sent one message to machine 2.
+483 - 1678148790.8809001: Sent one message to machine 2.
+484 - 1678148791.0525608: ERROR, Invalid message type.
+485 - 1678148791.219842: Sent two messages.
+486 - 1678148791.388126: ERROR, Invalid message type.
+487 - 1678148791.559911: Sent two messages.
+488 - 1678148791.7281668: ERROR, Invalid message type.
+489 - 1678148791.899581: ERROR, Invalid message type.
+490 - 1678148792.069612: Sent one message to machine 2.
+491 - 1678148792.2379541: ERROR, Invalid message type.
+492 - 1678148792.409656: ERROR, Invalid message type.
+493 - 1678148792.579963: Sent one message to machine 2.
+494 - 1678148792.7504041: Sent one message to machine 2.
+495 - 1678148792.9173179: ERROR, Invalid message type.
+496 - 1678148793.085862: Sent one message to machine 2.
+497 - 1678148793.257538: Sent one message to machine 2.
+498 - 1678148793.4292421: ERROR, Invalid message type.
+499 - 1678148793.600947: Sent two messages.
+500 - 1678148793.772706: Sent two messages.
+501 - 1678148793.9443488: Sent two messages.
+502 - 1678148794.11595: Sent two messages.
+503 - 1678148794.287682: Sent one message to machine 2.
+504 - 1678148794.456954: Sent two messages.
+505 - 1678148794.628652: ERROR, Invalid message type.
+506 - 1678148794.798965: Sent two messages.
+507 - 1678148794.9706812: Sent one message to machine 2.
+508 - 1678148795.142366: Sent two messages.
+509 - 1678148795.3140879: Sent one message to machine 2.
+510 - 1678148795.4857311: ERROR, Invalid message type.
+511 - 1678148795.6574879: ERROR, Invalid message type.
+512 - 1678148795.8291981: Sent one message to machine 2.
+513 - 1678148795.998453: Sent two messages.
+514 - 1678148796.166701: Sent one message to machine 2.
+515 - 1678148796.338437: ERROR, Invalid message type.
+516 - 1678148796.507273: ERROR, Invalid message type.
+517 - 1678148796.678983: ERROR, Invalid message type.
+518 - 1678148796.8507001: ERROR, Invalid message type.
+519 - 1678148797.019281: ERROR, Invalid message type.

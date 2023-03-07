@@ -78,7 +78,7 @@ class Machine():
         # if the queue is empty, randomize between sending or internal event
         else:
             self.clock += 1
-            random_action = random.randint(1, 10)
+            random_action = random.randint(1, 3)
             match random_action:
                 case 1:
                     self.send([(self.id + 1) % 3])
@@ -152,7 +152,7 @@ class Machine():
         # initialize sockets
         self.init_sockets()
         print("Sockets initialized")
-        input("WELCOME TO THE MACHINE. WAIT FOR CONSENSUS, THEN CONFIRM YOUR MISSION. HELL TO THE YEAH BROTHERS N SISTERS.")
+        input("WELCOME TO THE MACHINE. WAIT FOR CONSENSUS, THEN CONFIRM YOUR MISSION.")
 
         # setup the listening system. this will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
