@@ -12,6 +12,21 @@ MESSAGE_SIZE = 8
 SOCKET_IP = "127.0.0.1"
 SOCKET_PORT_BASE = 8000
 
+# experimental constants; adjust for testing's sake
+MAX_RANDOM_STATE = 10
+USE_MANUAL_CLOCK_RATES = False
+manual_clock_rates = {
+            0: 1,
+            1: 2,
+            2: 6,
+        }
+USE_MANUAL_STATES = False
+manual_states = {
+            0: [4] * 14 + [1] + [4] * 200,
+            1: [4] * 14 + [2] + [4] * 200,
+            2: [4] * 19 + [3] + [4] * 200,
+        }
+
 # MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
     RECEIVED = 0
@@ -24,6 +39,8 @@ class Machine():
         self.id = id
         self.clock = 0
         self.freq = random.randint(1, 6)
+        if USE_MANUAL_CLOCK_RATES:
+            self.freq = manual_clock_rates[self.id]
         self.queue = queue.Queue()
         log_name = "../logs/log_" + str(id) + ".txt"
         self.log_file = open(log_name, "w")
@@ -44,6 +61,7 @@ class Machine():
             except OverflowError:
                 print("Overflow error.")
                 sys.exit(1)
+
             # send over socket
             sock.sendall(wire)
 
@@ -56,9 +74,9 @@ class Machine():
     def log(self, message_type, data=None):
         # depending on message type, log a standard log message to the log file for this machine
         match message_type:
-            case MessageType.RECEIVED if data:
+            case MessageType.RECEIVED if data != None:
                 self.log_file.write(f"{self.clock} - {time.time()}: Received message: {data}. Queue length: {self.queue.qsize()}.\n")
-            case MessageType.SENT_ONE if data:
+            case MessageType.SENT_ONE if data != None:
                 self.log_file.write(f"{self.clock} - {time.time()}: Sent one message to machine {data}.\n")
             case MessageType.SENT_TWO:
                 self.log_file.write(f"{self.clock} - {time.time()}: Sent two messages.\n")
@@ -78,7 +96,9 @@ class Machine():
         # if the queue is empty, randomize between sending or internal event
         else:
             self.clock += 1
-            random_action = random.randint(1, 3)
+            random_action = random.randint(1, MAX_RANDOM_STATE)
+            if USE_MANUAL_STATES and manual_states[self.id]:
+                random_action = manual_states[self.id].pop(0)
             match random_action:
                 case 1:
                     self.send([(self.id + 1) % 3])
@@ -95,8 +115,8 @@ class Machine():
         while True:
             try:
                 message = con.recv(MESSAGE_SIZE)
-                # TODO: Should check for empty message here to shutdown, can't remember syntax,
-                # can I literally check if not message?
+                if not message:
+                    self.shutdown()
                 self.queue.put(message)
             except:
                 self.shutdown()
@@ -152,7 +172,7 @@ class Machine():
         # initialize sockets
         self.init_sockets()
         print("Sockets initialized")
-        input("WELCOME TO THE MACHINE. WAIT FOR CONSENSUS, THEN CONFIRM YOUR MISSION.")
+        input("WELCOME TO THE MACHINE. INITIALIZE ALL PARTICIPANTS, THEN HIT ENTER.")
 
         # setup the listening system. this will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
@@ -175,28 +195,37 @@ class Machine():
 
             # Both listen and write sockets are setup, so we loop forever, making actions as our clock speed allows
             while True:
-                start_time = time.time()
-                self.make_action()
-                # Sleeping appropriately to keep clock frequency
-                time.sleep(interval - (time.time() - start_time))
+                try:
+                    start_time = time.time()
+                    self.make_action()
+                    # Sleeping appropriately to keep clock frequency
+                    time.sleep(interval - (time.time() - start_time))
+                except:
+                    self.shutdown()
 
     def shutdown(self):
         # Cleanup our sockets and our log files
         self.listen_socket.close()
+        for _, sock in self.write_sockets.items():
+            sock.close()
         self.log_file.close()
+        sys.exit(0)
 
 def main():
+    # verify user input
     if len(sys.argv) != 2:
-        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        print("Usage: py machine.py {MACHINE_ID}. id should be one of 0, 1, 2 and unique.")
         sys.exit(1)
     try:
         id = int(sys.argv[1])
     except:
-        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        print("Usage: py machine.py {MACHINE_ID}. id should be one of 0, 1, 2 and unique.")
         sys.exit(1)
     if not id in [0, 1, 2]:
-        print("Usage: py machine.py {MACIHNE_ID}. id should be one of 0, 1, 2 and unique.")
+        print("Usage: py machine.py {MACHINE_ID}. id should be one of 0, 1, 2 and unique.")
         sys.exit(1)
+
+    # run
     machine = Machine(id)
     machine.run()
 
