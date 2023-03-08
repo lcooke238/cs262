@@ -18,6 +18,9 @@ For our first experiment, we ran our mock system with three connected machines f
 ## Experiment 2: identical clock cycles
 For this experiment, we ran our mock system with three connected machines for a minute five separate times. Our machine randomization remained the same (between 1 and 10), however our clock randomization ceased to be random, and all machines ran with the same speed of 2. Here is what we found:
 
+![](graphs/experiment_2.png)
+
+
 - **General Observations**: Given our results from experiment 1 establishing a correlation between speed and our characteristics of interest and knowing to ignore the bottom few lines of each logfile in the analysis, I would expect general drift, jump size, and message queue lengths to be roughly consistent between machines.
 - **Jump Size**: Here, the jump size was exactly what I expected, with machine 0 producing an average jump of 1.109, a min of 1, and a max of 3; machine 1 producing an average jump of 1.107, a min of 1, and a max of 3; and machine 2 producing an average jump of 1.109, a min of 1, and a max of 3. This supports the conclusions I drew from experiment 1, in that the jump size is tied to the speed of each machine.
 - **Value Drift**: We see a similar trend for value drift, as all three machines have an average drift of around -0.7 and a min drift of around -2.66. This also supports the conclusions I drew from experiment 1, in that the value drift, like jump size, is tied to the speed of each machine.
@@ -27,6 +30,9 @@ For this experiment, we ran our mock system with three connected machines for a 
 
 ## Experiment 3: No internal events
 For this experiment, we ran our mock system with three connected machines for a minute five separate times. Our clock randomization was the default 1-6 range, however, we removed the possibility of an internal event occuring by keeping the machine randomization between 1 and 3. Here is what we found:
+
+![](graphs/experiment_3.png)
+
 
 - **General Observations**: Given our results from experiments 1 and 2 establishing a correlation between speed and our characteristics of interest and knowing to ignore the bottom few lines of each logfile in the analysis, I would expect general drift and jump size to be similar to experiment 1 if not a bit lower without internal events to slow increase jumps between communications, while message queue lengths will dramatically pile up (especially in the slowest machine).
 - **Jump Size**: Here, the jump sizes between logical clock values were pretty consistent across the board. In increasing speed order, the machine with clock speed 1 had an average jump of 1.59, a min jump of 1, and a max jump of 4; the machine with clock speed 3 had an average jump of 1.49, a min jump of 1, and a max jump of 5; and the machine with clock speed 6 had an average jump of 1, a min jump of 1, and a max jump of 1. As a result, we see that, like in experiment 1, generally as speed increases, the average jump size decreases because less can occur between operations for a faster machine. However, we see the absolutes and averages of the two slower machines are smaller than in experiment 1. This makes sense because without internal events to increment the logical clock without communicating to the other systems, the only time the logical clock can increase without telling a machine about it is if it only sends a message to the other machine, increasing the chance a machine finds out about it and minimizing the gap.
@@ -39,10 +45,16 @@ For fun, we've run two more experiments through the visual analysis rigamarole. 
 ## Experiment 4: Very rare sends
 For this experiment, we ran our mock system with three connected machines for a minute five separate times. We manually set the clock rates of the three machines to 4, 5, and 6, while greatly biasing the machine randomization in favor of internal events by having the random number generated uniformly between 1 and 250. The graph reveals that the machine with clock speed 6 still sets the precedent each other machine reaches toward, while the other two keep relatively close, despite the rarity of send events. There is still some straggling, but desynchronicity is always kept within a reasonable amount; this is perhaps because the message queues for each machine never come into any danger of overfilling, due to the rarity of send events.
 
+![](graphs/experiment_4.png)
+
+
 This graph also reveals a property of our syncronicity model which is perhaps unintuitive, but easily explainable: namely, that machines with slower clock times can report more recent times than machines with faster ones. Observe the states of the machines at the 20 second mark; machine 0 with clock rate 4 reports a more recent time than machine 1 with clock rate 5. This is because machine 2 with clock rate 6 chose to send to machine 0 and not machine 1 just before the 20 second mark, resulting in a situation where machine 1 would actually learn a more recent time from a send from machine 0.
 
 ## Experiment 5: Only internal events
 For this experiment, we checked our program produced a predictably boring result given a particularly boring setup; namely, one in which only internal events ever happen, with clock rates 1, 2, and 3. With no send events, the primary functionality of the machine is lost, so we just get three machines ticking along linearly at different rates without a care for each other. Obviously machine 0 reports a final time of 60, machine 1 reports 120, and machine 3 180 after one minute has elapsed; this occurred every time we ran the experiment. Consider this something of a control; jump times between values was always 1, and message queues were always empty.
+
+![](graphs/experiment_5.png)
+
 
 ## Takeaways
 Overall, the logical clock model has been quite useful tool for tracking the order of events in a distributed system, allowing us to order events properly without knowing the exact time that they occured on the system. We saw that the size of jumps in the logical clock values can vary depending on the frequency and timing of events, and that the length of the message queue can also vary depending on the frequency and timing of events. We also thought a bit about the limitations of this simulation in understanding network behavior, ignoring things like network latency, message loss, and machine failures that could all impact the ordering of events.
