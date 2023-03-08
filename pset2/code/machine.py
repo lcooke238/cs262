@@ -14,13 +14,13 @@ SOCKET_PORT_BASE = 8000
 
 # experimental constants; adjust for testing's sake
 MAX_RANDOM_STATE = 10
-USE_MANUAL_CLOCK_RATES = True
+USE_MANUAL_CLOCK_RATES = False
 manual_clock_rates = {
             0: 1,
             1: 2,
             2: 3,
         }
-USE_MANUAL_STATES = True
+USE_MANUAL_STATES = False
 manual_states = {
             0: [4] * 10000,
             1: [4] * 10000,
@@ -28,7 +28,7 @@ manual_states = {
         }
 
 # folder for logs; either should be "" or end in /
-LOG_FOLDER = "experiment_5/"
+LOG_FOLDER = "/"
 
 # MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
@@ -89,7 +89,7 @@ class Machine():
                 self.log_file.write(f"{self.clock} - {time.time()}: ERROR, Invalid message type.\n")
         self.log_file.flush()
 
-    def make_action(self):
+    def make_action(self, testing_value = None):
         # if the queue is not empty, use that
         if not self.queue.empty():
             clock = int.from_bytes(self.queue.get())
@@ -99,7 +99,7 @@ class Machine():
         # if the queue is empty, randomize between sending or internal event
         else:
             self.clock += 1
-            random_action = random.randint(1, MAX_RANDOM_STATE)
+            random_action = random.randint(1, MAX_RANDOM_STATE) if not(testing_value) else testing_value
             if USE_MANUAL_STATES and manual_states[self.id]:
                 random_action = manual_states[self.id].pop(0)
             match random_action:
@@ -175,7 +175,7 @@ class Machine():
         # initialize sockets
         self.init_sockets()
         print("Sockets initialized")
-        input("WELCOME TO THE MACHINE. INITIALIZE ALL PARTICIPANTS, THEN HIT ENTER.")
+        # input("WELCOME TO THE MACHINE. INITIALIZE ALL PARTICIPANTS, THEN HIT ENTER.")
 
         # setup the listening system. this will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
