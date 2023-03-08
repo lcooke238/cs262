@@ -75,3 +75,7 @@ All of the text in brackets represents the actual parameter explained within tha
 1. We have two tests files, `test_unit.py` which has a number of basic unit tests, and `test_machine.py` which is more of an integration test, actually running three machines and checking they interact as we would expect.
 
 2. `test_unit.py` can just be run using `pytest` when within the tests folder, since it just tests each unit/method of the Machine class. `test_machine.py` requires you to set three machines running and setting the flags in `machine.py` to testing settings so that we have deterministic behavior to be able to log as we would expect. You need to have all machines running for at least 15 seconds for these tests to work (since it checks the behavior for each over the first 15 seconds that they were running).
+
+## Experiment Analysis
+
+The analysis for our experiments is within the `documentation` folder, with the code in `analysis.ipynb` but the actual written analysis (with the graphs and the highlights of the data) in `lab_notebook.md`.
