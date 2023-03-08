@@ -2,6 +2,13 @@ import sys
 sys.path.append('../code')
 from machine import Machine, MessageType, MESSAGE_SIZE
 
+'''
+Methods that these unit tests won't test, but will be tested by integration tests:
+1) Run -> Tested via integration tests
+2) Listen -> Tested via integration tests
+3) Send -> Tested via integration tests
+'''
+
 # Test initialization for errors
 def test_init():
     m10 = Machine(10)
@@ -78,7 +85,42 @@ def test_make_action():
     m10.queue.put(int.to_bytes(RECEIVED_CLOCK))
     m10.make_action()
 
+    # Other tests require sends - tested in integration tests!
+
     with open(f"../logs/log_10.txt", "r") as f:
         logs = f.readlines()
         assert "1 - " in logs[1] and "Internal event." in logs[1]
         assert f"{RECEIVED_CLOCK + 1} - " in logs[2] and f"Received message: {RECEIVED_CLOCK}. Queue length: 0." in logs[2]
+
+def test_init_sockets():
+    # Testing with a valid machine and invalid machine
+    m0 = Machine(0)
+    m0.init_sockets()
+    m10 = Machine(10)
+    m10.init_sockets()
+    assert m10.listen_socket
+    assert m0.listen_socket
+    # Correct machine can only write to other two
+    assert len(m0.write_sockets) == 2
+    # Incorrect can write to all 3 (but this is an invalid machine according to our limit of 3)
+    assert len(m10.write_sockets) == 3
+    assert not(m10.write_sockets.get(m10.id, False))
+    assert not(m0.write_sockets.get(m0.id, False))
+    # Check we open the correct sockets
+    assert m0.listen_socket.getsockname() == ('127.0.0.1', 8000)
+    assert m10.listen_socket.getsockname() == ('127.0.0.1', 8010)
+
+def test_shutdown():
+    m10 = Machine(10)
+    # Run some functionality so sockets and file are definitely open
+    m10.init_sockets()
+    m10.log(MessageType.INTERNAL)
+    # Attempt shutdown
+    m10.shutdown(testing=True)
+    assert m10.log_file.closed
+    # Ensure the socket is properly shutdown (shouldn't let us send!)
+    try:
+        m10.listen_socket.sendall(1)
+        assert False
+    except:
+        assert True
