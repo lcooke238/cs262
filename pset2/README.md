@@ -1,13 +1,14 @@
 # COMPSCI 262 PSET 2: Overall Notebook
 
 ## Introduction
-This readme gives a high level overview of the entire repository. This assignment is split into code and documentation sections. We have separate ```README.md``` files for specifics about each folder. Structure:
+This README gives a high level overview of the entire repository. This assignment is split into code and documentation sections. We have separate ```README.md``` files for specifics about each folder. Structure:
 - code
     - ```machine.py```: code to run a single machine for the mock system.
 - documentation
-    - ```analysis.ipynb```: jupyter notebook to compute trends from experimental logs
-    - ```ledger.md```: notebook for design decisions
-    - ```lab_notebook.md```: notebook for analyzing experimental results
+    - ```analysis.ipynb```: jupyter notebook to compute trends from experimental logs.
+    - ```ledger.md```: notebook for design decisions.
+    - ```lab_notebook.md```: notebook for analyzing experimental results.
+    - ```graphs```: Stores the graphs for ```lab_notebook.md``` from the experiments.
 - logs
     - ```experiment_1```: folder containing the logs from the first experiment.
         - ```log_0.txt```: text log for the machine with id 0.
@@ -21,11 +22,26 @@ This readme gives a high level overview of the entire repository. This assignmen
         - ```log_0.txt```: text log for the machine with id 0.
         - ```log_1.txt```: text log for the machine with id 1.
         - ```log_2.txt```: text log for the machine with id 2.
+    - ```experiment_4```: folder containing the logs from the fourth experiment.
+        - ```log_0.txt```: text log for the machine with id 0.
+        - ```log_1.txt```: text log for the machine with id 1.
+        - ```log_2.txt```: text log for the machine with id 2.
+    - ```experiment_5```: folder containing the logs from the fourth experiment.
+        - ```log_0.txt```: text log for the machine with id 0.
+        - ```log_1.txt```: text log for the machine with id 1.
+        - ```log_2.txt```: text log for the machine with id 2.
 - tests
-    - ```test_machine.py```: test suite for the implementation of a single machine
+    - ```test_unit.py```: unit test suite for one machine.
+    - ```test_machine.py```: test suite for the interactions of three machines under fixed parameters.
 
-## To Run The Experiment
-1. Make sure that you have python 3.10 or later installed.
+## Installation requirements
+
+1. Make sure that you have python 3.10 or later installed (to handle match statements).
+
+2. To run the unit tests, you need to install pytest. You can do so using `pip install -U pytest`.
+
+## To Run The System
+1. Follow the installation requirements.
 
 2. run the following lines in three separate terminals, and DO NOT press enter when prompted yet:
     - ```python3 machine.py 0```
@@ -53,3 +69,9 @@ From this point on, there are two possible types of logs you will see:
 1. ```[logical clock time] - [system time]: [operation].```
 2. ```[logical clock time] - [system time]: Received message: [logical clock time of reciept]. Queue length: [current queue length].```
 All of the text in brackets represents the actual parameter explained within that text. 
+
+## Running the tests
+
+1. We have two tests files, `test_unit.py` which has a number of basic unit tests, and `test_machine.py` which is more of an integration test, actually running three machines and checking they interact as we would expect.
+
+2. `test_unit.py` can just be run using `pytest` when within the tests folder, since it just tests each unit/method of the Machine class. `test_machine.py` requires you to set three machines running and setting the flags in `machine.py` to testing settings so that we have deterministic behavior to be able to log as we would expect. You need to have all machines running for at least 15 seconds for these tests to work (since it checks the behavior for each over the first 15 seconds that they were running).
