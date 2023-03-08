@@ -155,3 +155,16 @@ Now we're cooking. Here's how my socket communication works:
 This all seems to work and behave reasonably nicely. The main things that clearly need to be worked on are whether I can do this without the condition variable (it certaintly seems like the else condition is unnecessary), there is a redundant lock that I'm about to remove, and reformatting the times more nicely. I'm also interested if we can use the library mentioned on Ed to avoid having to do the three terminal setup.
 
 Then for the experiments, it seems like it could be tricky to shut the machines down after 60s to collect data.
+
+
+## Monday 6th March: Experiments
+Today, we developed some experiments to run using our machines to discuss the size of jumps in the vals for the logical clocks, the drift in the values of the local logical clocks in the different machines (compared to system time), and the impact different timings on such things as gaps in the logical clock vals and length of the message queue. To do this, we designed five separate experiments:
+1. *Default*: Clock randomization was in the default 1-6 range and our machine action randomization was also in the default 1-10 range.
+2. *Identical speeds*: Our machine randomization remained the same (between 1 and 10), however our clock randomization ceased to be random, and all machines ran with the same speed of 2.
+3. *No Internal Events*: Our clock randomization was the default 1-6 range, however, we removed the possibility of an internal event occuring by keeping the machine randomization between 1 and 3.
+4. *Fast machines, more internal events*: We manually set the clock rates of the three machines to 4, 5, and 6, while greatly biasing the machine randomization in favor of internal events by having the random number generated uniformly between 1 and 250.
+5. *Slow machines, only internal events*: only internal events ever happen, with clock rates 1, 2, and 3.
+
+We also designed an ```analysis.ipynb``` notebook to do some general analysis of our logs and produce visualizations for the relationships between our logical clocks.
+
+Overall, we found that the logical clock model has been a useful tool for tracking the order of events in a distributed system, allowing us to order events properly without knowing the exact time that they occured on the system. We saw that the size of jumps in the logical clock values can vary depending on the frequency and timing of events, and that the length of the message queue can also vary depending on the frequency and timing of events. We also thought a bit about the limitations of this simulation in understanding network behavior, ignoring things like network latency, message loss, and machine failures that could all impact the ordering of events.
