@@ -125,7 +125,6 @@ class Machine():
                 self.shutdown()
 
     def listen(self):
-        # TODO: Handle CTRL+C shutdown etc
         with self.cv:
             print("Listen socket started listening")
             self.listen_socket.listen()
@@ -133,7 +132,7 @@ class Machine():
             # accept 2 connections
             for i in range(2):
                 con, addr = self.listen_socket.accept() 
-                print(f"successfully accepted connection {i + 1}")
+                print(f"successffully accepted connection {i + 1}")
                 self.successful_connections += 1
                 # Setup a thread to receive messages on that connection
                 thread = threading.Thread(target=self.receive_messages, args=(con, ))
@@ -206,13 +205,14 @@ class Machine():
                 except:
                     self.shutdown()
 
-    def shutdown(self):
+    def shutdown(self, testing = False):
         # Cleanup our sockets and our log files
         self.listen_socket.close()
         for _, sock in self.write_sockets.items():
             sock.close()
         self.log_file.close()
-        sys.exit(0)
+        if not testing:
+            sys.exit(0)
 
 def main():
     # verify user input
