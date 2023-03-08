@@ -1,0 +1,54 @@
+LOG FOR MACHINE 1 WITH CLOCK SPEED 2
+1 - 1678204137.556021: Internal event.
+2 - 1678204138.061105: Internal event.
+3 - 1678204138.562189: Internal event.
+4 - 1678204139.067295: Internal event.
+5 - 1678204139.5696378: Internal event.
+6 - 1678204140.074018: Internal event.
+7 - 1678204140.578496: Internal event.
+21 - 1678204141.0788019: Received message: 20. Queue length: 0.
+22 - 1678204141.581973: Internal event.
+23 - 1678204142.0838: Internal event.
+24 - 1678204142.586517: Internal event.
+25 - 1678204143.090392: Internal event.
+26 - 1678204143.593941: Internal event.
+27 - 1678204144.0980322: Internal event.
+28 - 1678204144.6020539: Internal event.
+29 - 1678204145.102449: Sent one message to machine 0.
+30 - 1678204145.607456: Internal event.
+31 - 1678204146.1098828: Internal event.
+32 - 1678204146.613159: Internal event.
+33 - 1678204147.117632: Internal event.
+34 - 1678204147.619062: Internal event.
+35 - 1678204148.122773: Internal event.
+36 - 1678204148.626682: Internal event.
+37 - 1678204149.131746: Internal event.
+38 - 1678204149.634548: Internal event.
+39 - 1678204150.1350698: Internal event.
+40 - 1678204150.6357481: Internal event.
+41 - 1678204151.139814: Internal event.
+42 - 1678204151.643262: Internal event.
+43 - 1678204152.144664: Internal event.
+44 - 1678204152.647406: Internal event.
+45 - 1678204153.1512809: Internal event.
+46 - 1678204153.652765: Received message: 38. Queue length: 0.
+47 - 1678204154.1578162: Internal event.
+48 - 1678204154.659392: Internal event.
+49 - 1678204155.163543: Internal event.
+50 - 1678204155.664466: Internal event.
+51 - 1678204156.167556: Internal event.
+52 - 1678204156.669539: Internal event.
+53 - 1678204157.174075: Internal event.
+54 - 1678204157.6779761: Internal event.
+55 - 1678204158.183038: Internal event.
+56 - 1678204158.6844292: Internal event.
+57 - 1678204159.186072: Internal event.
+58 - 1678204159.691085: Internal event.
+59 - 1678204160.1925209: Internal event.
+60 - 1678204160.693341: Internal event.
+61 - 1678204161.193482: Internal event.
+62 - 1678204161.696762: Internal event.
+63 - 1678204162.20085: Internal event.
+64 - 1678204162.705488: Internal event.
+65 - 1678204163.2089221: Internal event.
+66 - 1678204163.710048: Internal event.

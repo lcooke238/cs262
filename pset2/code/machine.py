@@ -13,19 +13,22 @@ SOCKET_IP = "127.0.0.1"
 SOCKET_PORT_BASE = 8000
 
 # experimental constants; adjust for testing's sake
-MAX_RANDOM_STATE = 3
-USE_MANUAL_CLOCK_RATES = False
+MAX_RANDOM_STATE = 10
+USE_MANUAL_CLOCK_RATES = True
 manual_clock_rates = {
             0: 1,
             1: 2,
-            2: 6,
+            2: 3,
         }
-USE_MANUAL_STATES = False
+USE_MANUAL_STATES = True
 manual_states = {
-            0: [4] * 14 + [1] + [4] * 200,
-            1: [4] * 14 + [2] + [4] * 200,
-            2: [4] * 19 + [3] + [4] * 200,
+            0: [4] * 10000,
+            1: [4] * 10000,
+            2: [4] * 10000,
         }
+
+# folder for logs; either should be "" or end in /
+LOG_FOLDER = "experiment_5/"
 
 # MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
@@ -38,11 +41,11 @@ class Machine():
     def __init__(self, id):
         self.id = id
         self.clock = 0
-        self.freq =6#random.randint(1, 6)
+        self.freq = random.randint(1, 6)
         if USE_MANUAL_CLOCK_RATES:
             self.freq = manual_clock_rates[self.id]
         self.queue = queue.Queue()
-        log_name = "../logs/log_" + str(id) + ".txt"
+        log_name = "../logs/" + LOG_FOLDER + "log_" + str(id) + ".txt"
         self.log_file = open(log_name, "w")
         self.log_file.write(f"LOG FOR MACHINE {self.id} WITH CLOCK SPEED {self.freq}\n")
         self.log_file.flush()
