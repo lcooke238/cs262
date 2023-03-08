@@ -29,8 +29,14 @@ def test_log():
     m10 = Machine(0)
     # Attempt to log a received where we get no data (error, should be clock time of sender)
     m10.log(MessageType.RECEIVED)
-    # Attempt to log a SENDONE where we get no data (error, should be id of which we sent to)
+    # Attempt to log a SENT_ONE where we get no data (error, should be id of which we sent to)
     m10.log(MessageType.SENT_ONE)
     # Attempt to log a received with some simulated data
+    m10.log(MessageType.RECEIVED, data = 50)
+    # Attempt to log a SENT_ONE with some real data (i.e. an id):
+    m10.log(MessageType.SENT_ONE, data = 11)
+
     with open(f"../logs/log_10.txt", "r") as f:
         logs = f.readlines()
+        # Checking for initialization 
+        assert "LOG FOR MACHINE 10 WITH CLOCK SPEED" in logs[0]
