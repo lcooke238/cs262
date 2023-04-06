@@ -30,7 +30,36 @@ class Client:
         self.channel = None
         self.stub = None
         self.user_token = ""
+        self.backups = []
         self.server_online = False
+
+    def attempt_backup_connect(self):
+        if not self.backups:
+            return False
+        backup = self.backups.pop()
+        # Set host and port to new settings
+        self.host = backup.host
+        self.port = backup.port
+        # Update the channel, closing the previous
+        self.channel.close()
+        self.channel = grpc.insecure_channel(self.host + ":" + self.port)
+        self.stub = chat_pb2_grpc.ClientHandlerStub(self.channel)
+        return True
+
+    def attempt_setup_backups(self):
+        print("attempting to retrieve backups")
+        response = self.stub.GetBackups(chat_pb2.BackupRequest())
+        try:
+            # response = self.stub.GetBackups(chat_pb2.BackupRequest(serverinfo=None))
+            print(response)
+            for backup in response.serverinfo:
+                self.backups.append(backup)
+            return True
+        except:
+            while self.attempt_backup_connect():
+                if self.attempt_setup_backups():
+                    return True
+            return False
 
     def __valid_username(self, user):
         return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
@@ -63,10 +92,22 @@ class Client:
 
     def attempt_list(self, args):
         # attempt to retrieve user list from server
+        safe = False
         try:
             response = self.stub.ListUsers(chat_pb2.ListRequest(args=args))
         except:
-            self.handle_server_shutdown()
+            print("3")
+            print(self.backups)
+            while self.attempt_backup_connect():
+                try:
+                    print("1")
+                    response = self.stub.ListUsers(chat_pb2.ListRequest(args=args))
+                    safe = True
+                except:
+                    print("2")
+                    continue
+            if not safe:
+                self.handle_server_shutdown()
 
         # if failed, print failure and return
         if response.status == FAILURE:
@@ -167,7 +208,12 @@ class Client:
         return True
 
     def ClientHandler(self, testing=False):
+        # Create stub
         self.stub = chat_pb2_grpc.ClientHandlerStub(self.channel)
+        
+        # Try to setup backups
+        self.attempt_setup_backups()
+
         condition = threading.Condition()
 
         if testing:
@@ -204,8 +250,9 @@ class Client:
                 try:
                     response = self.stub.GetMessages(chat_pb2.GetRequest(user=self.user_token))
                 except:
-                    self.server_online = False
-                    self.handle_server_shutdown()
+                    # self.server_online = False
+                    # self.handle_server_shutdown()
+                    continue
                 if response.status == SUCCESS_WITH_DATA:
                     print("")
                     for message in response.message:

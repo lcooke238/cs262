@@ -16,10 +16,8 @@ class BackupReply(_message.Message):
     def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., serverinfo: _Optional[_Iterable[_Union[ServerInfo, _Mapping]]] = ...) -> None: ...
 
 class BackupRequest(_message.Message):
-    __slots__ = ["serverinfo"]
-    SERVERINFO_FIELD_NUMBER: _ClassVar[int]
-    serverinfo: _containers.RepeatedCompositeFieldContainer[ServerInfo]
-    def __init__(self, serverinfo: _Optional[_Iterable[_Union[ServerInfo, _Mapping]]] = ...) -> None: ...
+    __slots__ = []
+    def __init__(self) -> None: ...
 
 class DeleteReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]

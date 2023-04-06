@@ -221,29 +221,39 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
         self.state = state
         self.backups = backups
 
-    def CreateBackupChain(self, request, context):
-        # Add this server to the chain of backups
-        thisinfo = chat_pb2.ServerInfo(host=self.host, port=self.port)
-        serverinfo = request.serverinfo
-        serverinfo.append(thisinfo)
-
-        # If end of the chain, return the chain
-        if not(self.backup_host and self.backup_port):
-            if len(request.serverinfo > request.number_backups):
-                status = SUCCESS
-            elif len(request.serverinfo):
-                status = FAILURE_WITH_DATA
-            else:
-                status = FAILURE
-            return chat_pb2.BackupReply(status=status, errormessage="", serverinfo=serverinfo)
-        
-        # If not end of the chain, pull from up the chain
-        channel = grpc.insecure_channel(self.backup_host + ":" + self.backup_port)
-        stub = chat_pb2_grpc.ClientHandlerStub(channel)
-        rq = chat_pb2.BackupRequest(number_backups=request.number_backups, serverinfo=serverinfo)
-        response = stub.CreateBackupChain(rq)
-        channel.close()
+    def GetBackups(self, request, context):
+        print("ran")
+        print(self.backups)
+        response = chat_pb2.BackupReply(status=0, errormessage="")
+        print(response)
+        for backup in self.backups:
+            response.serverinfo.append(chat_pb2.ServerInfo(host=backup["host"], port=backup["port"]))
+        print(response)
         return response
+
+    # def CreateBackupChain(self, request, context):
+    #     # Add this server to the chain of backups
+    #     thisinfo = chat_pb2.ServerInfo(host=self.host, port=self.port)
+    #     serverinfo = request.serverinfo
+    #     serverinfo.append(thisinfo)
+
+    #     # If end of the chain, return the chain
+    #     if not(self.backup_host and self.backup_port):
+    #         if len(request.serverinfo > request.number_backups):
+    #             status = SUCCESS
+    #         elif len(request.serverinfo):
+    #             status = FAILURE_WITH_DATA
+    #         else:
+    #             status = FAILURE
+    #         return chat_pb2.BackupReply(status=status, errormessage="", serverinfo=serverinfo)
+        
+    #     # If not end of the chain, pull from up the chain
+    #     channel = grpc.insecure_channel(self.backup_host + ":" + self.backup_port)
+    #     stub = chat_pb2_grpc.ClientHandlerStub(channel)
+    #     rq = chat_pb2.BackupRequest(number_backups=request.number_backups, serverinfo=serverinfo)
+    #     response = stub.CreateBackupChain(rq)
+    #     channel.close()
+    #     return response
 
     # logs a user in
     def Login(self, request, context):
@@ -601,7 +611,7 @@ def serve(mode):
         print(host)
 
     state, id, backups = setup()
-    port = BASE_PORT + id
+    port = str(BASE_PORT + id)
 
     # run server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

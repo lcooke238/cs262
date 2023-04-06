@@ -45,8 +45,8 @@ class ClientHandlerStub(object):
                 request_serializer=chat__pb2.DeleteRequest.SerializeToString,
                 response_deserializer=chat__pb2.DeleteReply.FromString,
                 )
-        self.getBackups = channel.unary_unary(
-                '/ClientHandler/getBackups',
+        self.GetBackups = channel.unary_unary(
+                '/ClientHandler/GetBackups',
                 request_serializer=chat__pb2.BackupRequest.SerializeToString,
                 response_deserializer=chat__pb2.BackupReply.FromString,
                 )
@@ -98,7 +98,7 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def getBackups(self, request, context):
+    def GetBackups(self, request, context):
         """Creates backup chain
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -138,8 +138,8 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.DeleteRequest.FromString,
                     response_serializer=chat__pb2.DeleteReply.SerializeToString,
             ),
-            'getBackups': grpc.unary_unary_rpc_method_handler(
-                    servicer.getBackups,
+            'GetBackups': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetBackups,
                     request_deserializer=chat__pb2.BackupRequest.FromString,
                     response_serializer=chat__pb2.BackupReply.SerializeToString,
             ),
@@ -257,7 +257,7 @@ class ClientHandler(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def getBackups(request,
+    def GetBackups(request,
             target,
             options=(),
             channel_credentials=None,
@@ -267,7 +267,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ClientHandler/getBackups',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/GetBackups',
             chat__pb2.BackupRequest.SerializeToString,
             chat__pb2.BackupReply.FromString,
             options, channel_credentials,
