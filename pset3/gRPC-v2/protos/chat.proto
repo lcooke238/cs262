@@ -16,6 +16,24 @@ service ClientHandler {
   rpc GetMessages (GetRequest) returns (GetReply) {}
   // Attempts to delete account
   rpc Delete (DeleteRequest) returns (DeleteReply) {}
+  // Creates backup chain
+  rpc CreateBackupChain (BackupRequest) returns (BackupReply) {}
+}
+
+message ServerInfo {
+  string host = 1;
+  string port = 2;
+}
+
+message BackupRequest {
+  int32 number_backups = 1;
+  repeated ServerInfo serverinfo = 2;
+}
+
+message BackupReply {
+  int32 status = 1;
+  string errormessage = 2;
+  repeated ServerInfo serverinfo = 3;
 }
 
 message LoginRequest {

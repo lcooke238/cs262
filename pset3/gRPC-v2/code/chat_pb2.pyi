@@ -5,6 +5,24 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class BackupReply(_message.Message):
+    __slots__ = ["errormessage", "serverinfo", "status"]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    SERVERINFO_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    errormessage: str
+    serverinfo: _containers.RepeatedCompositeFieldContainer[ServerInfo]
+    status: int
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., serverinfo: _Optional[_Iterable[_Union[ServerInfo, _Mapping]]] = ...) -> None: ...
+
+class BackupRequest(_message.Message):
+    __slots__ = ["number_backups", "serverinfo"]
+    NUMBER_BACKUPS_FIELD_NUMBER: _ClassVar[int]
+    SERVERINFO_FIELD_NUMBER: _ClassVar[int]
+    number_backups: int
+    serverinfo: _containers.RepeatedCompositeFieldContainer[ServerInfo]
+    def __init__(self, number_backups: _Optional[int] = ..., serverinfo: _Optional[_Iterable[_Union[ServerInfo, _Mapping]]] = ...) -> None: ...
+
 class DeleteReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -120,6 +138,14 @@ class SendRequest(_message.Message):
     target: str
     user: str
     def __init__(self, user: _Optional[str] = ..., message: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
+
+class ServerInfo(_message.Message):
+    __slots__ = ["host", "port"]
+    HOST_FIELD_NUMBER: _ClassVar[int]
+    PORT_FIELD_NUMBER: _ClassVar[int]
+    host: str
+    port: str
+    def __init__(self, host: _Optional[str] = ..., port: _Optional[str] = ...) -> None: ...
 
 class UnreadMessage(_message.Message):
     __slots__ = ["message", "receiver", "sender"]

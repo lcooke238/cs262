@@ -6,6 +6,7 @@ import chat_pb2
 import chat_pb2_grpc
 import threading
 import sqlite3
+from enum import Enum
 
 # 3 uses serialized mode - can be used safely by multiple threads with no restriction
 # Documentation/ and only answers seem to differ about this, so implementing a lock anyway
@@ -37,6 +38,13 @@ PORT = "50051"
 
 
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
+    def __init__(self, host, port):
+        self.backup_host = host
+        self.backup_port = port
+
+    def CreateBackupChain(self, args):
+        
+
 
     # logs a user in
     def Login(self, request, context):
@@ -199,67 +207,102 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 return unread_message_packet
 
 
-# takes the lock and sets all users offline
-def set_all_offline():
-    with lock:
-        with sqlite3.connect(DATABASE_PATH) as con:
-            cur = con.cursor()
-            cur.execute("UPDATE users SET online = FALSE")
+class ServerStatus(Enum):
+    SETUP = 0
+    LEADER = 1
+    FOLLOWER = 2
+    ERROR = 3
+
+class Server():
+    def __init__(self):
+        self.state = ServerStatus.SETUP
+        self.client_handler = None 
+        self.backup_host = None
+        self.backup_port = None
+    
+    # Must be called before using any other method
+    def setup(self):
+        while True:
+            role = input("Role of this server: ")
+            match role:
+                case "leader":
+                    self.state = ServerStatus.LEADER
+                    break
+                case "follower":
+                    self.state = ServerStatus.FOLLOWER
+                    break
+            print("Invalid role entered. Valid options: leader, follower.")
+        # Currently not needed
+        while True:
+            self.backup_host = input("Backup Server IP:  (hit enter if none)")
+            self.backup_port = input("Backup server host: (hit enter if none)")
+            if self.backup_host and self.backup_port:
+                self.client_handler = ClientHandler(self.backup_host, self.backup_port)
+            else:
+                print("WARNING: this server has no backups")
+                self.client_handler = ClientHandler(None, None)
+            break
+
+    # takes the lock and sets all users offline
+    def set_all_offline(self):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("UPDATE users SET online = FALSE")
+                con.commit()
+
+    # initializes database
+    def init_db(self):
+        con = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
+        cur = con.cursor()
+
+        # create database if necessary
+        cur.execute("""CREATE TABLE IF NOT EXISTS users (
+                        user VARCHAR(100) PRIMARY KEY,
+                        online BOOL
+                    )""")
+        con.commit()
+        cur.execute("""CREATE TABLE IF NOT EXISTS messages (
+                        message_id INTEGER PRIMARY KEY,
+                        sender VARCHAR(100),
+                        message VARCHAR(10000),
+                        recipient VARCHAR(100)
+                    )""")
+        con.commit()
+
+        # clear database if desired
+        if RESET_DB:
+            cur.execute("DELETE FROM users")
+            con.commit()
+            cur.execute("DELETE FROM messages")
             con.commit()
 
+    def serve(self):
+        # Ensure setup is run by running it yourself
+        self.setup()
+        # initialize logs
+        logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
-# initializes database
-def init_db():
-    con = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
-    cur = con.cursor()
+        # handling any weird crashes to ensure users can still log in
+        self.set_all_offline()
 
-    # create database if necessary
-    cur.execute("""CREATE TABLE IF NOT EXISTS users (
-                       user VARCHAR(100) PRIMARY KEY,
-                       online BOOL
-                   )""")
-    con.commit()
-    cur.execute("""CREATE TABLE IF NOT EXISTS messages (
-                       message_id INTEGER PRIMARY KEY,
-                       sender VARCHAR(100),
-                       message VARCHAR(10000),
-                       recipient VARCHAR(100)
-                   )""")
-    con.commit()
+        # initialize database
+        self.init_db()
 
-    # clear database if desired
-    if RESET_DB:
-        cur.execute("DELETE FROM users")
-        con.commit()
-        cur.execute("DELETE FROM messages")
-        con.commit()
+        # run server
+        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        chat_pb2_grpc.add_ClientHandlerServicer_to_server(self.client_handler, server)
+        server.add_insecure_port('[::]:' + PORT)
+        server.start()
+        print("server started, listening on " + PORT)
 
-
-# runs the server logic
-def serve():
-    # initialize logs
-    logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
-
-    # handling any weird crashes to ensure users can still log in
-    set_all_offline()
-
-    # initialize database
-    init_db()
-
-    # run server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
-    server.add_insecure_port('[::]:' + PORT)
-    server.start()
-    print("server started, listening on " + PORT)
-
-    # shut down nicely
-    try:
-        server.wait_for_termination()
-        set_all_offline()
-    except KeyboardInterrupt:
-        set_all_offline()
-
+        # shut down nicely
+        try:
+            server.wait_for_termination()
+            self.set_all_offline()
+        except KeyboardInterrupt:
+            self.set_all_offline()
 
 if __name__ == '__main__':
-    serve()
+    server = Server()
+    server.serve()
