@@ -21,6 +21,18 @@ class DeleteRequest(_message.Message):
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
+class FatalServerError(_message.Message):
+    __slots__ = ["errormessage", "host", "ip", "status"]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    HOST_FIELD_NUMBER: _ClassVar[int]
+    IP_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    errormessage: str
+    host: str
+    ip: str
+    status: int
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., host: _Optional[str] = ..., ip: _Optional[str] = ...) -> None: ...
+
 class GetReply(_message.Message):
     __slots__ = ["errormessage", "message", "status"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -36,16 +48,6 @@ class GetRequest(_message.Message):
     USER_FIELD_NUMBER: _ClassVar[int]
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
-
-class JaredMessage(_message.Message):
-    __slots__ = ["content", "errormessage", "status"]
-    CONTENT_FIELD_NUMBER: _ClassVar[int]
-    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    content: str
-    errormessage: str
-    status: int
-    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., content: _Optional[str] = ...) -> None: ...
 
 class ListReply(_message.Message):
     __slots__ = ["errormessage", "status", "user", "wildcard"]
@@ -120,6 +122,38 @@ class SendRequest(_message.Message):
     target: str
     user: str
     def __init__(self, user: _Optional[str] = ..., message: _Optional[str] = ..., target: _Optional[str] = ...) -> None: ...
+
+class ServerReply(_message.Message):
+    __slots__ = ["deletereply", "getreply", "listreply", "loginreply", "logoutreply", "sendreply", "switchreply"]
+    DELETEREPLY_FIELD_NUMBER: _ClassVar[int]
+    GETREPLY_FIELD_NUMBER: _ClassVar[int]
+    LISTREPLY_FIELD_NUMBER: _ClassVar[int]
+    LOGINREPLY_FIELD_NUMBER: _ClassVar[int]
+    LOGOUTREPLY_FIELD_NUMBER: _ClassVar[int]
+    SENDREPLY_FIELD_NUMBER: _ClassVar[int]
+    SWITCHREPLY_FIELD_NUMBER: _ClassVar[int]
+    deletereply: DeleteReply
+    getreply: GetReply
+    listreply: ListReply
+    loginreply: LoginReply
+    logoutreply: LogoutReply
+    sendreply: SendReply
+    switchreply: SwitchReply
+    def __init__(self, loginreply: _Optional[_Union[LoginReply, _Mapping]] = ..., logoutreply: _Optional[_Union[LogoutReply, _Mapping]] = ..., listreply: _Optional[_Union[ListReply, _Mapping]] = ..., deletereply: _Optional[_Union[DeleteReply, _Mapping]] = ..., sendreply: _Optional[_Union[SendReply, _Mapping]] = ..., getreply: _Optional[_Union[GetReply, _Mapping]] = ..., switchreply: _Optional[_Union[SwitchReply, _Mapping]] = ...) -> None: ...
+
+class SwitchReply(_message.Message):
+    __slots__ = ["errormessage", "status"]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    errormessage: str
+    status: int
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ...) -> None: ...
+
+class SwitchRequest(_message.Message):
+    __slots__ = ["args"]
+    ARGS_FIELD_NUMBER: _ClassVar[int]
+    args: str
+    def __init__(self, args: _Optional[str] = ...) -> None: ...
 
 class UnreadMessage(_message.Message):
     __slots__ = ["message", "receiver", "sender"]

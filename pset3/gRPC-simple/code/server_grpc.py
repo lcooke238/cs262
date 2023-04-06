@@ -36,11 +36,18 @@ RESET_DB = True
 PORT = "50051"
 
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
-    def LoginSafe(self, request, context):
-        response = self.Login()
+    def __init__(self, host, port):
+        self.backup_host = host
+        self.backup_port = port
+    
+    def Login(self, request, context):
+        response = self.Login_helper(request, context)
+        return chat_pb2.ServerReply(
+            loginreply=response
+        )
 
     # logs a user in
-    def Login(self, request, context):
+    def Login_helper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
@@ -209,7 +216,8 @@ class Server():
     def __init__(self):
         self.state = ServerStatus.SETUP
         self.client_handler = None 
-        self.backup = None
+        self.backup_host = None
+        self.backup_port = None
     
     # Must be called before using any other method
     def setup(self):
@@ -225,10 +233,10 @@ class Server():
             print("Invalid role entered. Valid options: leader, follower.")
         # Currently not needed
         while True:
-            backup_host = input("Backup Server IP:  (hit enter if none)")
-            backup_port = input("Backup server host: (hit enter if none)")
-            if backup_host and backup_port:
-                self.client_handler = ClientHandler(backup_host, backup_port)
+            self.backup_host = input("Backup Server IP:  (hit enter if none)")
+            self.backup_port = input("Backup server host: (hit enter if none)")
+            if self.backup_host and self.backup_port:
+                self.client_handler = ClientHandler(self.backup_host, self.backup_port)
             else:
                 print("WARNING: this server has no backups")
                 self.client_handler = ClientHandler(None, None)
@@ -269,6 +277,8 @@ class Server():
             con.commit()
 
     def serve(self):
+        # Ensure setup is run by running it yourself
+        self.setup()
         # initialize logs
         logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
@@ -280,7 +290,7 @@ class Server():
 
         # run server
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
+        chat_pb2_grpc.add_ClientHandlerServicer_to_server(self.client_handler, server)
         server.add_insecure_port('[::]:' + PORT)
         server.start()
         print("server started, listening on " + PORT)

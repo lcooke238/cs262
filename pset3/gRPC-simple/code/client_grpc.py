@@ -31,6 +31,7 @@ class Client:
         self.stub = None
         self.user_token = ""
         self.server_online = False
+        self.backup_chain = []
 
     def switch_server(self, new_host, new_port):
         # Switch to a backup server if needed
@@ -54,6 +55,15 @@ class Client:
         # attempt login on server
         try:
             bare_response = self.stub.Login(chat_pb2.LoginRequest(user=user))
+            match bare_response.WhichOneof("reply"):
+                case "loginreply":
+                    response = bare_response.loginreply
+                    # print(getattr(bare_response, "loginreply"))
+                case "error":
+                    print("TODO: implement switch server logic")
+                case other:
+                    print("LOGIC ERROR: Getting non-Login Reply from Login Request: {}", other)
+                    
             # TODO: Match against bare response to check for errors
             # Send response down normal logic. Error we perform switch logic
         except:

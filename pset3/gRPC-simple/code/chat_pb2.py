@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"<\n\x0bSendRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06target\x18\x03 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"@\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"`\n\tSendReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x01(\t\x12\x0e\n\x06target\x18\x05 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"Q\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x1f\n\x07message\x18\x03 \x03(\x0b\x32\x0e.UnreadMessage\"E\n\x0cJaredMessage\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\t2\x80\x02\n\rClientHandler\x12\'\n\tListUsers\x12\x0c.ListRequest\x1a\n.ListReply\"\x00\x12%\n\x05Login\x12\r.LoginRequest\x1a\x0b.LoginReply\"\x00\x12(\n\x06Logout\x12\x0e.LogoutRequest\x1a\x0c.LogoutReply\"\x00\x12\"\n\x04Send\x12\x0c.SendRequest\x1a\n.SendReply\"\x00\x12\'\n\x0bGetMessages\x12\x0b.GetRequest\x1a\t.GetReply\"\x00\x12(\n\x06\x44\x65lete\x12\x0e.DeleteRequest\x1a\x0c.DeleteReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nchat.proto\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"<\n\x0bSendRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x0e\n\x06target\x18\x03 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rSwitchRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"R\n\x10\x46\x61talServerError\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04host\x18\x03 \x01(\t\x12\n\n\x02ip\x18\x04 \x01(\t\"3\n\x0bSwitchReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\"\x89\x02\n\x0bServerReply\x12!\n\nloginreply\x18\x01 \x01(\x0b\x32\x0b.LoginReplyH\x00\x12#\n\x0blogoutreply\x18\x02 \x01(\x0b\x32\x0c.LogoutReplyH\x00\x12\x1f\n\tlistreply\x18\x03 \x01(\x0b\x32\n.ListReplyH\x00\x12#\n\x0b\x64\x65letereply\x18\x04 \x01(\x0b\x32\x0c.DeleteReplyH\x00\x12\x1f\n\tsendreply\x18\x05 \x01(\x0b\x32\n.SendReplyH\x00\x12\x1d\n\x08getreply\x18\x06 \x01(\x0b\x32\t.GetReplyH\x00\x12#\n\x0bswitchreply\x18\x07 \x01(\x0b\x32\x0c.SwitchReplyH\x00\x42\x07\n\x05reply\"@\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"`\n\tSendReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\x12\x0f\n\x07message\x18\x04 \x01(\t\x12\x0e\n\x06target\x18\x05 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"Q\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x1f\n\x07message\x18\x03 \x03(\x0b\x32\x0e.UnreadMessage2\xb8\x02\n\rClientHandler\x12)\n\tListUsers\x12\x0c.ListRequest\x1a\x0c.ServerReply\"\x00\x12&\n\x05Login\x12\r.LoginRequest\x1a\x0c.ServerReply\"\x00\x12(\n\x06Logout\x12\x0e.LogoutRequest\x1a\x0c.ServerReply\"\x00\x12$\n\x04Send\x12\x0c.SendRequest\x1a\x0c.ServerReply\"\x00\x12*\n\x0bGetMessages\x12\x0b.GetRequest\x1a\x0c.ServerReply\"\x00\x12(\n\x06\x44\x65lete\x12\x0e.DeleteRequest\x1a\x0c.ServerReply\"\x00\x12.\n\x0cSwitchServer\x12\x0e.SwitchRequest\x1a\x0c.ServerReply\"\x00\x42\x06\xa2\x02\x03HLWb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'chat_pb2', globals())
@@ -33,22 +33,28 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _DELETEREQUEST._serialized_end=195
   _GETREQUEST._serialized_start=197
   _GETREQUEST._serialized_end=223
-  _LOGINREPLY._serialized_start=225
-  _LOGINREPLY._serialized_end=289
-  _LOGOUTREPLY._serialized_start=291
-  _LOGOUTREPLY._serialized_end=356
-  _LISTREPLY._serialized_start=358
-  _LISTREPLY._serialized_end=439
-  _DELETEREPLY._serialized_start=441
-  _DELETEREPLY._serialized_end=506
-  _SENDREPLY._serialized_start=508
-  _SENDREPLY._serialized_end=604
-  _UNREADMESSAGE._serialized_start=606
-  _UNREADMESSAGE._serialized_end=672
-  _GETREPLY._serialized_start=674
-  _GETREPLY._serialized_end=755
-  _JAREDMESSAGE._serialized_start=757
-  _JAREDMESSAGE._serialized_end=826
-  _CLIENTHANDLER._serialized_start=829
-  _CLIENTHANDLER._serialized_end=1085
+  _SWITCHREQUEST._serialized_start=225
+  _SWITCHREQUEST._serialized_end=254
+  _FATALSERVERERROR._serialized_start=256
+  _FATALSERVERERROR._serialized_end=338
+  _SWITCHREPLY._serialized_start=340
+  _SWITCHREPLY._serialized_end=391
+  _SERVERREPLY._serialized_start=394
+  _SERVERREPLY._serialized_end=659
+  _LOGINREPLY._serialized_start=661
+  _LOGINREPLY._serialized_end=725
+  _LOGOUTREPLY._serialized_start=727
+  _LOGOUTREPLY._serialized_end=792
+  _LISTREPLY._serialized_start=794
+  _LISTREPLY._serialized_end=875
+  _DELETEREPLY._serialized_start=877
+  _DELETEREPLY._serialized_end=942
+  _SENDREPLY._serialized_start=944
+  _SENDREPLY._serialized_end=1040
+  _UNREADMESSAGE._serialized_start=1042
+  _UNREADMESSAGE._serialized_end=1108
+  _GETREPLY._serialized_start=1110
+  _GETREPLY._serialized_end=1191
+  _CLIENTHANDLER._serialized_start=1194
+  _CLIENTHANDLER._serialized_end=1506
 # @@protoc_insertion_point(module_scope)
