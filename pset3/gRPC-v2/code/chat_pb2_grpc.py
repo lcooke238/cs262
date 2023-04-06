@@ -45,8 +45,8 @@ class ClientHandlerStub(object):
                 request_serializer=chat__pb2.DeleteRequest.SerializeToString,
                 response_deserializer=chat__pb2.DeleteReply.FromString,
                 )
-        self.CreateBackupChain = channel.unary_unary(
-                '/ClientHandler/CreateBackupChain',
+        self.getBackups = channel.unary_unary(
+                '/ClientHandler/getBackups',
                 request_serializer=chat__pb2.BackupRequest.SerializeToString,
                 response_deserializer=chat__pb2.BackupReply.FromString,
                 )
@@ -98,7 +98,7 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateBackupChain(self, request, context):
+    def getBackups(self, request, context):
         """Creates backup chain
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -138,8 +138,8 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.DeleteRequest.FromString,
                     response_serializer=chat__pb2.DeleteReply.SerializeToString,
             ),
-            'CreateBackupChain': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateBackupChain,
+            'getBackups': grpc.unary_unary_rpc_method_handler(
+                    servicer.getBackups,
                     request_deserializer=chat__pb2.BackupRequest.FromString,
                     response_serializer=chat__pb2.BackupReply.SerializeToString,
             ),
@@ -257,7 +257,7 @@ class ClientHandler(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def CreateBackupChain(request,
+    def getBackups(request,
             target,
             options=(),
             channel_credentials=None,
@@ -267,7 +267,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ClientHandler/CreateBackupChain',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/getBackups',
             chat__pb2.BackupRequest.SerializeToString,
             chat__pb2.BackupReply.FromString,
             options, channel_credentials,

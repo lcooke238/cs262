@@ -17,7 +17,7 @@ service ClientHandler {
   // Attempts to delete account
   rpc Delete (DeleteRequest) returns (DeleteReply) {}
   // Creates backup chain
-  rpc CreateBackupChain (BackupRequest) returns (BackupReply) {}
+  rpc getBackups (BackupRequest) returns (BackupReply) {}
 }
 
 message ServerInfo {
@@ -26,7 +26,6 @@ message ServerInfo {
 }
 
 message BackupRequest {
-  int32 number_backups = 1;
   repeated ServerInfo serverinfo = 2;
 }
 
