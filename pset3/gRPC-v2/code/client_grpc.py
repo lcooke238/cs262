@@ -47,19 +47,16 @@ class Client:
         return True
 
     def attempt_setup_backups(self):
-        print("attempting to retrieve backups")
         response = self.stub.GetBackups(chat_pb2.BackupRequest())
         try:
-            # response = self.stub.GetBackups(chat_pb2.BackupRequest(serverinfo=None))
-            print(response)
             for backup in response.serverinfo:
                 self.backups.append(backup)
-            return True
         except:
             while self.attempt_backup_connect():
                 if self.attempt_setup_backups():
                     return True
             return False
+        return True
 
     def __valid_username(self, user):
         return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
@@ -72,16 +69,13 @@ class Client:
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
 
         # attempt login on server
-        try:
-            response = self.stub.Login(chat_pb2.LoginRequest(user=user))
-        except:
-            self.handle_server_shutdown()
+        response = self.stub.Login(chat_pb2.LoginRequest(user=user))
 
         # if failure, print failure and return; they can attempt again
         if response.status == FAILURE:
             print(f"Login error: {response.errormessage}")
             return
-        
+
         # if success, set user token and print success
         self.user_token = response.user
         print(f"Succesfully logged in as user: {self.user_token}. Unread messages:")
@@ -91,59 +85,35 @@ class Client:
             condition.notify_all()
 
     def attempt_list(self, args):
-        # attempt to retrieve user list from server
-        safe = False
-        try:
-            response = self.stub.ListUsers(chat_pb2.ListRequest(args=args))
-        except:
-            print("3")
-            print(self.backups)
-            while self.attempt_backup_connect():
-                try:
-                    print("1")
-                    response = self.stub.ListUsers(chat_pb2.ListRequest(args=args))
-                    safe = True
-                except:
-                    print("2")
-                    continue
-            if not safe:
-                self.handle_server_shutdown()
+        response = self.stub.ListUsers(chat_pb2.ListRequest(args=args))
 
         # if failed, print failure and return
         if response.status == FAILURE:
             print(f"List users error: {response.errormessage}")
             return
-        
+
         # if success, print users that match the wildcard provided
         print(f"Users matching wildcard {response.wildcard}:")
         for user in response.user:
             print(user)
 
     def attempt_logout(self):
-        try:
-            response = self.stub.Logout(chat_pb2.LogoutRequest(user=self.user_token))
-        except:
-            self.handle_server_shutdown()
+        response = self.stub.Logout(chat_pb2.LogoutRequest(user=self.user_token))
         if response.status == FAILURE:
             print(f"Logout error: {response.errormessage}")
             return
         self.user_token = ""
-        return
 
     def attempt_delete(self):
-        try:
-            self.stub.Delete(chat_pb2.DeleteRequest(user=self.user_token))
-        except:
-            self.handle_server_shutdown()
+        self.stub.Delete(chat_pb2.DeleteRequest(user=self.user_token))
         self.user_token = ""
-        return
 
     def attempt_send(self, args):
         arg_list = [arg.strip() for arg in args.split("->")]
         if len(arg_list) != 2:
             print("Invalid message send syntax. Correct syntax: \\send {message} -> {user}")
             return
-        
+
         if not self.__valid_username(arg_list[1]):
             print(f"Username provided is invalid: {arg_list[1]}. All usernames are alphanumeric")
             return
@@ -153,15 +123,11 @@ class Client:
             return
 
         message, target = arg_list[0], arg_list[1]
-        try:
-            response = self.stub.Send(chat_pb2.SendRequest(user=self.user_token,
-                                                message=message,
-                                                target=target))
-            if response.status == FAILURE:
-                print(f"Send message error: {response.errormessage}")
-                return
-        except:
-            self.handle_server_shutdown()
+        response = self.stub.Send(chat_pb2.SendRequest(user=self.user_token,
+                                                       message=message,
+                                                       target=target))
+        if response.status == FAILURE:
+            print(f"Send message error: {response.errormessage}")
 
     def handle_invalid_command(self, command):
         print(f"Invalid command: {command}, please try \\help for list of commands")
@@ -180,37 +146,50 @@ class Client:
             )
 
     def process_command(self, command):
-        if len(command) < 5:
+        safe = False
+        try:
+            if len(command) < 5:
+                self.handle_invalid_command(command)
+                return True
+            if command[0:5] == "\\help":
+                self.display_command_help()
+                return True
+            if command[0:5] == "\\list":
+                self.attempt_list(command[5:])
+                return True
+            if command[0:5] == "\\send":
+                self.attempt_send(command[5:])
+                return True
+            if command[0:5] == "\\quit":
+                self.attempt_logout()
+                return False
+            if len(command) < 7:
+                self.handle_invalid_command(command)
+                return True
+            if command[0:7] == "\\logout":
+                self.attempt_logout()
+                return True
+            if command[0:7] == "\\delete":
+                self.attempt_delete()
+                return True
             self.handle_invalid_command(command)
-            return True
-        if command[0:5] == "\\help":
-            self.display_command_help()
-            return True
-        if command[0:5] == "\\list":
-            self.attempt_list(command[5:])
-            return True
-        if command[0:5] == "\\send":
-            self.attempt_send(command[5:])
-            return True
-        if command[0:5] == "\\quit":
-            self.attempt_logout()
-            return False
-        if len(command) < 7:
-            self.handle_invalid_command(command)
-            return True
-        if command[0:7] == "\\logout":
-            self.attempt_logout()
-            return True
-        if command[0:7] == "\\delete":
-            self.attempt_delete()
-            return True
-        self.handle_invalid_command(command)
+        except:
+            while self.attempt_backup_connect():
+                try:
+                    self.process_command(command)
+                    safe = True
+                    break
+                except:
+                    continue
+            if not safe:
+                self.handle_server_shutdown()
         return True
+
 
     def ClientHandler(self, testing=False):
         # Create stub
         self.stub = chat_pb2_grpc.ClientHandlerStub(self.channel)
-        
+
         # Try to setup backups
         self.attempt_setup_backups()
 
@@ -250,8 +229,6 @@ class Client:
                 try:
                     response = self.stub.GetMessages(chat_pb2.GetRequest(user=self.user_token))
                 except:
-                    # self.server_online = False
-                    # self.handle_server_shutdown()
                     continue
                 if response.status == SUCCESS_WITH_DATA:
                     print("")
@@ -263,6 +240,7 @@ class Client:
                     condition.wait()
 
     def handle_server_shutdown(self):
+        print("Shutting down!")
         self.channel.close()
         os._exit(FAILURE)
 

@@ -18,17 +18,17 @@ USE_MANUAL_CLOCK_RATES = False
 manual_clock_rates = {
             0: 1,
             1: 2,
-            2: 3,
+            2: 6,
         }
 USE_MANUAL_STATES = False
 manual_states = {
-            0: [4] * 10000,
-            1: [4] * 10000,
-            2: [4] * 10000,
+            0: [4] * 14 + [1] + [4] * 10000,
+            1: [4] * 14 + [2] + [4] * 10000,
+            2: [4] * 19 + [3] + [4] * 10000,
         }
 
 # folder for logs; either should be "" or end in /
-LOG_FOLDER = "/"
+LOG_FOLDER = ""
 
 # MessageType class: limits message types to RECIEVED, SENT_ONE, SENT_TWO, and INTERNAL
 class MessageType(Enum):
@@ -174,7 +174,7 @@ class Machine():
         # initialize sockets
         self.init_sockets()
         print("Sockets initialized")
-        # input("WELCOME TO THE MACHINE. INITIALIZE ALL PARTICIPANTS, THEN HIT ENTER.")
+        input("WELCOME TO THE MACHINE. INITIALIZE ALL PARTICIPANTS, THEN HIT ENTER.")
 
         # setup the listening system. this will then create its own children threads for each connection
         thread = threading.Thread(target=self.listen)
