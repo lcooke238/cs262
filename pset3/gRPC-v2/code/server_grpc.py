@@ -86,9 +86,15 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
 
                 # user doesn't exist (returned empty list)
                 if not logged_in:
+                    # Adding user on this server
                     cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
                                 (request.user, True))
                     con.commit()
+
+                    # Adding user to other backups
+                    worker = ServerWorker(self.backups)
+                    worker.adduser(request.user)
+
                     return chat_pb2.LoginReply(status=SUCCESS,
                                                errormessage=NO_ERROR,
                                                user=request.user)
@@ -274,6 +280,29 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                             (request.user, ))
                 con.commit()
 
+class ServerWorker():
+    def __init__(self, backups):
+        self.backups = backups
+    
+    def send(self, sender, message, recipient):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = chat_pb2_grpc.ClientHandlerStub(channel)
+                stub.AddMessage(chat_pb2.AddMessageRequest(user=sender, message=message, target=recipient))
+                channel.close()
+            except:
+                continue
+    def adduser(self, user):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = chat_pb2_grpc.ClientHandlerStub(channel)
+                stub.AddUser(chat_pb2.AddUserRequest(user=user))
+                channel.close()
+            except:
+                continue
+
 class ServerStatus(Enum):
     SETUP = 0
     LEADER = 1
@@ -313,66 +342,6 @@ class Server():
                 print("WARNING: this server has no backups")
                 self.client_handler = ClientHandler(None, None)
             break
-
-    # takes the lock and sets all users offline
-    def set_all_offline(self):
-        with lock:
-            with sqlite3.connect(DATABASE_PATH) as con:
-                cur = con.cursor()
-                cur.execute("UPDATE users SET online = FALSE")
-                con.commit()
-
-    # initializes database
-    def init_db(self):
-        con = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
-        cur = con.cursor()
-
-        # create database if necessary
-        cur.execute("""CREATE TABLE IF NOT EXISTS users (
-                        user VARCHAR(100) PRIMARY KEY,
-                        online BOOL
-                    )""")
-        con.commit()
-        cur.execute("""CREATE TABLE IF NOT EXISTS messages (
-                        message_id INTEGER PRIMARY KEY,
-                        sender VARCHAR(100),
-                        message VARCHAR(10000),
-                        recipient VARCHAR(100)
-                    )""")
-        con.commit()
-
-        # clear database if desired
-        if RESET_DB:
-            cur.execute("DELETE FROM users")
-            con.commit()
-            cur.execute("DELETE FROM messages")
-            con.commit()
-
-    def serve(self):
-        # Ensure setup is run by running it yourself
-        self.setup()
-        # initialize logs
-        logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
-
-        # handling any weird crashes to ensure users can still log in
-        self.set_all_offline()
-
-        # initialize database
-        self.init_db()
-
-        # run server
-        server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-        chat_pb2_grpc.add_ClientHandlerServicer_to_server(self.client_handler, server)
-        server.add_insecure_port('[::]:' + self.port)
-        server.start()
-        print("server started, listening on " + self.host + self.port)
-
-        # shut down nicely
-        try:
-            server.wait_for_termination()
-            self.set_all_offline()
-        except KeyboardInterrupt:
-            self.set_all_offline()
 
 
 # takes the lock and sets all users offline
