@@ -234,6 +234,45 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
 
                 return unread_message_packet
 
+    def DeleteMessages(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM messages WHERE recipient = ?",
+                            (request.user, ))
+                con.commit()
+
+    def AddMessage(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
+                            (request.user, request.message, request.target, ))
+                con.commit()
+
+    def setUserStatus(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("UPDATE users SET online = ? WHERE user = ?",
+                            (request.status, request.user, ))
+                con.commit()
+
+    def AddUser(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
+                            (request.user, True))
+                con.commit()
+
+    def RemoveUse(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM users WHERE user = ?",
+                            (request.user, ))
+                con.commit()
 
 class ServerStatus(Enum):
     SETUP = 0
