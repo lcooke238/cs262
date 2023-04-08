@@ -18,6 +18,22 @@ service ClientHandler {
   rpc Delete (DeleteRequest) returns (DeleteReply) {}
   // Creates backup chain
   rpc GetBackups (BackupRequest) returns (BackupReply) {}
+
+  // Methods to be used by ServerWorkers
+  rpc AddUser(LoginRequest) returns (Empty) {}
+  rpc RemoveUser(DeleteRequest) returns (Empty) {}
+  rpc SetUserStatus(SetStatusRequest) returns (Empty) {}
+  rpc AddMessage(SendRequest) returns (Empty) {}
+  rpc DeleteMessages(DeleteRequest) returns (Empty) {}
+}
+
+message Empty {
+  
+}
+
+message SetStatusRequest {
+  string user = 1;
+  bool status = 2;
 }
 
 message ServerInfo {

@@ -50,6 +50,31 @@ class ClientHandlerStub(object):
                 request_serializer=chat__pb2.BackupRequest.SerializeToString,
                 response_deserializer=chat__pb2.BackupReply.FromString,
                 )
+        self.AddUser = channel.unary_unary(
+                '/ClientHandler/AddUser',
+                request_serializer=chat__pb2.LoginRequest.SerializeToString,
+                response_deserializer=chat__pb2.Empty.FromString,
+                )
+        self.RemoveUser = channel.unary_unary(
+                '/ClientHandler/RemoveUser',
+                request_serializer=chat__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=chat__pb2.Empty.FromString,
+                )
+        self.SetUserStatus = channel.unary_unary(
+                '/ClientHandler/SetUserStatus',
+                request_serializer=chat__pb2.SetStatusRequest.SerializeToString,
+                response_deserializer=chat__pb2.Empty.FromString,
+                )
+        self.AddMessage = channel.unary_unary(
+                '/ClientHandler/AddMessage',
+                request_serializer=chat__pb2.SendRequest.SerializeToString,
+                response_deserializer=chat__pb2.Empty.FromString,
+                )
+        self.DeleteMessages = channel.unary_unary(
+                '/ClientHandler/DeleteMessages',
+                request_serializer=chat__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=chat__pb2.Empty.FromString,
+                )
 
 
 class ClientHandlerServicer(object):
@@ -105,6 +130,37 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddUser(self, request, context):
+        """Methods to be used by ServerWorkers
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def RemoveUser(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SetUserStatus(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def AddMessage(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteMessages(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -142,6 +198,31 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     servicer.GetBackups,
                     request_deserializer=chat__pb2.BackupRequest.FromString,
                     response_serializer=chat__pb2.BackupReply.SerializeToString,
+            ),
+            'AddUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddUser,
+                    request_deserializer=chat__pb2.LoginRequest.FromString,
+                    response_serializer=chat__pb2.Empty.SerializeToString,
+            ),
+            'RemoveUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.RemoveUser,
+                    request_deserializer=chat__pb2.DeleteRequest.FromString,
+                    response_serializer=chat__pb2.Empty.SerializeToString,
+            ),
+            'SetUserStatus': grpc.unary_unary_rpc_method_handler(
+                    servicer.SetUserStatus,
+                    request_deserializer=chat__pb2.SetStatusRequest.FromString,
+                    response_serializer=chat__pb2.Empty.SerializeToString,
+            ),
+            'AddMessage': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddMessage,
+                    request_deserializer=chat__pb2.SendRequest.FromString,
+                    response_serializer=chat__pb2.Empty.SerializeToString,
+            ),
+            'DeleteMessages': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteMessages,
+                    request_deserializer=chat__pb2.DeleteRequest.FromString,
+                    response_serializer=chat__pb2.Empty.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -270,5 +351,90 @@ class ClientHandler(object):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/GetBackups',
             chat__pb2.BackupRequest.SerializeToString,
             chat__pb2.BackupReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AddUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/AddUser',
+            chat__pb2.LoginRequest.SerializeToString,
+            chat__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def RemoveUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/RemoveUser',
+            chat__pb2.DeleteRequest.SerializeToString,
+            chat__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SetUserStatus(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/SetUserStatus',
+            chat__pb2.SetStatusRequest.SerializeToString,
+            chat__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AddMessage(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/AddMessage',
+            chat__pb2.SendRequest.SerializeToString,
+            chat__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteMessages(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/DeleteMessages',
+            chat__pb2.DeleteRequest.SerializeToString,
+            chat__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

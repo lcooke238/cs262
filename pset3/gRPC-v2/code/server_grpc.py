@@ -30,6 +30,9 @@ ERROR_DIFF_MACHINE = "user already logged in on different machine"
 ERROR_NOT_LOGGED_IN = "user not currently logged in"
 ERROR_DNE = "user does not exist :("
 
+# TODO: Remove temporary Empty object type
+EMPTY = chat_pb2.Empty()
+
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
@@ -247,6 +250,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("DELETE FROM messages WHERE recipient = ?",
                             (request.user, ))
                 con.commit()
+        return EMPTY
 
     def AddMessage(self, request, context):
         with lock:
@@ -255,14 +259,16 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
                             (request.user, request.message, request.target, ))
                 con.commit()
+        return EMPTY
 
-    def setUserStatus(self, request, context):
+    def SetUserStatus(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
                 cur.execute("UPDATE users SET online = ? WHERE user = ?",
                             (request.status, request.user, ))
                 con.commit()
+        return EMPTY
 
     def AddUser(self, request, context):
         with lock:
@@ -271,14 +277,16 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
                             (request.user, True))
                 con.commit()
+        return EMPTY
 
-    def RemoveUse(self, request, context):
+    def RemoveUser(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
                 cur.execute("DELETE FROM users WHERE user = ?",
                             (request.user, ))
                 con.commit()
+        return EMPTY
 
 class ServerWorker():
     def __init__(self, backups):
@@ -385,7 +393,7 @@ class ServerMode(Enum):
 
 # Call to set up backups
 def setup():
-
+    global DATABASE_PATH
     # Setting up leader/follower roles
     # while True:
     #     role = input("Role of this server: ")
@@ -405,6 +413,8 @@ def setup():
         try:
             id = int(id_input)
             if (id <= 100 and id >= 0):
+                # Currently for internal testing we need a separate database for each server
+                DATABASE_PATH = f"../data/data_{id}.db"
                 break
         except:
             print("Provide a numerical input between 0 and 100 inclusive!")

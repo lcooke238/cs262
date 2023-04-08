@@ -216,7 +216,20 @@ class Client:
                         self.channel.close()
                         break
                 else:
-                    self.attempt_login(condition)
+                    try:
+                        self.attempt_login(condition)
+                    except:
+                        # TODO: Fix this safe condition, not sure what's going on here right now
+                        safe = True
+                        while self.attempt_backup_connect():
+                            try:
+                                self.process_command(command)
+                                safe = True
+                                break
+                            except:
+                                continue
+                        if not safe:
+                            self.handle_server_shutdown()
             except KeyboardInterrupt:  # for ctrl-c interrupt
                 self.attempt_logout()
                 self.channel.close()

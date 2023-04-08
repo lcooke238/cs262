@@ -35,6 +35,10 @@ class DeleteRequest(_message.Message):
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
+class Empty(_message.Message):
+    __slots__ = []
+    def __init__(self) -> None: ...
+
 class GetReply(_message.Message):
     __slots__ = ["errormessage", "message", "status"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -142,6 +146,14 @@ class ServerInfo(_message.Message):
     host: str
     port: str
     def __init__(self, host: _Optional[str] = ..., port: _Optional[str] = ...) -> None: ...
+
+class SetStatusRequest(_message.Message):
+    __slots__ = ["status", "user"]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    status: bool
+    user: str
+    def __init__(self, user: _Optional[str] = ..., status: bool = ...) -> None: ...
 
 class UnreadMessage(_message.Message):
     __slots__ = ["message", "receiver", "sender"]
