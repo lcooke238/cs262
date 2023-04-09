@@ -301,14 +301,18 @@ class ServerWorker():
                 channel.close()
             except:
                 continue
+
     def adduser(self, user):
+        print(f"ADD USER CALLED: {user} ")
+        print(self.backups)
         for backup in self.backups:
             try:
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = chat_pb2_grpc.ClientHandlerStub(channel)
-                stub.AddUser(chat_pb2.AddUserRequest(user=user))
+                stub.AddUser(chat_pb2.LoginRequest(user=user))
                 channel.close()
-            except:
+            except Exception as e:
+                print(e)
                 continue
 
 class ServerStatus(Enum):
@@ -453,12 +457,6 @@ def serve(mode):
     # initialize logs
     logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
-    # handling any weird crashes to ensure users can still log in
-    set_all_offline()
-
-    # initialize database
-    init_db()
-
     if mode == ServerMode.INTERNAL:
         host = "[::]"
     else:
@@ -467,6 +465,12 @@ def serve(mode):
 
     state, id, backups = setup()
     port = str(BASE_PORT + id)
+
+    # initialize database
+    init_db()
+
+    # handling any weird crashes to ensure users can still log in
+    set_all_offline()
 
     # run server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

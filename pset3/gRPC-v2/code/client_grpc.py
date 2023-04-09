@@ -70,7 +70,6 @@ class Client:
 
         # attempt login on server
         response = self.stub.Login(chat_pb2.LoginRequest(user=user))
-
         # if failure, print failure and return; they can attempt again
         if response.status == FAILURE:
             print(f"Login error: {response.errormessage}")
@@ -223,7 +222,7 @@ class Client:
                         safe = True
                         while self.attempt_backup_connect():
                             try:
-                                self.process_command(command)
+                                self.attempt_login(condition)
                                 safe = True
                                 break
                             except:

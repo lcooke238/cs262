@@ -1,9 +1,0 @@
-ERROR:grpc._server:Exception calling application: no such table: users
-Traceback (most recent call last):
-  File "C:\Users\achol\AppData\Local\Programs\Python\Python311\Lib\site-packages\grpc\_server.py", line 444, in _call_behavior
-    response_or_iterator = behavior(argument, context)
-                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\achol\OneDrive\Harvard\Junior\Spring\C. CS262\cs262\pset3\gRPC-v2\code\server_grpc.py", line 87, in Login
-    logged_in = cur.execute("SELECT online FROM users WHERE user = ?",
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-sqlite3.OperationalError: no such table: users
