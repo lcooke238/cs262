@@ -72,7 +72,7 @@ class ClientHandlerStub(object):
                 )
         self.DeleteMessages = channel.unary_unary(
                 '/ClientHandler/DeleteMessages',
-                request_serializer=chat__pb2.DeleteRequest.SerializeToString,
+                request_serializer=chat__pb2.GetRequest.SerializeToString,
                 response_deserializer=chat__pb2.Empty.FromString,
                 )
 
@@ -221,7 +221,7 @@ def add_ClientHandlerServicer_to_server(servicer, server):
             ),
             'DeleteMessages': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteMessages,
-                    request_deserializer=chat__pb2.DeleteRequest.FromString,
+                    request_deserializer=chat__pb2.GetRequest.FromString,
                     response_serializer=chat__pb2.Empty.SerializeToString,
             ),
     }
@@ -434,7 +434,7 @@ class ClientHandler(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/DeleteMessages',
-            chat__pb2.DeleteRequest.SerializeToString,
+            chat__pb2.GetRequest.SerializeToString,
             chat__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

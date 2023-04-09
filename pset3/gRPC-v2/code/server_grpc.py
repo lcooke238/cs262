@@ -46,6 +46,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
     def __init__(self, state, backups):
         self.state = state
         self.backups = backups
+        print(self.backups)
 
     def GetBackups(self, request, context):
         response = chat_pb2.BackupReply(status=0, errormessage="")
@@ -132,6 +133,10 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("UPDATE users SET online = FALSE WHERE user = ?",
                                 (request.user, ))
                     con.commit()
+
+                    worker = ServerWorker(self.backups)
+                    worker.setuserstatus(request.user, False)
+
                     return chat_pb2.LogoutReply(status=SUCCESS,
                                                 errormessage=NO_ERROR,
                                                 user=request.user)
@@ -155,6 +160,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("DELETE FROM users WHERE user = ?",
                                 (request.user, ))
                     con.commit()
+                    worker = ServerWorker(self.backups)
+                    worker.removeuser(request.user)
 
                 return chat_pb2.DeleteReply(status=SUCCESS,
                                             errormessage=NO_ERROR,
@@ -199,6 +206,11 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
                             (request.user, request.message, request.target, ))
                 con.commit()
+
+                # Send message on backups
+                worker = ServerWorker(self.backups)
+                worker.send(request.user, request.message, request.target)
+
                 return chat_pb2.SendReply(status=SUCCESS,
                                           errormessage=NO_ERROR,
                                           user=request.user,
@@ -240,6 +252,9 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("DELETE FROM messages WHERE recipient = ?",
                             (request.user, ))
                 con.commit()
+
+                worker = ServerWorker(self.backups)
+                worker.deletemessages(request.user)
 
                 return unread_message_packet
 
@@ -297,19 +312,50 @@ class ServerWorker():
             try:
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = chat_pb2_grpc.ClientHandlerStub(channel)
-                stub.AddMessage(chat_pb2.AddMessageRequest(user=sender, message=message, target=recipient))
+                stub.AddMessage(chat_pb2.SendRequest(user=sender, message=message, target=recipient))
                 channel.close()
             except:
                 continue
 
     def adduser(self, user):
-        print(f"ADD USER CALLED: {user} ")
-        print(self.backups)
         for backup in self.backups:
             try:
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = chat_pb2_grpc.ClientHandlerStub(channel)
                 stub.AddUser(chat_pb2.LoginRequest(user=user))
+                channel.close()
+            except Exception as e:
+                print(e)
+                continue
+    
+    def removeuser(self, user):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = chat_pb2_grpc.ClientHandlerStub(channel)
+                stub.RemoveUser(chat_pb2.DeleteRequest(user=user))
+                channel.close()
+            except Exception as e:
+                print(e)
+                continue
+    
+    def deletemessages(self, user):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = chat_pb2_grpc.ClientHandlerStub(channel)
+                stub.DeleteMessages(chat_pb2.GetRequest(user=user))
+                channel.close()
+            except Exception as e:
+                print(e)
+                continue
+    
+    def setuserstatus(self, user, status):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = chat_pb2_grpc.ClientHandlerStub(channel)
+                stub.SetUserStatus(chat_pb2.SetStatusRequest(user=user, status=status))
                 channel.close()
             except Exception as e:
                 print(e)
@@ -448,8 +494,10 @@ def setup():
                     break
             except:
                 print("Provide a numerical input for backup ID between 0 and 100 inclusive!")
-        backups.append({"host": backup_host, "port": backup_port})
-
+        # TODO: Fix all this stuff being specific to running internal servers
+        if int(backup_port) > BASE_PORT + id:
+            backups.append({"host": backup_host, "port": backup_port})
+    backups.reverse()
     return state, id, backups
 
 # runs the server logic

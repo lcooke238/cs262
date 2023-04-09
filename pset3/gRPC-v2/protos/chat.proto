@@ -24,7 +24,7 @@ service ClientHandler {
   rpc RemoveUser(DeleteRequest) returns (Empty) {}
   rpc SetUserStatus(SetStatusRequest) returns (Empty) {}
   rpc AddMessage(SendRequest) returns (Empty) {}
-  rpc DeleteMessages(DeleteRequest) returns (Empty) {}
+  rpc DeleteMessages(GetRequest) returns (Empty) {}
 }
 
 message Empty {
