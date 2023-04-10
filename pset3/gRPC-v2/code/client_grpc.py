@@ -61,13 +61,7 @@ class Client:
     def __valid_username(self, user):
         return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
 
-    def attempt_login(self, condition):
-        while True:
-            user = input("Please enter a username: ")
-            if self.__valid_username(user):
-                break
-            print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
-
+    def attempt_login(self, condition, user):
         # attempt login on server
         response = self.stub.Login(chat_pb2.LoginRequest(user=user))
         # if failure, print failure and return; they can attempt again
@@ -215,25 +209,32 @@ class Client:
                         self.channel.close()
                         break
                 else:
-                    try:
-                        self.attempt_login(condition)
-                    except:
-                        # TODO: Fix this safe condition, not sure what's going on here right now
-                        safe = True
-                        while self.attempt_backup_connect():
-                            try:
-                                self.attempt_login(condition)
-                                safe = True
-                                break
-                            except:
-                                continue
-                        if not safe:
-                            self.handle_server_shutdown()
+                    while True:
+                        user = input("Please enter a username: ")
+                        if self.__valid_username(user):
+                            break
+                        print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
+                    self.attempt_login(condition, user)               
             except KeyboardInterrupt:  # for ctrl-c interrupt
                 self.attempt_logout()
                 self.channel.close()
                 print("Logging you out!")
                 break
+            except:
+                # TODO: Fix this safe condition, not sure what's going on here right now
+                safe = False
+                while self.attempt_backup_connect():
+                    try:
+                        if (self.user_token):
+                            self.process_command(command)
+                        else:
+                            self.attempt_login(condition, user)
+                        safe = True
+                        break
+                    except:
+                        continue
+                if not safe:
+                    self.handle_server_shutdown()
 
     def listen(self, condition):
         while True:
