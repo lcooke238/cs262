@@ -43,8 +43,7 @@ BASE_PORT = 50051
 
 
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
-    def __init__(self, state, backups):
-        self.state = state
+    def __init__(self, backups):
         self.backups = backups
         print(self.backups)
 
@@ -325,7 +324,6 @@ class ServerWorker():
                 stub.AddUser(chat_pb2.LoginRequest(user=user))
                 channel.close()
             except Exception as e:
-                print(e)
                 continue
     
     def removeuser(self, user):
@@ -336,7 +334,6 @@ class ServerWorker():
                 stub.RemoveUser(chat_pb2.DeleteRequest(user=user))
                 channel.close()
             except Exception as e:
-                print(e)
                 continue
     
     def deletemessages(self, user):
@@ -347,7 +344,6 @@ class ServerWorker():
                 stub.DeleteMessages(chat_pb2.GetRequest(user=user))
                 channel.close()
             except Exception as e:
-                print(e)
                 continue
     
     def setuserstatus(self, user, status):
@@ -358,7 +354,6 @@ class ServerWorker():
                 stub.SetUserStatus(chat_pb2.SetStatusRequest(user=user, status=status))
                 channel.close()
             except Exception as e:
-                print(e)
                 continue
 
 # takes the lock and sets all users offline
@@ -445,7 +440,7 @@ def setup():
         if int(backup_port) > BASE_PORT + id:
             backups.append({"host": backup_host, "port": backup_port})
     backups.reverse()
-    return state, id, backups
+    return id, backups
 
 # runs the server logic
 def serve(mode):
@@ -458,7 +453,7 @@ def serve(mode):
         hostname = socket.gethostname()   
         host = socket.gethostbyname(hostname)
 
-    state, id, backups = setup()
+    id, backups = setup()
     port = str(BASE_PORT + id)
 
     # initialize database
@@ -468,8 +463,8 @@ def serve(mode):
     set_all_offline()
 
     # run server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(state, backups), server)
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=30))
+    chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(backups), server)
     server.add_insecure_port(host + ":" + port)
     server.start()
     print("server started, listening on " + host + ":" + port)
