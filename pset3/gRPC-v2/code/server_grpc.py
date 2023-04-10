@@ -36,7 +36,7 @@ EMPTY = chat_pb2.Empty()
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
-RESET_DB = True
+RESET_DB = False
 
 # set server address
 BASE_PORT = 50051
@@ -303,23 +303,23 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
     def CheckClock(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
             cur = con.cursor()
-            clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
+            clock = cur.execute("SELECT clock FROM clock").fetchall()[0][0]
             return chat_pb2.Clock(clock=clock)
 
     def PullData(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
             cur = con.cursor()
-            clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
-            response = chat_pb2.Data(clock=clock)
+            clock = cur.execute("SELECT clock FROM clock").fetchall()[0][0]
+            response = chat_pb2.Data(clock=chat_pb2.Clock(clock=clock))
             users = cur.execute("SELECT * FROM USERS").fetchall()
             for user in users:
-                response.users.append(chat_pb2.User(user = user["user"], online = user["online"]))
+                user_info = chat_pb2.User(user = user[0], online = user[1])
+                response.users.append(user_info)
             messages = cur.execute("SELECT * FROM messages").fetchall()
             for message in messages:
-                response.messages.append(chat_pb2.UnreadMessage(sender=message["sender"], message=message["message"], receiver=message["recipient"]))
+                message_info = chat_pb2.UnreadMessage(sender=message[1], message=message[2], receiver=message[3])
+                response.messages.append(message_info)
             return response
-            
-            
 
 
 class ServerWorker():
@@ -409,6 +409,11 @@ def init_db():
                        clock INTEGER
                    )""")
     con.commit()
+    clock_check = cur.execute("""SELECT * FROM clock""").fetchall()
+    if len(clock_check) == 0: 
+        with lock:
+            cur.execute("INSERT INTO clock (clock) VALUES (0)")
+            con.commit()
 
     # clear database if desired
     if RESET_DB:
@@ -475,6 +480,42 @@ def setup():
 
 # def set_backup_data():
 
+def restore_data(other_servers):
+    best_server = None
+    best_port = None
+    with lock:
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            my_clock = cur.execute("SELECT clock FROM clock").fetchall()[0][0]
+            best_clock = my_clock
+    for server in other_servers:
+        channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
+        stub = chat_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.CheckClock(chat_pb2.Empty())
+        channel.close()
+        if response.clock > best_clock:
+            best_clock = response.clock
+            best_server = server["host"]
+            best_port = server["port"]
+    if best_server and best_port:
+        channel = grpc.insecure_channel(best_server + ":" + best_port)
+        stub = chat_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.PullData(chat_pb2.Empty())
+        channel.close()
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM users")
+                con.commit()
+                cur.execute("DELETE FROM messages")
+                con.commit()
+                for user in response.users:
+                    cur.execute("INSERT INTO users (user, online) VALUES(?, ?)", (user.user, user.online, ))
+                    con.commit()
+                for message in response.messages:
+                    cur.execute("INSERT INTO messages (sender, message, recipient) VALUES(?, ?, ?)", (message.sender, message.message, message.receiver,))
+                    con.commit()
+                cur.execute("UPDATE clock SET clock = ?", (response.clock.clock, ))
 
 # runs the server logic
 def serve(mode):
@@ -504,7 +545,7 @@ def serve(mode):
     print("server started, listening on " + host + ":" + port)
 
     input("Hit enter when all servers are up to sync the latest data across all replicas")
-    restore_data()
+    restore_data(other_servers)
 
     # shut down nicely
     try:
@@ -517,43 +558,8 @@ def serve(mode):
 
 
 if __name__ == '__main__':
-    serve(ServerMode.EXTERNAL)
+    serve(ServerMode.INTERNAL)
 
 
-def restore_data(other_servers):
-    best_server = None
-    best_port = None
-    with lock:
-        with sqlite3.connect(DATABASE_PATH) as con:
-            cur = con.cursor()
-            my_clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
-            best_clock = my_clock
-    for server in other_servers:
-        channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
-        stub = chat_pb2_grpc.ClientHandlerStub(channel)
-        response = stub.CheckClock(chat_pb2.Empty())
-        channel.close()
-        if response.clock > best_clock:
-            best_clock = response.clock
-            best_server = server["host"]
-            best_port = server["port"]
-    if best_server and best_port:
-        channel = grpc.insecure_channel(best_server + ":" + best_port)
-        stub = chat_pb2_grpc.ClientHandlerStub(channel)
-        response = stub.PullData(chat_pb2.Empty())
-        channel.close()
-        with lock:
-            with sqlite3.connect(DATABASE_PATH) as con:
-                cur = con.cursor()
-                cur.execute("DELETE FROM users")
-                cur.commit()
-                cur.execute("DELETE FROM messages")
-                cur.commit()
-                for user in response.users:
-                    cur.execute("INSERT INTO users (user, online) VALUES(?, ?)", user.user, user.online)
-                    cur.commit()
-                for message in response.messages:
-                    cur.execute("INSERT INTO messages (sender, message, recipient) VALUES(?, ?, ?)", message.sender, message.message, message.recipient)
-                    cur.commit()
-                cur.execute("UPDATE clock SET clock = ?", response.clock)
+
         

@@ -41,9 +41,9 @@ message User {
 }
 
 message Data {
-  repeated User users = 1;
-  repeated UnreadMessage messages = 2;
-  Clock clock = 3;
+  Clock clock = 1;
+  repeated User users = 2;
+  repeated UnreadMessage messages = 3;
 }
 
 

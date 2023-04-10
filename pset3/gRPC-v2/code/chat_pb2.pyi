@@ -33,7 +33,7 @@ class Data(_message.Message):
     clock: Clock
     messages: _containers.RepeatedCompositeFieldContainer[UnreadMessage]
     users: _containers.RepeatedCompositeFieldContainer[User]
-    def __init__(self, users: _Optional[_Iterable[_Union[User, _Mapping]]] = ..., messages: _Optional[_Iterable[_Union[UnreadMessage, _Mapping]]] = ..., clock: _Optional[_Union[Clock, _Mapping]] = ...) -> None: ...
+    def __init__(self, clock: _Optional[_Union[Clock, _Mapping]] = ..., users: _Optional[_Iterable[_Union[User, _Mapping]]] = ..., messages: _Optional[_Iterable[_Union[UnreadMessage, _Mapping]]] = ...) -> None: ...
 
 class DeleteReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]
