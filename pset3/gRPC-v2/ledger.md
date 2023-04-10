@@ -72,33 +72,34 @@ Note that upon first connecting to a server, the client runs `self.attempt_setup
 2. Test via what output the client and/or server receives.
 3. Or test via querying the database to check operations were performed correctly.
 
-## Changes & learning points along the way
+## Ledger
 
-### 20-22 Feb
+#### April 6th
 
-	-> Added testing suite
+* Day 1 of work on this was mostly a disaster. We decided to work from our `gRPC` code as we felt it was significantly cleaner. However, I attempted to bite this off all in one go, severely underestimating how much actually needed changing. This disaster can be seen in `GRPC-Simple`, which should be renamed to `bin` or `trash` or something. I attempted to create a new `Server` object outside of our `ClientHandler`, which just made things needlessly more complicated. In future I'll just add methods and attributes to this class.
 
-	-> Added a few safety checks e.g. message length as gRPC packets capped at 4MB, try excepts to catch most errors
-	more gently.
+* I then restarted as I had bitten off too much in one go. I first focused on propogating info methods (again, dumb decision), so that sending to a server would pass information onto other servers. I had this essentially run a recursive implementation, so that it would connect to the current server, run the appropriate method, then make that server act as what I called a `SimulatedUser` object, which then called essentially the same method with the next backup. This was a pain, but made sense in that the client didn't need to know where all the servers were - having just one server connection, the servers would do the lifting of passing on the information and knowing where each other were.
 
-### 19 Feb
+* This had some problems though. One it was pretty complicated, two if the first server crashed catastrophically (such that it didn't give the client even just the IP of a backup to try next), the client is screwed. So, new idea: When the client connects to a server, it pulls ALL BACKUPS that that server is aware of, such that if it completely crashes, it doesn't need the server, it knows where to try next. I also changed the recursive implementation where information propogated in essentially a recursive chain to more of a tree: when the client connects to a server, and for example sends a message, that server receives it, processes it, and once it has processed that, it acts like the base of a tree, connecting to all of its backups individually and passing the information onwards.
 
-	-> Added locking to database to ensure thread safety.
+* I also actually setup the protocol of all of the servers finding out about the others with a couple of `python` `input`s.
 
-	-> Also realized I was double pulling data by pulling messages upon login and upon thread startup, not an issue now with locking but removed the redundant message pull from the login functionality.
+* We also setup the server databases to be numbered by the server's `id`.
 
-### 18 Feb
+#### April 7th
 
-	-> Added functionality to crash more gently, including handling CTRL + C and server shutdown.
+* Today we updated the client commands to actually use our server changes - now the `process_command` function in the client is within a `try... except` clause, such that if the command fails, it attempts to connect to a backup. 
 
-### 17 Feb
+#### April 8th
 
-	-> Added multithreading to the client to listen.
+* Today we actually implemented all of the methods that update other servers using the `ServerWorker` object. Basically any time the database on the server is changed in any way, we instantiate a `ServerWorker` with the backups of the current server, and call a method with it that runs the same command on all of the backups to keep them up to date too.
 
-	-> Pull messages upon login added.
+#### April 9th
 
-### 16 Feb
+* At this point we think we kind of meet the spec, but not totally sure about how things should behave on a total restart.
 
-	-> Restructured folders
+* As such, we implemented a logical clock system, so that each database also stores its clock time (any time a Server updates its database, it increments the clock).
 
-	-> Created the bulk of the basic functions and protos
+* This allows us to, on restart, sync all databases. The `restore_data` function runs at the end of the server setup - each server connects to all others and finds the one with the highest clock. They all then delete their own local data, and pull the data from the most up-to-date server (i.e. basically any server that was still running before the last total system shutdown)
+
+* For example, now our system can handle this: 2 servers, a connects to 1, it shuts down. a therefore is reconnected to 2. a sends 'hi' to b. server 2 shutsdown. All the servers are restarted. b then logs in (on server 1). b receives the message 'hi', since when the servers setup, they synced the information, and server 1 pulled from 2 as it had a higher clock. The servers after syncing also sync their clocks appropriately.
