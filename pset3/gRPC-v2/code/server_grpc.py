@@ -52,31 +52,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
         for backup in self.backups:
             response.serverinfo.append(chat_pb2.ServerInfo(host=backup["host"], port=backup["port"]))
         return response
-
-    # def CreateBackupChain(self, request, context):
-    #     # Add this server to the chain of backups
-    #     thisinfo = chat_pb2.ServerInfo(host=self.host, port=self.port)
-    #     serverinfo = request.serverinfo
-    #     serverinfo.append(thisinfo)
-
-    #     # If end of the chain, return the chain
-    #     if not(self.backup_host and self.backup_port):
-    #         if len(request.serverinfo > request.number_backups):
-    #             status = SUCCESS
-    #         elif len(request.serverinfo):
-    #             status = FAILURE_WITH_DATA
-    #         else:
-    #             status = FAILURE
-    #         return chat_pb2.BackupReply(status=status, errormessage="", serverinfo=serverinfo)
-        
-    #     # If not end of the chain, pull from up the chain
-    #     channel = grpc.insecure_channel(self.backup_host + ":" + self.backup_port)
-    #     stub = chat_pb2_grpc.ClientHandlerStub(channel)
-    #     rq = chat_pb2.BackupRequest(number_backups=request.number_backups, serverinfo=serverinfo)
-    #     response = stub.CreateBackupChain(rq)
-    #     channel.close()
-    #     return response
-
+    
     # logs a user in
     def Login(self, request, context):
         with lock:
@@ -92,6 +68,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     # Adding user on this server
                     cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
                                 (request.user, True))
+                    con.commit()
+                    cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                     con.commit()
 
                     # Adding user to other backups
@@ -113,6 +91,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("UPDATE users SET online = ? WHERE user = ?",
                                 (True, request.user,))
                     con.commit()
+                    cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                    con.commit()
                     return chat_pb2.LoginReply(status=SUCCESS,
                                                errormessage=NO_ERROR,
                                                user=request.user)
@@ -131,6 +111,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 if logged_in and logged_in[0]:
                     cur.execute("UPDATE users SET online = FALSE WHERE user = ?",
                                 (request.user, ))
+                    con.commit()
+                    cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                     con.commit()
 
                     worker = ServerWorker(self.backups)
@@ -158,6 +140,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 if logged_in:
                     cur.execute("DELETE FROM users WHERE user = ?",
                                 (request.user, ))
+                    con.commit()
+                    cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                     con.commit()
                     worker = ServerWorker(self.backups)
                     worker.removeuser(request.user)
@@ -205,6 +189,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
                             (request.user, request.message, request.target, ))
                 con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
 
                 # Send message on backups
                 worker = ServerWorker(self.backups)
@@ -251,6 +237,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("DELETE FROM messages WHERE recipient = ?",
                             (request.user, ))
                 con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
 
                 worker = ServerWorker(self.backups)
                 worker.deletemessages(request.user)
@@ -264,6 +252,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("DELETE FROM messages WHERE recipient = ?",
                             (request.user, ))
                 con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
         return EMPTY
 
     def AddMessage(self, request, context):
@@ -272,6 +262,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur = con.cursor()
                 cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
                             (request.user, request.message, request.target, ))
+                con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                 con.commit()
         return EMPTY
 
@@ -282,6 +274,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("UPDATE users SET online = ? WHERE user = ?",
                             (request.status, request.user, ))
                 con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
         return EMPTY
 
     def AddUser(self, request, context):
@@ -291,6 +285,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
                             (request.user, True))
                 con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
         return EMPTY
 
     def RemoveUser(self, request, context):
@@ -299,6 +295,8 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur = con.cursor()
                 cur.execute("DELETE FROM users WHERE user = ?",
                             (request.user, ))
+                con.commit()
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                 con.commit()
         return EMPTY
 
@@ -363,6 +361,8 @@ def set_all_offline():
             cur = con.cursor()
             cur.execute("UPDATE users SET online = FALSE")
             con.commit()
+            cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+            con.commit()
 
 
 # initializes database
@@ -383,12 +383,18 @@ def init_db():
                        recipient VARCHAR(100)
                    )""")
     con.commit()
+    cur.execute("""CREATE TABLE IF NOT EXISTS clock (
+                       clock INTEGER
+                   )""")
+    con.commit()
 
     # clear database if desired
     if RESET_DB:
         cur.execute("DELETE FROM users")
         con.commit()
         cur.execute("DELETE FROM messages")
+        con.commit()
+        cur.execute("DELETE FROM clock")
         con.commit()
 
 class ServerMode(Enum):
@@ -442,6 +448,9 @@ def setup():
     backups.reverse()
     return id, backups
 
+# def set_backup_data():
+
+
 # runs the server logic
 def serve(mode):
     # initialize logs
@@ -472,10 +481,12 @@ def serve(mode):
     # shut down nicely
     try:
         server.wait_for_termination()
+        # set_backup_data()
         set_all_offline()
     except KeyboardInterrupt:
+        # set_backup_data()
         set_all_offline()
 
 
 if __name__ == '__main__':
-    serve(ServerMode.INTERNAL)
+    serve(ServerMode.EXTERNAL)
