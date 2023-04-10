@@ -19,6 +19,26 @@ class BackupRequest(_message.Message):
     __slots__ = []
     def __init__(self) -> None: ...
 
+class Clock(_message.Message):
+    __slots__ = ["clock"]
+    CLOCK_FIELD_NUMBER: _ClassVar[int]
+    clock: int
+    def __init__(self, clock: _Optional[int] = ...) -> None: ...
+
+class Data(_message.Message):
+    __slots__ = ["clock", "errormessage", "message", "status", "user"]
+    CLOCK_FIELD_NUMBER: _ClassVar[int]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    clock: Clock
+    errormessage: str
+    message: _containers.RepeatedCompositeFieldContainer[UnreadMessage]
+    status: int
+    user: _containers.RepeatedCompositeFieldContainer[User]
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., message: _Optional[_Iterable[_Union[UnreadMessage, _Mapping]]] = ..., user: _Optional[_Iterable[_Union[User, _Mapping]]] = ..., clock: _Optional[_Union[Clock, _Mapping]] = ...) -> None: ...
+
 class DeleteReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]
     ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
@@ -54,16 +74,6 @@ class GetRequest(_message.Message):
     USER_FIELD_NUMBER: _ClassVar[int]
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
-
-class JaredMessage(_message.Message):
-    __slots__ = ["content", "errormessage", "status"]
-    CONTENT_FIELD_NUMBER: _ClassVar[int]
-    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    content: str
-    errormessage: str
-    status: int
-    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., content: _Optional[str] = ...) -> None: ...
 
 class ListReply(_message.Message):
     __slots__ = ["errormessage", "status", "user", "wildcard"]
@@ -164,3 +174,11 @@ class UnreadMessage(_message.Message):
     receiver: str
     sender: str
     def __init__(self, sender: _Optional[str] = ..., message: _Optional[str] = ..., receiver: _Optional[str] = ...) -> None: ...
+
+class User(_message.Message):
+    __slots__ = ["online", "user"]
+    ONLINE_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    online: bool
+    user: str
+    def __init__(self, user: _Optional[str] = ..., online: bool = ...) -> None: ...

@@ -509,7 +509,7 @@ def restore_data(other_servers):
     for server in other_servers:
         channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
         stub = chat_pb2_grpc.ClientHandlerStub(channel)
-        response = stub.CheckClock(chat_pb2.ClockRequest())
+        response = stub.CheckClock(chat_pb2.Empty())
         channel.close()
         if response.clock > best_clock:
             best_clock = response.clock
@@ -518,7 +518,7 @@ def restore_data(other_servers):
     if best_server and best_port:
         channel = grpc.insecure_channel(best_server + ":" + best_port)
         stub = chat_pb2_grpc.ClientHandlerStub(channel)
-        response = stub.PullData(chat_pb2.DataRequest())
+        response = stub.PullData(chat_pb2.Empty())
         channel.close()
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
