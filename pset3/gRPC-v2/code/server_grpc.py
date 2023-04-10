@@ -361,47 +361,6 @@ class ServerWorker():
                 print(e)
                 continue
 
-class ServerStatus(Enum):
-    SETUP = 0
-    LEADER = 1
-    FOLLOWER = 2
-    ERROR = 3
-
-class Server():
-    def __init__(self, host="127.0.0.1", port="50051"):
-        self.state = ServerStatus.SETUP
-        self.client_handler = None 
-        self.backup_host = None
-        self.backup_port = None
-        self.host = host
-        self.port = port
-        hostname=socket.gethostname()   
-        IPAddr=socket.gethostbyname(hostname)   
-    
-    # Must be called before using any other method
-    def setup(self):
-        while True:
-            role = input("Role of this server: ")
-            match role:
-                case "leader":
-                    self.state = ServerStatus.LEADER
-                    break
-                case "follower":
-                    self.state = ServerStatus.FOLLOWER
-                    break
-            print("Invalid role entered. Valid options: leader, follower.")
-        # Currently not needed
-        while True:
-            self.backup_host = input("Backup Server IP:  (hit enter if none)")
-            self.backup_port = input("Backup server host: (hit enter if none)")
-            if self.backup_host and self.backup_port:
-                self.client_handler = ClientHandler(self.backup_host, self.backup_port)
-            else:
-                print("WARNING: this server has no backups")
-                self.client_handler = ClientHandler(None, None)
-            break
-
-
 # takes the lock and sets all users offline
 def set_all_offline():
     with lock:
@@ -444,18 +403,6 @@ class ServerMode(Enum):
 # Call to set up backups
 def setup():
     global DATABASE_PATH
-    # Setting up leader/follower roles
-    # while True:
-    #     role = input("Role of this server: ")
-    #     match role:
-    #         case "leader":
-    #             state = ServerStatus.LEADER
-    #             break
-    #         case "follower":
-    #             state = ServerStatus.FOLLOWER
-    #             break
-    #     print("Invalid role entered. Valid options: leader, follower.")
-    state = ServerStatus.LEADER
 
     # Give the server an id
     while True:
