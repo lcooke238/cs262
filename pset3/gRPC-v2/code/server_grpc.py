@@ -299,6 +299,28 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                 con.commit()
         return EMPTY
+    
+    def CheckClock(self, request, context):
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
+            return chat_pb2.Clock(clock=clock)
+
+    def PullData(self, request, context):
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
+            response = chat_pb2.Data(clock=clock)
+            users = cur.execute("SELECT * FROM USERS").fetchall()
+            for user in users:
+                response.users.append(chat_pb2.User(user = user["user"], online = user["online"]))
+            messages = cur.execute("SELECT * FROM messages").fetchall()
+            for message in messages:
+                response.messages.append(chat_pb2.UnreadMessage(sender=message["sender"], message=message["message"], receiver=message["recipient"]))
+            return response
+            
+            
+
 
 class ServerWorker():
     def __init__(self, backups):

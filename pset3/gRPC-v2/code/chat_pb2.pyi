@@ -26,18 +26,14 @@ class Clock(_message.Message):
     def __init__(self, clock: _Optional[int] = ...) -> None: ...
 
 class Data(_message.Message):
-    __slots__ = ["clock", "errormessage", "message", "status", "user"]
+    __slots__ = ["clock", "messages", "users"]
     CLOCK_FIELD_NUMBER: _ClassVar[int]
-    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
-    MESSAGE_FIELD_NUMBER: _ClassVar[int]
-    STATUS_FIELD_NUMBER: _ClassVar[int]
-    USER_FIELD_NUMBER: _ClassVar[int]
+    MESSAGES_FIELD_NUMBER: _ClassVar[int]
+    USERS_FIELD_NUMBER: _ClassVar[int]
     clock: Clock
-    errormessage: str
-    message: _containers.RepeatedCompositeFieldContainer[UnreadMessage]
-    status: int
-    user: _containers.RepeatedCompositeFieldContainer[User]
-    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ..., message: _Optional[_Iterable[_Union[UnreadMessage, _Mapping]]] = ..., user: _Optional[_Iterable[_Union[User, _Mapping]]] = ..., clock: _Optional[_Union[Clock, _Mapping]] = ...) -> None: ...
+    messages: _containers.RepeatedCompositeFieldContainer[UnreadMessage]
+    users: _containers.RepeatedCompositeFieldContainer[User]
+    def __init__(self, users: _Optional[_Iterable[_Union[User, _Mapping]]] = ..., messages: _Optional[_Iterable[_Union[UnreadMessage, _Mapping]]] = ..., clock: _Optional[_Union[Clock, _Mapping]] = ...) -> None: ...
 
 class DeleteReply(_message.Message):
     __slots__ = ["errormessage", "status", "user"]
