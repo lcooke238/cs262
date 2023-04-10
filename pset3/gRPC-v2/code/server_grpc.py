@@ -21,6 +21,7 @@ RESET_DB = False
 # set server address
 BASE_PORT = 50051
 
+# Set server mode
 SERVERMODE = ServerMode.EXTERNAL
 
 
