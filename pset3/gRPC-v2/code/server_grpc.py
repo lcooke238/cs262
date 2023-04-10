@@ -429,6 +429,7 @@ def setup():
 
     # Setting up backups
     backups = []
+    other_servers = []
     for i in range(num_backups):
         while True:
             try:
@@ -445,8 +446,10 @@ def setup():
         # TODO: Fix all this stuff being specific to running internal servers
         if int(backup_port) > BASE_PORT + id:
             backups.append({"host": backup_host, "port": backup_port})
+        other_servers.append({"host": backup_host, "port": backup_port})
     backups.reverse()
-    return id, backups
+    other_servers.reverse()
+    return id, backups, other_servers
 
 # def set_backup_data():
 
@@ -462,7 +465,7 @@ def serve(mode):
         hostname = socket.gethostname()   
         host = socket.gethostbyname(hostname)
 
-    id, backups = setup()
+    id, backups, other_servers = setup()
     port = str(BASE_PORT + id)
 
     # initialize database
@@ -478,6 +481,9 @@ def serve(mode):
     server.start()
     print("server started, listening on " + host + ":" + port)
 
+    input("Hit enter when all servers are up to sync the latest data across all replicas")
+    restore_data()
+
     # shut down nicely
     try:
         server.wait_for_termination()
@@ -490,3 +496,42 @@ def serve(mode):
 
 if __name__ == '__main__':
     serve(ServerMode.EXTERNAL)
+
+
+def restore_data(other_servers):
+    best_server = None
+    best_port = None
+    with lock:
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            my_clock = cur.execute("SELECT clock FROM clock").fetchall()[0]
+            best_clock = my_clock
+    for server in other_servers:
+        channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
+        stub = chat_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.CheckClock(chat_pb2.ClockRequest())
+        channel.close()
+        if response.clock > best_clock:
+            best_clock = response.clock
+            best_server = server["host"]
+            best_port = server["port"]
+    if best_server and best_port:
+        channel = grpc.insecure_channel(best_server + ":" + best_port)
+        stub = chat_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.PullData(chat_pb2.DataRequest())
+        channel.close()
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM users")
+                cur.commit()
+                cur.execute("DELETE FROM messages")
+                cur.commit()
+                for user in response.users:
+                    cur.execute("INSERT INTO users (user, online) VALUES(?, ?)", user.user, user.online)
+                    cur.commit()
+                for message in response.messages:
+                    cur.execute("INSERT INTO messages (sender, message, recipient) VALUES(?, ?, ?)", message.sender, message.message, message.recipient)
+                    cur.commit()
+                cur.execute("UPDATE clock SET clock = ?", response.clock)
+        
