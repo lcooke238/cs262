@@ -9,6 +9,22 @@ import sqlite3
 from enum import Enum
 import socket
 
+class ServerMode(Enum):
+    INTERNAL = 0
+    EXTERNAL = 1
+
+# ADJUSTABLE PARAMETERS BELOW:
+
+# set to true to wipe messages/users database on next run
+RESET_DB = False
+
+# set server address
+BASE_PORT = 50051
+
+SERVERMODE = ServerMode.EXTERNAL
+
+
+
 # 3 uses serialized mode - can be used safely by multiple threads with no restriction
 # Documentation/ and only answers seem to differ about this, so implementing a lock anyway
 sqlite3.threadsafety = 3
@@ -32,14 +48,6 @@ ERROR_DNE = "user does not exist :("
 
 # TODO: Remove temporary Empty object type
 EMPTY = chat_pb2.Empty()
-
-# ADJUSTABLE PARAMETERS BELOW:
-
-# set to true to wipe messages/users database on next run
-RESET_DB = False
-
-# set server address
-BASE_PORT = 50051
 
 
 class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
@@ -424,10 +432,6 @@ def init_db():
         cur.execute("DELETE FROM clock")
         con.commit()
 
-class ServerMode(Enum):
-    INTERNAL = 0
-    EXTERNAL = 1
-
 # Call to set up backups
 def setup():
     global DATABASE_PATH
@@ -527,6 +531,7 @@ def serve(mode):
     else:
         hostname = socket.gethostname()   
         host = socket.gethostbyname(hostname)
+        print(f"Server ip: {host}")
 
     id, backups, other_servers = setup()
     port = str(BASE_PORT + id)
@@ -558,7 +563,7 @@ def serve(mode):
 
 
 if __name__ == '__main__':
-    serve(ServerMode.INTERNAL)
+    serve(SERVERMODE)
 
 
 

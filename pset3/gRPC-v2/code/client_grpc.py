@@ -18,7 +18,7 @@ MAX_USERNAME_LENGTH = 30
 MAX_MESSAGE_LENGTH = 1000
 
 # customize server address
-HOST_IP = "localhost"
+HOST_IP = "10.250.56.195"
 PORT = "50051"
 
 
