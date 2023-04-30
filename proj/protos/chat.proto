@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+option objc_class_prefix = "HLW";
+
+// The ClientHandler service definition.
+service ClientHandler {
+  // Lists users
+  rpc ListUsers (ListRequest) returns (ListReply) {}
+  // Requests to Login
+  rpc Login (LoginRequest) returns (LoginReply) {}
+  // Requests to Logout
+  rpc Logout (LogoutRequest) returns (LogoutReply) {}
+  // Attempts to delete account
+  rpc Delete (DeleteRequest) returns (DeleteReply) {}
+}
+
+message UploadFileRequest{
+        oneof test_oneof {
+              Metadata meta = 2;
+              bytes file = 1;
+        }
+}
+message Metadata{
+     AuthToken auth = 1;
+     FileType image_format = 2;
+}
+
+rpc UploadImage(stream UploadImageRequest) returns (Ack); 
+
+
+message LoginRequest {
+  string user = 1;
+}
+
+message LogoutRequest{
+    string user = 1;
+}
+
+message ListRequest {
+    string args = 1;
+}
+
+message DeleteRequest {
+    string user = 1;
+}
+
+message GetRequest {
+  string user = 1;
+}
+
+message LoginReply {
+  int32 status = 1;
+  string errormessage = 2;
+  string user = 3;
+}
+
+message LogoutReply {
+    int32 status = 1;
+    string errormessage = 2;
+    string user = 3;
+}
+
+message ListReply {
+  int32 status = 1;
+  string errormessage = 2;
+  string wildcard = 3;
+  repeated string user = 4;
+}
+
+message DeleteReply {
+    int32 status = 1;
+    string errormessage = 2;
+    string user = 3;
+}
+
+
+message UnreadMessage {
+  string sender = 1;
+  string message = 2;
+  string receiver = 3;
+}
+
+message GetReply {
+  int32 status = 1;
+  string errormessage = 2;
+  repeated UnreadMessage message = 3;
+}
