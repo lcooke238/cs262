@@ -36,4 +36,4 @@ To run the gRPC version of our chat application you need to:
 
 Note for our group: to update the protos, run this command from within the code or protos folder to rebuild the protos:
 
-```python -m grpc_tools.protoc -I../protos --python_out=. --pyi_out=. --grpc_python_out=. ../protos/chat.proto```
+```python -m grpc_tools.protoc -I../protos --python_out=. --pyi_out=. --grpc_python_out=. ../protos/file.proto```

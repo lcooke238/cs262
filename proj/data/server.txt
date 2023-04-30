@@ -1,0 +1,13 @@
+CREATE TABLE files (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    file BLOB,
+    src VARCHAR(100),
+    MAC INTEGER,
+    clock INTEGER
+);
+
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY,
+    username VARCHAR(100)
+);

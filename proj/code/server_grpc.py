@@ -2,8 +2,8 @@ from concurrent import futures
 import logging
 
 import grpc
-import chat_pb2
-import chat_pb2_grpc
+import file_pb2
+import file_pb2_grpc
 import threading
 import sqlite3
 
@@ -36,7 +36,7 @@ RESET_DB = True
 PORT = "50051"
 
 
-class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
+class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
     # logs a user in
     def Login(self, request, context):
@@ -53,13 +53,13 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
                                 (request.user, True))
                     con.commit()
-                    return chat_pb2.LoginReply(status=SUCCESS,
+                    return file_pb2.LoginReply(status=SUCCESS,
                                                errormessage=NO_ERROR,
                                                user=request.user)
 
                 # currently logged in
                 if logged_in[0][0]:
-                    return chat_pb2.LoginReply(status=FAILURE,
+                    return file_pb2.LoginReply(status=FAILURE,
                                                errormessage=ERROR_DIFF_MACHINE,
                                                user=request.user)
 
@@ -68,7 +68,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("UPDATE users SET online = ? WHERE user = ?",
                                 (True, request.user,))
                     con.commit()
-                    return chat_pb2.LoginReply(status=SUCCESS,
+                    return file_pb2.LoginReply(status=SUCCESS,
                                                errormessage=NO_ERROR,
                                                user=request.user)
 
@@ -87,11 +87,11 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                     cur.execute("UPDATE users SET online = FALSE WHERE user = ?",
                                 (request.user, ))
                     con.commit()
-                    return chat_pb2.LogoutReply(status=SUCCESS,
+                    return file_pb2.LogoutReply(status=SUCCESS,
                                                 errormessage=NO_ERROR,
                                                 user=request.user)
 
-                return chat_pb2.LogoutReply(status=FAILURE,
+                return file_pb2.LogoutReply(status=FAILURE,
                                             errormessage=ERROR_NOT_LOGGED_IN,
                                             user=request.user)
 
@@ -111,9 +111,18 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                                 (request.user, ))
                     con.commit()
 
-                return chat_pb2.DeleteReply(status=SUCCESS,
+                return file_pb2.DeleteReply(status=SUCCESS,
                                             errormessage=NO_ERROR,
                                             user=request.user)
+
+    def Check(self, request, context):
+        return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
+
+    def Upload(self, request_iterator, context):
+        print(request_iterator)
+        print("hey")
+        for request in request_iterator:
+            print(request)
 
     # Lists users in the database using SQL wildcard syntax
     def ListUsers(self, request, context):
@@ -122,7 +131,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
             cur = con.cursor()
 
             # no real way for this to fail so just set as SUCCESS
-            user_list = chat_pb2.ListReply(status=SUCCESS,
+            user_list = file_pb2.ListReply(status=SUCCESS,
                                            wildcard=wildcard,
                                            errormessage="")
 
@@ -144,7 +153,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 target_check = cur.execute("SELECT user FROM users WHERE user = ?",
                                            (request.user, ))
                 if not target_check:
-                    return chat_pb2.SendReply(status=FAILURE,
+                    return file_pb2.SendReply(status=FAILURE,
                                               errormessage=ERROR_DNE,
                                               user=request.user,
                                               message=request.message,
@@ -154,7 +163,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
                             (request.user, request.message, request.target, ))
                 con.commit()
-                return chat_pb2.SendReply(status=SUCCESS,
+                return file_pb2.SendReply(status=SUCCESS,
                                           errormessage=NO_ERROR,
                                           user=request.user,
                                           message=request.message,
@@ -171,7 +180,7 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 user_check = cur.execute("SELECT online FROM users WHERE user = ?",
                                          (request.user, )).fetchall()
                 if not user_check or not user_check[0][0]:
-                    return chat_pb2.GetReply(status=FAILURE,
+                    return file_pb2.GetReply(status=FAILURE,
                                              errormessage=ERROR_DNE)
 
                 # pull unread messages;
@@ -181,10 +190,10 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
                 status = SUCCESS_WITH_DATA if unread_messages else SUCCESS
 
                 # add all unread messages to a packet
-                unread_message_packet = chat_pb2.GetReply(status=status,
+                unread_message_packet = file_pb2.GetReply(status=status,
                                                           errormessage=NO_ERROR)
                 for unread in unread_messages:
-                    single_message = chat_pb2.UnreadMessage(sender=unread[1],
+                    single_message = file_pb2.UnreadMessage(sender=unread[1],
                                                             message=unread[2],
                                                             receiver=request.user)
                     unread_message_packet.message.append(single_message)
@@ -200,12 +209,12 @@ class ClientHandler(chat_pb2_grpc.ClientHandlerServicer):
 
 
 # takes the lock and sets all users offline
-def set_all_offline():
-    with lock:
-        with sqlite3.connect(DATABASE_PATH) as con:
-            cur = con.cursor()
-            cur.execute("UPDATE users SET online = FALSE")
-            con.commit()
+# def set_all_offline():
+#     with lock:
+#         with sqlite3.connect(DATABASE_PATH) as con:
+#             cur = con.cursor()
+#             cur.execute("UPDATE users SET online = FALSE")
+#             con.commit()
 
 
 # initializes database
@@ -241,14 +250,14 @@ def serve():
     logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
     # handling any weird crashes to ensure users can still log in
-    set_all_offline()
+    # set_all_offline()
 
     # initialize database
     init_db()
 
     # run server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    chat_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
+    file_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
     server.add_insecure_port('[::]:' + PORT)
     server.start()
     print("server started, listening on " + PORT)
@@ -256,9 +265,9 @@ def serve():
     # shut down nicely
     try:
         server.wait_for_termination()
-        set_all_offline()
+        # set_all_offline()
     except KeyboardInterrupt:
-        set_all_offline()
+        # set_all_offline()
 
 
 if __name__ == '__main__':

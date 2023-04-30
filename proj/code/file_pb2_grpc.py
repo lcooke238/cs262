@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import chat_pb2 as chat__pb2
+import file_pb2 as file__pb2
 
 
 class ClientHandlerStub(object):
@@ -17,33 +17,33 @@ class ClientHandlerStub(object):
         """
         self.ListUsers = channel.unary_unary(
                 '/ClientHandler/ListUsers',
-                request_serializer=chat__pb2.ListRequest.SerializeToString,
-                response_deserializer=chat__pb2.ListReply.FromString,
+                request_serializer=file__pb2.ListRequest.SerializeToString,
+                response_deserializer=file__pb2.ListReply.FromString,
                 )
         self.Login = channel.unary_unary(
                 '/ClientHandler/Login',
-                request_serializer=chat__pb2.LoginRequest.SerializeToString,
-                response_deserializer=chat__pb2.LoginReply.FromString,
+                request_serializer=file__pb2.LoginRequest.SerializeToString,
+                response_deserializer=file__pb2.LoginReply.FromString,
                 )
         self.Logout = channel.unary_unary(
                 '/ClientHandler/Logout',
-                request_serializer=chat__pb2.LogoutRequest.SerializeToString,
-                response_deserializer=chat__pb2.LogoutReply.FromString,
-                )
-        self.Send = channel.unary_unary(
-                '/ClientHandler/Send',
-                request_serializer=chat__pb2.SendRequest.SerializeToString,
-                response_deserializer=chat__pb2.SendReply.FromString,
-                )
-        self.GetMessages = channel.unary_unary(
-                '/ClientHandler/GetMessages',
-                request_serializer=chat__pb2.GetRequest.SerializeToString,
-                response_deserializer=chat__pb2.GetReply.FromString,
+                request_serializer=file__pb2.LogoutRequest.SerializeToString,
+                response_deserializer=file__pb2.LogoutReply.FromString,
                 )
         self.Delete = channel.unary_unary(
                 '/ClientHandler/Delete',
-                request_serializer=chat__pb2.DeleteRequest.SerializeToString,
-                response_deserializer=chat__pb2.DeleteReply.FromString,
+                request_serializer=file__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=file__pb2.DeleteReply.FromString,
+                )
+        self.Check = channel.unary_unary(
+                '/ClientHandler/Check',
+                request_serializer=file__pb2.CheckRequest.SerializeToString,
+                response_deserializer=file__pb2.CheckReply.FromString,
+                )
+        self.Upload = channel.stream_unary(
+                '/ClientHandler/Upload',
+                request_serializer=file__pb2.UploadRequest.SerializeToString,
+                response_deserializer=file__pb2.UploadReply.FromString,
                 )
 
 
@@ -72,22 +72,22 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Send(self, request, context):
-        """Attempts to Send message
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetMessages(self, request, context):
-        """Attempts to receive new messages
-        """
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
     def Delete(self, request, context):
         """Attempts to delete account
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Check(self, request, context):
+        """Checks a file
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Upload(self, request_iterator, context):
+        """Attempts to upload a file
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -98,33 +98,33 @@ def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'ListUsers': grpc.unary_unary_rpc_method_handler(
                     servicer.ListUsers,
-                    request_deserializer=chat__pb2.ListRequest.FromString,
-                    response_serializer=chat__pb2.ListReply.SerializeToString,
+                    request_deserializer=file__pb2.ListRequest.FromString,
+                    response_serializer=file__pb2.ListReply.SerializeToString,
             ),
             'Login': grpc.unary_unary_rpc_method_handler(
                     servicer.Login,
-                    request_deserializer=chat__pb2.LoginRequest.FromString,
-                    response_serializer=chat__pb2.LoginReply.SerializeToString,
+                    request_deserializer=file__pb2.LoginRequest.FromString,
+                    response_serializer=file__pb2.LoginReply.SerializeToString,
             ),
             'Logout': grpc.unary_unary_rpc_method_handler(
                     servicer.Logout,
-                    request_deserializer=chat__pb2.LogoutRequest.FromString,
-                    response_serializer=chat__pb2.LogoutReply.SerializeToString,
-            ),
-            'Send': grpc.unary_unary_rpc_method_handler(
-                    servicer.Send,
-                    request_deserializer=chat__pb2.SendRequest.FromString,
-                    response_serializer=chat__pb2.SendReply.SerializeToString,
-            ),
-            'GetMessages': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMessages,
-                    request_deserializer=chat__pb2.GetRequest.FromString,
-                    response_serializer=chat__pb2.GetReply.SerializeToString,
+                    request_deserializer=file__pb2.LogoutRequest.FromString,
+                    response_serializer=file__pb2.LogoutReply.SerializeToString,
             ),
             'Delete': grpc.unary_unary_rpc_method_handler(
                     servicer.Delete,
-                    request_deserializer=chat__pb2.DeleteRequest.FromString,
-                    response_serializer=chat__pb2.DeleteReply.SerializeToString,
+                    request_deserializer=file__pb2.DeleteRequest.FromString,
+                    response_serializer=file__pb2.DeleteReply.SerializeToString,
+            ),
+            'Check': grpc.unary_unary_rpc_method_handler(
+                    servicer.Check,
+                    request_deserializer=file__pb2.CheckRequest.FromString,
+                    response_serializer=file__pb2.CheckReply.SerializeToString,
+            ),
+            'Upload': grpc.stream_unary_rpc_method_handler(
+                    servicer.Upload,
+                    request_deserializer=file__pb2.UploadRequest.FromString,
+                    response_serializer=file__pb2.UploadReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -149,8 +149,8 @@ class ClientHandler(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/ListUsers',
-            chat__pb2.ListRequest.SerializeToString,
-            chat__pb2.ListReply.FromString,
+            file__pb2.ListRequest.SerializeToString,
+            file__pb2.ListReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -166,8 +166,8 @@ class ClientHandler(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/Login',
-            chat__pb2.LoginRequest.SerializeToString,
-            chat__pb2.LoginReply.FromString,
+            file__pb2.LoginRequest.SerializeToString,
+            file__pb2.LoginReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -183,42 +183,8 @@ class ClientHandler(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/Logout',
-            chat__pb2.LogoutRequest.SerializeToString,
-            chat__pb2.LogoutReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def Send(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Send',
-            chat__pb2.SendRequest.SerializeToString,
-            chat__pb2.SendReply.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetMessages(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ClientHandler/GetMessages',
-            chat__pb2.GetRequest.SerializeToString,
-            chat__pb2.GetReply.FromString,
+            file__pb2.LogoutRequest.SerializeToString,
+            file__pb2.LogoutReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -234,7 +200,41 @@ class ClientHandler(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/Delete',
-            chat__pb2.DeleteRequest.SerializeToString,
-            chat__pb2.DeleteReply.FromString,
+            file__pb2.DeleteRequest.SerializeToString,
+            file__pb2.DeleteReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Check(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Check',
+            file__pb2.CheckRequest.SerializeToString,
+            file__pb2.CheckReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Upload(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(request_iterator, target, '/ClientHandler/Upload',
+            file__pb2.UploadRequest.SerializeToString,
+            file__pb2.UploadReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

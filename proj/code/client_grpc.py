@@ -1,14 +1,15 @@
 import logging
 import threading
 import grpc
-import chat_pb2
-import chat_pb2_grpc
+import file_pb2
+import file_pb2_grpc
 import sys
 import os
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 import hashlib
-from queue import Queue
+import uuid
+from queue import Queue, SimpleQueue
 
 
 LOG_PATH = "../logs/client_grpc.log"
@@ -26,15 +27,17 @@ MAX_MESSAGE_LENGTH = 1000
 HOST_IP = "localhost"
 PORT = "50051"
 
-
 class EventWatcher(FileSystemEventHandler):
-    def __init__(self):
+    def __init__(self, stub, user_token):
         self.old = 0
         self.delta = 0.1
+        self.stub = stub
+        self.user_token = user_token
+        self.client_clock = 0
 
     def hash_file(self, file):
         with open(file, 'rb', buffering=0) as f:
-            return hashlib.file_digest(f, 'sha256').hexdigest()
+            return hashlib.file_digest(f, 'sha256').digest()
 
     def on_created(self, event):
         return super().on_created(event)
@@ -43,14 +46,42 @@ class EventWatcher(FileSystemEventHandler):
         return super().on_deleted(event)
     
     def on_modified(self, event):
+        # Dodging double detection issue
         statbuf = os.stat(event.src_path)
         new = statbuf.st_mtime
-        if (new - self.old > self.delta):
-            self.old = new
-            print(event)
-            print(self.hash_file(event.src_path))
-            
-        return super().on_modified(event)
+        
+        # By checking if the two events were separated by a small delta time, if not, return
+        if (new - self.old < self.delta):
+            return
+        
+        # Otherwise, update last update time 
+        self.old = new
+
+        # We hash the file
+        hash = self.hash_file(event.src_path)
+        # Get MAC address
+        MAC_addr = hex(uuid.getnode())
+        
+        # We check the file to see if it is the same as on the server (no action needed)
+        request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
+        response = self.stub.Check(request)
+        
+        # If the response tells use we need to send an update, we send
+        if response.sendupdate:
+            # Add metadata
+            send_queue = Queue()
+            send_queue.put(file_pb2.Metadata(clock=self.client_clock, user=self.user_token))
+            # Add 1KB chunks
+            with open(event.src_path) as f:
+                while True:
+                    data = f.read(1024)
+                    if not data:
+                        break
+                    block = bytes(data, "utf-8")
+                    send_queue.put(file_pb2.UploadRequest(file=block))
+            # Send grpc request
+            responses = self.stub.Upload(iter(send_queue.get, None))
+        return
     
     # Unusued methods for now
 
@@ -88,7 +119,7 @@ class Client:
 
         # attempt login on server
         try:
-            response = self.stub.Login(chat_pb2.LoginRequest(user=user))
+            response = self.stub.Login(file_pb2.LoginRequest(user=user))
         except:
             self.handle_server_shutdown()
 
@@ -107,7 +138,7 @@ class Client:
 
     def attempt_logout(self):
         try:
-            response = self.stub.Logout(chat_pb2.LogoutRequest(user=self.user_token))
+            response = self.stub.Logout(file_pb2.LogoutRequest(user=self.user_token))
         except:
             self.handle_server_shutdown()
         if response.status == FAILURE:
@@ -118,7 +149,7 @@ class Client:
 
     def attempt_delete(self):
         try:
-            self.stub.Delete(chat_pb2.DeleteRequest(user=self.user_token))
+            self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
         except:
             self.handle_server_shutdown()
         self.user_token = ""
@@ -163,7 +194,7 @@ class Client:
         return True
 
     def ClientHandler(self, testing=False):
-        self.stub = chat_pb2_grpc.ClientHandlerStub(self.channel)
+        self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
         condition = threading.Condition()
 
         if testing:
@@ -181,7 +212,7 @@ class Client:
             format='%(asctime)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
         path = '.'
-        event_handler = EventWatcher()
+        event_handler = EventWatcher(self.stub, self.user_token)
         # event_handler = LoggingEventHandler()
         observer = Observer()
         observer.schedule(event_handler, path, recursive=True)
@@ -189,6 +220,7 @@ class Client:
 
         while True:
             if not self.server_online:
+                observer.stop()
                 self.handle_server_shutdown()
             try:
                 if self.user_token:
@@ -202,9 +234,9 @@ class Client:
                 else:
                     self.attempt_login(condition)
             except KeyboardInterrupt:  # for ctrl-c interrupt
+                observer.stop()
                 self.attempt_logout()
                 self.channel.close()
-                observer.stop()
                 print("Logging you out!")
                 break
         observer.join()
@@ -213,7 +245,7 @@ class Client:
         while True:
             if self.user_token:
                 try:
-                    response = self.stub.GetMessages(chat_pb2.GetRequest(user=self.user_token))
+                    response = self.stub.GetMessages(file_pb2.GetRequest(user=self.user_token))
                 except:
                     self.server_online = False
                     self.handle_server_shutdown()

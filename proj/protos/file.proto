@@ -12,21 +12,41 @@ service ClientHandler {
   rpc Logout (LogoutRequest) returns (LogoutReply) {}
   // Attempts to delete account
   rpc Delete (DeleteRequest) returns (DeleteReply) {}
+  // Checks a file
+  rpc Check (CheckRequest) returns (CheckReply) {}
+  // Attempts to upload a file
+  rpc Upload (stream UploadRequest) returns (UploadReply) {}
 }
 
-message UploadFileRequest{
-        oneof test_oneof {
-              Metadata meta = 2;
-              bytes file = 1;
-        }
+message CheckRequest {
+  string user = 1;
+  bytes hash = 2;
+  int32 clock = 3;
 }
+
+message CheckReply {
+  int32 status = 1;
+  string errormessage = 2;
+  bool sendupdate = 3;
+}
+
+message UploadRequest{
+  oneof test_oneof {
+        Metadata meta = 2;
+        bytes file = 1;
+  }
+}
+
 message Metadata{
-     AuthToken auth = 1;
-     FileType image_format = 2;
+  int32 clock = 1;
+  string user = 2;
 }
 
-rpc UploadImage(stream UploadImageRequest) returns (Ack); 
-
+message UploadReply {
+  int32 status = 1;
+  string errormessage = 2;
+  bool success = 3;
+}
 
 message LoginRequest {
   string user = 1;
