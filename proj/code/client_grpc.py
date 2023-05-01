@@ -68,9 +68,11 @@ class EventWatcher(FileSystemEventHandler):
         
         # If the response tells use we need to send an update, we send
         if response.sendupdate:
+
             # Add metadata
             send_queue = Queue()
             send_queue.put(file_pb2.Metadata(clock=self.client_clock, user=self.user_token))
+
             # Add 1KB chunks
             with open(event.src_path) as f:
                 while True:
@@ -79,6 +81,10 @@ class EventWatcher(FileSystemEventHandler):
                         break
                     block = bytes(data, "utf-8")
                     send_queue.put(file_pb2.UploadRequest(file=block))
+            
+            # Add sentinel to mark stream termination
+            send_queue.put(None)
+
             # Send grpc request
             responses = self.stub.Upload(iter(send_queue.get, None))
         return
@@ -137,15 +143,19 @@ class Client:
             condition.notify_all()
 
     def attempt_logout(self):
-        try:
-            response = self.stub.Logout(file_pb2.LogoutRequest(user=self.user_token))
-        except:
-            self.handle_server_shutdown()
-        if response.status == FAILURE:
-            print(f"Logout error: {response.errormessage}")
-            return
         self.user_token = ""
         return
+
+        # In case we want to use the online/offline stuff later
+        # try:
+        #     response = self.stub.Logout(file_pb2.LogoutRequest(user=self.user_token))
+        # except:
+        #     self.handle_server_shutdown()
+        # if response.status == FAILURE:
+        #     print(f"Logout error: {response.errormessage}")
+        #     return
+        # self.user_token = ""
+        # return
 
     def attempt_delete(self):
         try:
@@ -220,6 +230,7 @@ class Client:
 
         while True:
             if not self.server_online:
+                print("this problem now")
                 observer.stop()
                 self.handle_server_shutdown()
             try:
@@ -244,16 +255,17 @@ class Client:
     def listen(self, condition):
         while True:
             if self.user_token:
-                try:
-                    response = self.stub.GetMessages(file_pb2.GetRequest(user=self.user_token))
-                except:
-                    self.server_online = False
-                    self.handle_server_shutdown()
-                if response.status == SUCCESS_WITH_DATA:
-                    print("")
-                    for message in response.message:
-                        print(f"\033[94m{message.sender} > \033[0m{message.message}")
-                    print(f"{self.user_token} > ", end="")
+                pass
+                # try:
+                #     response = self.stub.GetMessages(file_pb2.GetRequest(user=self.user_token))
+                # except:
+                #     self.server_online = False
+                #     self.handle_server_shutdown()
+                # if response.status == SUCCESS_WITH_DATA:
+                #     print("")
+                #     for message in response.message:
+                #         print(f"\033[94m{message.sender} > \033[0m{message.message}")
+                #     print(f"{self.user_token} > ", end="")
             else:
                 with condition:
                     condition.wait()

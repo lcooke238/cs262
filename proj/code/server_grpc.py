@@ -14,7 +14,7 @@ sqlite3.threadsafety = 3
 lock = threading.Lock()
 
 LOG_PATH = "../logs/server_grpc.log"
-DATABASE_PATH = "../data/data.db"
+DATABASE_PATH = "../data/server.db"
 
 # statuses
 SUCCESS = 0
@@ -45,32 +45,22 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 cur = con.cursor()
 
                 # check whether already logged in
-                logged_in = cur.execute("SELECT online FROM users WHERE user = ?",
-                                        (request.user,)).fetchall()
+                logged_in = cur.execute("SELECT id FROM users WHERE username = ?",
+                                        (request.user, )).fetchall()
 
                 # user doesn't exist (returned empty list)
                 if not logged_in:
-                    cur.execute("INSERT INTO users (user, online) VALUES (?, ?)",
-                                (request.user, True))
+                    cur.execute("INSERT INTO users (username) VALUES (?)",
+                                (request.user, ))
                     con.commit()
                     return file_pb2.LoginReply(status=SUCCESS,
                                                errormessage=NO_ERROR,
                                                user=request.user)
 
-                # currently logged in
-                if logged_in[0][0]:
-                    return file_pb2.LoginReply(status=FAILURE,
-                                               errormessage=ERROR_DIFF_MACHINE,
-                                               user=request.user)
-
-                # user exists but not currently logged in
-                else:
-                    cur.execute("UPDATE users SET online = ? WHERE user = ?",
-                                (True, request.user,))
-                    con.commit()
-                    return file_pb2.LoginReply(status=SUCCESS,
-                                               errormessage=NO_ERROR,
-                                               user=request.user)
+                # User already existed
+                return file_pb2.LoginReply(status=SUCCESS,
+                                            errormessage=NO_ERROR,
+                                            user=request.user)
 
     # logs a user out
     def Logout(self, request, context):
@@ -80,7 +70,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # they should be logged in to be able to run this,
                 # but just checking to avoid errors
-                logged_in = cur.execute("SELECT user FROM users WHERE user = ?",
+                logged_in = cur.execute("SELECT username FROM users WHERE user = ?",
                                         (request.user, )).fetchall()
 
                 if logged_in and logged_in[0]:
@@ -103,13 +93,13 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # they should be logged in to be able to run this,
                 # but just checking to avoid errors
-                logged_in = cur.execute("SELECT online FROM users WHERE user = ?",
-                                        (request.user, )).fetchall()
+                # logged_in = cur.execute("SELECT online FROM users WHERE user = ?",
+                #                         (request.user, )).fetchall()
 
-                if logged_in:
-                    cur.execute("DELETE FROM users WHERE user = ?",
-                                (request.user, ))
-                    con.commit()
+                # if logged_in:
+                cur.execute("DELETE FROM users WHERE username = ?",
+                            (request.user, ))
+                con.commit()
 
                 return file_pb2.DeleteReply(status=SUCCESS,
                                             errormessage=NO_ERROR,
@@ -119,10 +109,27 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
         return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
 
     def Upload(self, request_iterator, context):
-        print(request_iterator)
-        print("hey")
+        # Creating byte array to reconstruct file
+        file = bytearray()
         for request in request_iterator:
-            print(request)
+            
+            # Pull meta information from header packet
+            if hasattr(request, "meta"):
+                user = request.meta.user
+                clock = request.meta.clock
+
+            # Rebuild file
+            if hasattr(request, "file"):
+                file.extend(request.file)
+        
+        # Update databse
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO files (user_id, file, src, MAC, clock) VALUES (?, ?, ?, ?, ?)",
+                            (10, file, "/not_set", 42, clock, ))
+                con.commit()
+        return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
     # Lists users in the database using SQL wildcard syntax
     def ListUsers(self, request, context):
@@ -267,6 +274,7 @@ def serve():
         server.wait_for_termination()
         # set_all_offline()
     except KeyboardInterrupt:
+        pass
         # set_all_offline()
 
 
