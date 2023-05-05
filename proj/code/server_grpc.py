@@ -143,17 +143,14 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 cur = con.cursor()
 
                 # Upload file
-                cur.execute("INSERT INTO files (filename, filepath, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?)",
-                            (filename, filepath, file, MAC, hash, clock, ))
+                cur.execute("INSERT INTO files (filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?)",
+                            (filename, filepath, filepath + filename, file, MAC, hash, clock, ))
                 con.commit()
 
                 # Find file ID
                 # TODO: Add ORDER ASC by clock or similar and use fetchone() to pull latest
                 id = cur.execute("SELECT id FROM files WHERE filename = ? AND filepath = ? AND MAC = ? AND hash = ?",
                                  (filename, filepath, MAC, hash, )).fetchall()
-                
-                print(f"Hash: {hash}, filename: {filename}, filepath: {filepath}, MAC: {MAC}")
-                print(id)
 
                 # Update ownership table
                 cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
@@ -207,16 +204,78 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                           message=request.message,
                                           target=request.target)
 
+    def file_match(self, client_file, files):
+        latest_hash = None
+        latest_clock = -1
+        found = False
+        for file in files:
+            filename, filepath, file, MAC, hash, clock = file
+            if not(filename == client_file.filename and filepath == client_file.filepath):
+                continue
+            else:
+                if clock > latest_clock:
+                    latest_clock = clock
+                    latest_hash = hash
+                if hash == client_file.hash:
+                    found = True     
+        # If latest version is local version, return latest   
+        if client_file.hash == latest_hash:
+            return "latest"
+    
+        # If otherwise found but not latest, we have an old version
+        if found:
+            return "outdated"
+        
+        # Otherwise we have a very old version, or a new version?
+        return "outdated"
+        
+            
+
     # pulls messages from server to client
     def Sync(self, request, context):
+        user = request.user
+        md = request.metadata
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
 
+                # Pulling file ids that they have access to
                 file_ids = cur.execute("SELECT file_id FROM ownership WHERE username = ?",
                                          (request.user, )).fetchall()
-                
-                files = cur.execute("SELECT * FROM files WHERE id IN ?", (file_ids, )).fetchall()
+
+                # Extracting ids from tuples
+                file_ids = list(map(lambda x: x[0], file_ids))
+
+                # Pull all file information that they have access to
+                files = cur.execute("SELECT filename, filepath, file, MAC, hash, clock FROM files WHERE id IN ?",
+                                     (file_ids, )).fetchall()
+
+                # Going to keep track of up-to-date local files. This will allow us to pull files
+                # That they don't have stored locally
+                synced_local_files = []
+                for client_file in md:
+                    status = self.file_match(client_file, files) 
+                    if status == "latest":
+                        # Update array
+                        synced_local_files.append(client_file.filepath + client_file.filename)
+                    # TODO: Patrick do I need any other cases here? If I don't have the latest file,
+                    # I should always just be pulling right? Also could do with a logic check on my helper function
+
+                to_pull_files = cur.execute("""SELECT filename, filepath, file, MAC, hash, clock FROM files 
+                                            WHERE id IN ? 
+                                            AND NOT  filepath + filename IN ?
+                                            GROUP BY """,
+                                     (file_ids, synced_local_files, )).fetchall()
+
+
+
+                # For each piece of client data (their file)
+                # CHeck version of local file against online files
+                # If exists but not latest, should pull
+                # If exists and is latest, skip to next
+
+                # If there's a file they don't have, pull latest version!
+
 
                 # for md in request.metadata:
                 #     if md.filename in files ...
@@ -238,18 +297,23 @@ def init_db():
     con = sqlite3.connect(DATABASE_PATH, check_same_thread=False)
     cur = con.cursor()
 
-    # create database if necessary
+    # create databases if necessary
+
+    # File table, which stores all file information
     cur.execute("""CREATE TABLE IF NOT EXISTS files 
                 (
                     id INTEGER PRIMARY KEY,
                     filename VARCHAR(100),
                     filepath VARCHAR(100),
+                    src VARCHAR(200),
                     file BLOB,
                     MAC INTEGER,
                     hash BINARY,
                     clock INTEGER
                 )""")
     con.commit()
+
+    # Ownership table to associate users with files, allow shared ownership
     cur.execute("""CREATE TABLE IF NOT EXISTS ownership 
                 (
                     id INTEGER PRIMARY KEY,
@@ -258,6 +322,19 @@ def init_db():
                     permissions INTEGER
                 )""")
     con.commit()
+
+    # Server clock system
+    cur.execute("""CREATE TABLE IF NOT EXISTS clock (
+                    clock INTEGER
+                )""")
+    con.commit()
+    
+    # Ensure we have a clock
+    clock_check = cur.execute("""SELECT * FROM clock""").fetchall()
+    if len(clock_check) == 0: 
+        with lock:
+            cur.execute("INSERT INTO clock (clock) VALUES (0)")
+            con.commit()
 
     # clear database if desired
     if RESET_DB:
