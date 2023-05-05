@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"9\n\x0c\x43heckRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\x12\r\n\x05\x63lock\x18\x03 \x01(\x05\"F\n\nCheckReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x12\n\nsendupdate\x18\x03 \x01(\x08\"H\n\rUploadRequest\x12\x19\n\x04meta\x18\x02 \x01(\x0b\x32\t.MetadataH\x00\x12\x0e\n\x04\x66ile\x18\x01 \x01(\x0cH\x00\x42\x0c\n\ntest_oneof\"\'\n\x08Metadata\x12\r\n\x05\x63lock\x18\x01 \x01(\x05\x12\x0c\n\x04user\x18\x02 \x01(\t\"D\n\x0bUploadReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"@\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"Q\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x1f\n\x07message\x18\x03 \x03(\x0b\x32\x0e.UnreadMessage2\x86\x02\n\rClientHandler\x12\'\n\tListUsers\x12\x0c.ListRequest\x1a\n.ListReply\"\x00\x12%\n\x05Login\x12\r.LoginRequest\x1a\x0b.LoginReply\"\x00\x12(\n\x06Logout\x12\x0e.LogoutRequest\x1a\x0c.LogoutReply\"\x00\x12(\n\x06\x44\x65lete\x12\x0e.DeleteRequest\x1a\x0c.DeleteReply\"\x00\x12%\n\x05\x43heck\x12\r.CheckRequest\x1a\x0b.CheckReply\"\x00\x12*\n\x06Upload\x12\x0e.UploadRequest\x1a\x0c.UploadReply\"\x00(\x01\x42\x06\xa2\x02\x03HLWb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"9\n\x0c\x43heckRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x0c\n\x04hash\x18\x02 \x01(\x0c\x12\r\n\x05\x63lock\x18\x03 \x01(\x05\"F\n\nCheckReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x12\n\nsendupdate\x18\x03 \x01(\x08\"8\n\x0bSyncRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\x12\x1b\n\x08metadata\x18\x02 \x03(\x0b\x32\t.Metadata\"D\n\tSyncReply\x12\x19\n\x04meta\x18\x02 \x01(\x0b\x32\t.MetadataH\x00\x12\x0e\n\x04\x66ile\x18\x01 \x01(\x0cH\x00\x42\x0c\n\ntest_oneof\"H\n\rUploadRequest\x12\x19\n\x04meta\x18\x02 \x01(\x0b\x32\t.MetadataH\x00\x12\x0e\n\x04\x66ile\x18\x01 \x01(\x0cH\x00\x42\x0c\n\ntest_oneof\"f\n\x08Metadata\x12\r\n\x05\x63lock\x18\x01 \x01(\x05\x12\x0c\n\x04user\x18\x02 \x01(\t\x12\x0c\n\x04hash\x18\x03 \x01(\x0c\x12\x0b\n\x03MAC\x18\x04 \x01(\x03\x12\x10\n\x08\x66ilename\x18\x05 \x01(\t\x12\x10\n\x08\x66ilepath\x18\x06 \x01(\t\"D\n\x0bUploadReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0f\n\x07success\x18\x03 \x01(\x08\"\x1c\n\x0cLoginRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1d\n\rLogoutRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1b\n\x0bListRequest\x12\x0c\n\x04\x61rgs\x18\x01 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"\x1a\n\nGetRequest\x12\x0c\n\x04user\x18\x01 \x01(\t\"@\n\nLoginReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"A\n\x0bLogoutReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"Q\n\tListReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x10\n\x08wildcard\x18\x03 \x01(\t\x12\x0c\n\x04user\x18\x04 \x03(\t\"A\n\x0b\x44\x65leteReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x0c\n\x04user\x18\x03 \x01(\t\"B\n\rUnreadMessage\x12\x0e\n\x06sender\x18\x01 \x01(\t\x12\x0f\n\x07message\x18\x02 \x01(\t\x12\x10\n\x08receiver\x18\x03 \x01(\t\"Q\n\x08GetReply\x12\x0e\n\x06status\x18\x01 \x01(\x05\x12\x14\n\x0c\x65rrormessage\x18\x02 \x01(\t\x12\x1f\n\x07message\x18\x03 \x03(\x0b\x32\x0e.UnreadMessage2\xac\x02\n\rClientHandler\x12\'\n\tListUsers\x12\x0c.ListRequest\x1a\n.ListReply\"\x00\x12%\n\x05Login\x12\r.LoginRequest\x1a\x0b.LoginReply\"\x00\x12(\n\x06Logout\x12\x0e.LogoutRequest\x1a\x0c.LogoutReply\"\x00\x12(\n\x06\x44\x65lete\x12\x0e.DeleteRequest\x1a\x0c.DeleteReply\"\x00\x12%\n\x05\x43heck\x12\r.CheckRequest\x1a\x0b.CheckReply\"\x00\x12*\n\x06Upload\x12\x0e.UploadRequest\x1a\x0c.UploadReply\"\x00(\x01\x12$\n\x04Sync\x12\x0c.SyncRequest\x1a\n.SyncReply\"\x00\x30\x01\x42\x06\xa2\x02\x03HLWb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'file_pb2', globals())
@@ -25,34 +25,38 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _CHECKREQUEST._serialized_end=71
   _CHECKREPLY._serialized_start=73
   _CHECKREPLY._serialized_end=143
-  _UPLOADREQUEST._serialized_start=145
-  _UPLOADREQUEST._serialized_end=217
-  _METADATA._serialized_start=219
-  _METADATA._serialized_end=258
-  _UPLOADREPLY._serialized_start=260
-  _UPLOADREPLY._serialized_end=328
-  _LOGINREQUEST._serialized_start=330
-  _LOGINREQUEST._serialized_end=358
-  _LOGOUTREQUEST._serialized_start=360
-  _LOGOUTREQUEST._serialized_end=389
-  _LISTREQUEST._serialized_start=391
-  _LISTREQUEST._serialized_end=418
-  _DELETEREQUEST._serialized_start=420
-  _DELETEREQUEST._serialized_end=449
-  _GETREQUEST._serialized_start=451
-  _GETREQUEST._serialized_end=477
-  _LOGINREPLY._serialized_start=479
-  _LOGINREPLY._serialized_end=543
-  _LOGOUTREPLY._serialized_start=545
-  _LOGOUTREPLY._serialized_end=610
-  _LISTREPLY._serialized_start=612
-  _LISTREPLY._serialized_end=693
-  _DELETEREPLY._serialized_start=695
-  _DELETEREPLY._serialized_end=760
-  _UNREADMESSAGE._serialized_start=762
-  _UNREADMESSAGE._serialized_end=828
-  _GETREPLY._serialized_start=830
-  _GETREPLY._serialized_end=911
-  _CLIENTHANDLER._serialized_start=914
-  _CLIENTHANDLER._serialized_end=1176
+  _SYNCREQUEST._serialized_start=145
+  _SYNCREQUEST._serialized_end=201
+  _SYNCREPLY._serialized_start=203
+  _SYNCREPLY._serialized_end=271
+  _UPLOADREQUEST._serialized_start=273
+  _UPLOADREQUEST._serialized_end=345
+  _METADATA._serialized_start=347
+  _METADATA._serialized_end=449
+  _UPLOADREPLY._serialized_start=451
+  _UPLOADREPLY._serialized_end=519
+  _LOGINREQUEST._serialized_start=521
+  _LOGINREQUEST._serialized_end=549
+  _LOGOUTREQUEST._serialized_start=551
+  _LOGOUTREQUEST._serialized_end=580
+  _LISTREQUEST._serialized_start=582
+  _LISTREQUEST._serialized_end=609
+  _DELETEREQUEST._serialized_start=611
+  _DELETEREQUEST._serialized_end=640
+  _GETREQUEST._serialized_start=642
+  _GETREQUEST._serialized_end=668
+  _LOGINREPLY._serialized_start=670
+  _LOGINREPLY._serialized_end=734
+  _LOGOUTREPLY._serialized_start=736
+  _LOGOUTREPLY._serialized_end=801
+  _LISTREPLY._serialized_start=803
+  _LISTREPLY._serialized_end=884
+  _DELETEREPLY._serialized_start=886
+  _DELETEREPLY._serialized_end=951
+  _UNREADMESSAGE._serialized_start=953
+  _UNREADMESSAGE._serialized_end=1019
+  _GETREPLY._serialized_start=1021
+  _GETREPLY._serialized_end=1102
+  _CLIENTHANDLER._serialized_start=1105
+  _CLIENTHANDLER._serialized_end=1405
 # @@protoc_insertion_point(module_scope)

@@ -21,6 +21,10 @@ SUCCESS = 0
 FAILURE = 1
 SUCCESS_WITH_DATA = 2
 
+# Database constants
+OWNER = 10
+EDITOR = 11
+
 # error messages
 NO_ERROR = ""
 ERROR_DIFF_MACHINE = "user already logged in on different machine"
@@ -30,7 +34,7 @@ ERROR_DNE = "user does not exist :("
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
-RESET_DB = True
+RESET_DB = False
 
 # set server address
 PORT = "50051"
@@ -108,27 +112,54 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
     def Check(self, request, context):
         return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
 
+    # def check_previous_version(user, filename, hash):
+    #     with sqlite3.connect(DATABASE_PATH) as con:
+    #             cur = con.cursor()
+    #             cur.execute("SELECT user_id FROM ")
+
+    # def Sync(self, request, context):
+
+
     def Upload(self, request_iterator, context):
         # Creating byte array to reconstruct file
         file = bytearray()
         for request in request_iterator:
-            
             # Pull meta information from header packet
-            if hasattr(request, "meta"):
+            if request.HasField("meta"):
                 user = request.meta.user
                 clock = request.meta.clock
+                filename = request.meta.filename
+                filepath = request.meta.filepath
+                hash = request.meta.hash
+                MAC = request.meta.MAC
 
             # Rebuild file
-            if hasattr(request, "file"):
+            if request.HasField("file"):
                 file.extend(request.file)
         
         # Update databse
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
-                cur.execute("INSERT INTO files (user_id, file, src, MAC, clock) VALUES (?, ?, ?, ?, ?)",
-                            (10, file, "/not_set", 42, clock, ))
+
+                # Upload file
+                cur.execute("INSERT INTO files (filename, filepath, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?)",
+                            (filename, filepath, file, MAC, hash, clock, ))
                 con.commit()
+
+                # Find file ID
+                # TODO: Add ORDER ASC by clock or similar and use fetchone() to pull latest
+                id = cur.execute("SELECT id FROM files WHERE filename = ? AND filepath = ? AND MAC = ? AND hash = ?",
+                                 (filename, filepath, MAC, hash, )).fetchall()
+                
+                print(f"Hash: {hash}, filename: {filename}, filepath: {filepath}, MAC: {MAC}")
+                print(id)
+
+                # Update ownership table
+                cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
+                             (user, id[0][0], OWNER))
+                con.commit()
+                
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
     # Lists users in the database using SQL wildcard syntax
@@ -177,42 +208,20 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                           target=request.target)
 
     # pulls messages from server to client
-    def GetMessages(self, request, context):
+    def Sync(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
 
-                # checking for an error;
-                # they should be logged in to be running this command
-                user_check = cur.execute("SELECT online FROM users WHERE user = ?",
+                file_ids = cur.execute("SELECT file_id FROM ownership WHERE username = ?",
                                          (request.user, )).fetchall()
-                if not user_check or not user_check[0][0]:
-                    return file_pb2.GetReply(status=FAILURE,
-                                             errormessage=ERROR_DNE)
+                
+                files = cur.execute("SELECT * FROM files WHERE id IN ?", (file_ids, )).fetchall()
 
-                # pull unread messages;
-                # set return status depending on presence of unread messages
-                unread_messages = cur.execute("SELECT * FROM messages WHERE recipient = ?",
-                                              (request.user, )).fetchall()
-                status = SUCCESS_WITH_DATA if unread_messages else SUCCESS
+                # for md in request.metadata:
+                #     if md.filename in files ...
 
-                # add all unread messages to a packet
-                unread_message_packet = file_pb2.GetReply(status=status,
-                                                          errormessage=NO_ERROR)
-                for unread in unread_messages:
-                    single_message = file_pb2.UnreadMessage(sender=unread[1],
-                                                            message=unread[2],
-                                                            receiver=request.user)
-                    unread_message_packet.message.append(single_message)
-
-                # remove those messages from the unread database;
-                # note that we had the lock, so no new messages
-                # could have arrived during this time
-                cur.execute("DELETE FROM messages WHERE recipient = ?",
-                            (request.user, ))
-                con.commit()
-
-                return unread_message_packet
+                yield None
 
 
 # takes the lock and sets all users offline
@@ -230,24 +239,31 @@ def init_db():
     cur = con.cursor()
 
     # create database if necessary
-    cur.execute("""CREATE TABLE IF NOT EXISTS users (
-                       user VARCHAR(100) PRIMARY KEY,
-                       online BOOL
-                   )""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS files 
+                (
+                    id INTEGER PRIMARY KEY,
+                    filename VARCHAR(100),
+                    filepath VARCHAR(100),
+                    file BLOB,
+                    MAC INTEGER,
+                    hash BINARY,
+                    clock INTEGER
+                )""")
     con.commit()
-    cur.execute("""CREATE TABLE IF NOT EXISTS messages (
-                       message_id INTEGER PRIMARY KEY,
-                       sender VARCHAR(100),
-                       message VARCHAR(10000),
-                       recipient VARCHAR(100)
-                   )""")
+    cur.execute("""CREATE TABLE IF NOT EXISTS ownership 
+                (
+                    id INTEGER PRIMARY KEY,
+                    username VARCHAR(100),
+                    file_id INTEGER,
+                    permissions INTEGER
+                )""")
     con.commit()
 
     # clear database if desired
     if RESET_DB:
-        cur.execute("DELETE FROM users")
+        cur.execute("DELETE FROM files")
         con.commit()
-        cur.execute("DELETE FROM messages")
+        cur.execute("DELETE FROM ownership")
         con.commit()
 
 

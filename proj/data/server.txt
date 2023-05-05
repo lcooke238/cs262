@@ -1,13 +1,16 @@
 CREATE TABLE files (
     id INTEGER PRIMARY KEY,
-    user_id INTEGER,
+    filename VARCHAR(100),
+    filepath VARCHAR(100),
     file BLOB,
-    src VARCHAR(100),
     MAC INTEGER,
+    hash BINARY,
     clock INTEGER
 );
 
-CREATE TABLE users (
+CREATE TABLE ownership (
     id INTEGER PRIMARY KEY,
-    username VARCHAR(100)
+    username VARCHAR(100),
+    file_id INTEGER,
+    permissions INTEGER
 );

@@ -108,12 +108,36 @@ class LogoutRequest(_message.Message):
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
 class Metadata(_message.Message):
-    __slots__ = ["clock", "user"]
+    __slots__ = ["MAC", "clock", "filename", "filepath", "hash", "user"]
     CLOCK_FIELD_NUMBER: _ClassVar[int]
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    FILEPATH_FIELD_NUMBER: _ClassVar[int]
+    HASH_FIELD_NUMBER: _ClassVar[int]
+    MAC: int
+    MAC_FIELD_NUMBER: _ClassVar[int]
     USER_FIELD_NUMBER: _ClassVar[int]
     clock: int
+    filename: str
+    filepath: str
+    hash: bytes
     user: str
-    def __init__(self, clock: _Optional[int] = ..., user: _Optional[str] = ...) -> None: ...
+    def __init__(self, clock: _Optional[int] = ..., user: _Optional[str] = ..., hash: _Optional[bytes] = ..., MAC: _Optional[int] = ..., filename: _Optional[str] = ..., filepath: _Optional[str] = ...) -> None: ...
+
+class SyncReply(_message.Message):
+    __slots__ = ["file", "meta"]
+    FILE_FIELD_NUMBER: _ClassVar[int]
+    META_FIELD_NUMBER: _ClassVar[int]
+    file: bytes
+    meta: Metadata
+    def __init__(self, meta: _Optional[_Union[Metadata, _Mapping]] = ..., file: _Optional[bytes] = ...) -> None: ...
+
+class SyncRequest(_message.Message):
+    __slots__ = ["metadata", "user"]
+    METADATA_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    metadata: _containers.RepeatedCompositeFieldContainer[Metadata]
+    user: str
+    def __init__(self, user: _Optional[str] = ..., metadata: _Optional[_Iterable[_Union[Metadata, _Mapping]]] = ...) -> None: ...
 
 class UnreadMessage(_message.Message):
     __slots__ = ["message", "receiver", "sender"]

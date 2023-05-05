@@ -16,6 +16,8 @@ service ClientHandler {
   rpc Check (CheckRequest) returns (CheckReply) {}
   // Attempts to upload a file
   rpc Upload (stream UploadRequest) returns (UploadReply) {}
+  // Attempts to sync files
+  rpc Sync (SyncRequest) returns (stream SyncReply) {}
 }
 
 message CheckRequest {
@@ -30,6 +32,18 @@ message CheckReply {
   bool sendupdate = 3;
 }
 
+message SyncRequest {
+  string user = 1;
+  repeated Metadata metadata = 2;
+}
+
+message SyncReply {
+    oneof test_oneof {
+        Metadata meta = 2;
+        bytes file = 1;
+  }
+}
+
 message UploadRequest{
   oneof test_oneof {
         Metadata meta = 2;
@@ -40,6 +54,10 @@ message UploadRequest{
 message Metadata{
   int32 clock = 1;
   string user = 2;
+  bytes hash = 3;
+  int64 MAC = 4;
+  string filename = 5;
+  string filepath = 6;
 }
 
 message UploadReply {

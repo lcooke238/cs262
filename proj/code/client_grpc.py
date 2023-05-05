@@ -10,6 +10,7 @@ from watchdog.events import LoggingEventHandler, FileSystemEventHandler
 import hashlib
 import uuid
 from queue import Queue, SimpleQueue
+from ast import literal_eval
 
 
 LOG_PATH = "../logs/client_grpc.log"
@@ -18,6 +19,10 @@ LOG_PATH = "../logs/client_grpc.log"
 SUCCESS = 0
 FAILURE = 1
 SUCCESS_WITH_DATA = 2
+
+# Database constants
+OWNER = 10
+EDITOR = 11
 
 # Setting a maximum allowed length for usernames and messages
 MAX_USERNAME_LENGTH = 30
@@ -53,14 +58,18 @@ class EventWatcher(FileSystemEventHandler):
         # By checking if the two events were separated by a small delta time, if not, return
         if (new - self.old < self.delta):
             return
-        
+
+        print(f"\nLocal file update detected: {event.src_path}.")
+
         # Otherwise, update last update time 
         self.old = new
 
         # We hash the file
         hash = self.hash_file(event.src_path)
         # Get MAC address
-        MAC_addr = hex(uuid.getnode())
+        MAC_addr = literal_eval(hex(uuid.getnode()))
+        # Process the event source path
+        filepath, filename = os.path.split(event.src_path)
         
         # We check the file to see if it is the same as on the server (no action needed)
         request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
@@ -71,12 +80,20 @@ class EventWatcher(FileSystemEventHandler):
 
             # Add metadata
             send_queue = Queue()
-            send_queue.put(file_pb2.Metadata(clock=self.client_clock, user=self.user_token))
+            send_queue.put(file_pb2.UploadRequest(meta=
+                            file_pb2.Metadata(clock=0, 
+                                             user=self.user_token,
+                                             hash=hash,
+                                             MAC=MAC_addr,
+                                             filename=filename,
+                                             filepath=filepath)
+                            )
+                        )
 
-            # Add 1KB chunks
+            # Add 10KB chunks
             with open(event.src_path) as f:
                 while True:
-                    data = f.read(1024)
+                    data = f.read(10240)
                     if not data:
                         break
                     block = bytes(data, "utf-8")
@@ -87,6 +104,8 @@ class EventWatcher(FileSystemEventHandler):
 
             # Send grpc request
             responses = self.stub.Upload(iter(send_queue.get, None))
+            if response.status==SUCCESS:
+                print(f"Local file update at {event.src_path} uploaded to server succesfully.")
         return
     
     # Unusued methods for now
@@ -136,7 +155,7 @@ class Client:
         
         # if success, set user token and print success
         self.user_token = response.user
-        print(f"Succesfully logged in as user: {self.user_token}. Unread messages:")
+        print(f"Succesfully logged in as user: {self.user_token}.")
 
         # notify listener thread to start listening
         with condition:
@@ -221,7 +240,7 @@ class Client:
         logging.basicConfig(level=logging.DEBUG,
             format='%(asctime)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
-        path = '.'
+        path = '../files/'
         event_handler = EventWatcher(self.stub, self.user_token)
         # event_handler = LoggingEventHandler()
         observer = Observer()
