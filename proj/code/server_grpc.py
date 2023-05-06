@@ -7,6 +7,7 @@ import file_pb2_grpc
 import threading
 import sqlite3
 import os
+from queue import Queue, SimpleQueue
 
 # TODO: should probably be using os.path.normpath (actually no I think this does opposite of what I want)
 # To get normalized path formatting between Windows and Mac
@@ -129,7 +130,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             # Pull meta information from header packet
             if request.HasField("meta"):
                 user = request.meta.user
-                clock = request.meta.clock
+                # clock = request.meta.clock
                 filename = request.meta.filename
                 filepath = request.meta.filepath
                 hash = request.meta.hash
@@ -168,13 +169,21 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     # Remove oldest version if at capacity
                     if count and count == 3:
                         cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock LIMIT 1",
-                                    (os.path.join(filepath, filename) , ))
+                                    (os.path.join(filepath, filename), ))
                         con.commit()
+
+                clock = cur.execute("SELECT clock FROM clock").fetchone()[0]
+                print(clock)
 
                 # Upload file
                 cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                             (id, filename, filepath, os.path.join(filepath, filename), file, MAC, hash, clock, ))
                 con.commit()
+
+                # Update clock
+                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                con.commit()
+
                 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
@@ -229,16 +238,22 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
         found = False
         for file in files:
             filename, filepath, file, MAC, hash, clock = file
+            print(filename, client_file.filename, filepath, client_file.filepath)
             if not(filename == client_file.filename and filepath == client_file.filepath):
                 continue
             else:
+                # So we have a problem here right now
                 if clock > latest_clock:
                     latest_clock = clock
                     latest_hash = hash
                 if hash == client_file.hash:
-                    found = True     
+                    print("Match!")
+                    found = True
+        print("Mismatch here somehow, don't even know how that's possible")
+        print(client_file.hash, latest_hash)     
         # If latest version is local version, return latest   
         if client_file.hash == latest_hash:
+            print("returned latest")
             return "latest"
     
         # If otherwise found but not latest, we have an old version
@@ -286,38 +301,24 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Going to keep track of up-to-date local files. This will allow us to pull files
                 # That they don't have stored locally
-                synced_local_files = []
-                # print(md)
-                # if md:
-                #     for client_file in md:
-                #         status = self.file_match(client_file, files) 
-                #         if status == "latest":
-                #             # Update array
-                #             synced_local_files.append(os.path.join(client_file.filepath, client_file.filename))
+                # Again pulling trick that there must be at least two items in tuple to behave nicely
+                synced_local_files = [-2, -1]
+                if md:
+                    for client_file in md:
+                        # TODO: This isn't working as intended
+                        print(f"client_file: {client_file}")
+                        status = self.file_match(client_file, files) 
+                        if status == "latest":
+                            # Update array
+                            synced_local_files.append(os.path.join(client_file.filepath, client_file.filename))
                     # TODO: Patrick do I need any other cases here? If I don't have the latest file,
                     # I should always just be pulling right? Also could do with a logic check on my helper function
 
-                # to_pull_files = cur.execute("""SELECT filename, filepath, file, MAC, hash, clock FROM files 
-                #                             WHERE id IN ? 
-                #                             AND NOT src IN ?
-                #                             GROUP BY id""",
-                #                      (file_ids, synced_local_files, )).fetchall()
 
                 # Attempting to get all the files I need to pull
                 # TODO: Think this is gonna have an error with the file path, might be ok though, just think
                 # this isn't Mac-Windows compatible (i.e. will work if all Windows or all Mac, but otherwise problems)
-
-                # https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
-                # query = """SELECT filename, filepath, file, MAC, hash, clock FROM files as a
-                #                 INNER JOIN (
-                #                     SELECT id, MAX(clock)
-                #                     FROM files
-                #                     WHERE id IN {}
-                #                     AND src NOT IN {}
-                #                     GROUP BY id
-                #                 ) AS b on a.id = b.d and a.clock = b.clock 
-                #             """.format(tuple(file_ids), tuple(synced_local_files))
-                
+                print(f"Synced local files: {synced_local_files}")
                 query = """ SELECT filename, filepath, file, MAC, hash, clock 
                             FROM files 
                             WHERE (id, clock) IN 
@@ -328,45 +329,34 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                             )
                             AND id IN {}
                             AND src NOT IN {}""".format(tuple(file_ids), tuple(synced_local_files))
-                print(query)
-
-# For testing purposes
-    #             SELECT filename, filepath, file, MAC, hash, clock FROM files as a
-    #                             INNER JOIN (
-    #                                 SELECT id, MAX(clock) clock
-    #                                   FROM files
-    #                                 WHERE id IN (0, 1, 2, 3, 4, 5, 6, 7)
-    #                                 AND NOT src IN (0)
-                                    
-    #                                 GROUP BY id
-    #                             ) AS b on a.id = b.id and a.clock = b.clock 
-
-    # SELECT * 
-    # FROM files WHERE (id, clock) IN 
-    # ( SELECT id, MAX(clock)
-    # FROM files
-    # GROUP BY id
-    # )
-
+                # Broke something here WHY
                 to_pull_files = cur.execute(query).fetchall()
+                print(f"To pull: {to_pull_files}")
+                send_queue = Queue()
+                if not(to_pull_files):
+                    send_queue.put(file_pb2.SyncReply(will_receive=False))
 
-                print("3")
                 for file in to_pull_files:
                     filename, filepath, file, MAC, hash, clock = file
                     
-                    # Yield metadata for file
-                    yield file_pb2.SyncReply(meta=file_pb2.Metadata(
+                    
+                    send_queue.put(file_pb2.SyncReply(meta=file_pb2.Metadata(
                         clock=clock,
                         user=user,
                         hash=hash,
                         MAC=MAC,
                         filename=filename,
                         filepath=filepath
-                    ))
+                    )))
+
+                    # Yield metadata for file
+
                     chunk_size = 10 * 1024 # 10KB
                     for i in range(0, len(file), chunk_size):
                         end = i + chunk_size if i + chunk_size < len(file) else len(file) -1
-                        yield file_pb2.SyncReply(file=file[i:end])
+                        send_queue.put(file_pb2.SyncReply(file=file[i:end]))
+                send_queue.put(None)
+                return iter(send_queue.get, None)
                                             
 
                 # https://stackoverflow.com/questions/43075449/split-binary-string-into-31bit-strings

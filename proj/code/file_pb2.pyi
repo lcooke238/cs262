@@ -124,12 +124,14 @@ class Metadata(_message.Message):
     def __init__(self, clock: _Optional[int] = ..., user: _Optional[str] = ..., hash: _Optional[bytes] = ..., MAC: _Optional[int] = ..., filename: _Optional[str] = ..., filepath: _Optional[str] = ...) -> None: ...
 
 class SyncReply(_message.Message):
-    __slots__ = ["file", "meta"]
+    __slots__ = ["file", "meta", "will_receive"]
     FILE_FIELD_NUMBER: _ClassVar[int]
     META_FIELD_NUMBER: _ClassVar[int]
+    WILL_RECEIVE_FIELD_NUMBER: _ClassVar[int]
     file: bytes
     meta: Metadata
-    def __init__(self, meta: _Optional[_Union[Metadata, _Mapping]] = ..., file: _Optional[bytes] = ...) -> None: ...
+    will_receive: bool
+    def __init__(self, will_receive: bool = ..., meta: _Optional[_Union[Metadata, _Mapping]] = ..., file: _Optional[bytes] = ...) -> None: ...
 
 class SyncRequest(_message.Message):
     __slots__ = ["metadata", "user"]

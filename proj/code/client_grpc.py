@@ -25,6 +25,9 @@ SUCCESS_WITH_DATA = 2
 OWNER = 10
 EDITOR = 11
 
+# File path
+FILE_PATH = "../files/"
+
 # Setting a maximum allowed length for usernames and messages
 MAX_USERNAME_LENGTH = 30
 MAX_MESSAGE_LENGTH = 1000
@@ -32,6 +35,10 @@ MAX_MESSAGE_LENGTH = 1000
 # customize server address
 HOST_IP = "localhost"
 PORT = "50051"
+
+def hash_file(file):
+    with open(file, 'rb', buffering=0) as f:
+        return hashlib.file_digest(f, 'sha256').digest()
 
 class EventWatcher(FileSystemEventHandler):
     def __init__(self, stub, user_token):
@@ -41,9 +48,7 @@ class EventWatcher(FileSystemEventHandler):
         self.user_token = user_token
         self.client_clock = 0
 
-    def hash_file(self, file):
-        with open(file, 'rb', buffering=0) as f:
-            return hashlib.file_digest(f, 'sha256').digest()
+
 
     def on_created(self, event):
         return super().on_created(event)
@@ -66,7 +71,7 @@ class EventWatcher(FileSystemEventHandler):
         self.old = new
 
         # We hash the file
-        hash = self.hash_file(event.src_path)
+        hash = hash_file(event.src_path)
         # Get MAC address
         MAC_addr = literal_eval(hex(uuid.getnode()))
         # Process the event source path
@@ -139,14 +144,33 @@ class Client:
     def attempt_login(self, condition):
         while True:
             user = input("Please enter a username: ")
-            try:
-                print("please")
-                response = self.stub.Sync(file_pb2.SyncRequest(user="", metadata=None))
-                for r in response:
-                    print(f"response: {r}")
-            except Exception as e:
-                print("something")
-                print(e)
+
+            # Example for Patrick: sync works, now just to actually incorporate it at the appropriate time
+
+            # First building metadata of local files
+            local_files = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
+            request = file_pb2.SyncRequest(user="")
+            MAC_addr = literal_eval(hex(uuid.getnode()))
+            for file in local_files:
+                filepath, filename = os.path.split(file)
+                request.metadata.append(file_pb2.Metadata(clock=0, 
+                                                          user=user, 
+                                                          hash=hash_file(file), 
+                                                          MAC=MAC_addr, 
+                                                          filename=filename, 
+                                                          filepath=filepath))
+
+            responses = self.stub.Sync(request)
+            # if response.HasField("file"):
+            # TODO: Seems like I'm hitting error here iterating through response 
+            print("don't do this I guess")
+            for r in responses:
+                if r.HasField("will_receive"):
+                   break
+                else:
+                    print(r)
+            # for r in response:
+            #     print(f"response: {r}")
             if self.__valid_username(user):
                 break
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
@@ -249,7 +273,7 @@ class Client:
         logging.basicConfig(level=logging.DEBUG,
             format='%(asctime)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
-        path = '../files/'
+        path = FILE_PATH
         event_handler = EventWatcher(self.stub, self.user_token)
         # event_handler = LoggingEventHandler()
         observer = Observer()
