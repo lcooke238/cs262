@@ -319,7 +319,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # TODO: Think this is gonna have an error with the file path, might be ok though, just think
                 # this isn't Mac-Windows compatible (i.e. will work if all Windows or all Mac, but otherwise problems)
                 print(f"Synced local files: {synced_local_files}")
-                query = """ SELECT filename, filepath, file, MAC, hash, clock 
+                query = """ SELECT filename, filepath, src, file, MAC, hash, clock 
                             FROM files 
                             WHERE (id, clock) IN 
                             ( 
@@ -329,7 +329,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                             )
                             AND id IN {}
                             AND src NOT IN {}""".format(tuple(file_ids), tuple(synced_local_files))
-                # Broke something here WHY
+                # TODO: Not checking the src component correctly?
                 to_pull_files = cur.execute(query).fetchall()
                 print(f"To pull: {to_pull_files}")
                 send_queue = Queue()
@@ -337,7 +337,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     send_queue.put(file_pb2.SyncReply(will_receive=False))
 
                 for file in to_pull_files:
-                    filename, filepath, file, MAC, hash, clock = file
+                    filename, filepath, src, file, MAC, hash, clock = file
                     
                     
                     send_queue.put(file_pb2.SyncReply(meta=file_pb2.Metadata(
