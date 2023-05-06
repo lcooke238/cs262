@@ -168,7 +168,8 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     id, count = info[0]
                     # Remove oldest version if at capacity
                     if count and count == 3:
-                        cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock LIMIT 1",
+                        # TODO: Check if this is deleting oldest or newest
+                        cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
                                     (os.path.join(filepath, filename), ))
                         con.commit()
 
@@ -293,6 +294,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Slightly odd fix to Python not allowing single element tuples
                 file_ids.append(-1)
+                file_ids.append(-2)
 
                 # Pull all file information that they have access to
                 # A little bit weird but need this tuple syntax for IN queries

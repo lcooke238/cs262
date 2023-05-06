@@ -163,6 +163,8 @@ class Client:
             responses = self.stub.Sync(request)
             # if response.HasField("file"):
             # TODO: Seems like I'm hitting error here iterating through response 
+            # EDIT: Think I fixed that by adding a check of whether you will receive any data
+            # Don't want to try to for an empty iterator
             print("don't do this I guess")
             for r in responses:
                 if r.HasField("will_receive"):
