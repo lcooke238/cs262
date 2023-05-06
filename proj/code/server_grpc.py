@@ -105,7 +105,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             # Rebuild file
             if request.HasField("file"):
                 file.extend(request.file)
-        
+
         # Standardize file paths:
         unsafe_src = os.path.join(filepath, filename)
         safe_src = unsafe_src.replace("\\", "/")
@@ -143,8 +143,18 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                         print(safe_src)
                         print(count)
                         print(info)
-                        # TODO: Work out why this is causing problems
-                        cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
+                        # cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
+                        #             (safe_src, ))
+                        # fairly certain ORDER BY won't work like this for DELETE
+                        # https://stackoverflow.com/questions/60651362/ms-sql-server-delete-order-by
+                        cur.execute("""
+                                    DELETE FROM files
+                                    WHERE src IN
+                                    (
+                                        SELECT FROM files
+                                        WHERE src = ?
+                                        ORDER BY clock LIMIT 1
+                                    )""",
                                     (safe_src, ))
                         con.commit()
 
@@ -159,7 +169,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # Update clock
                 cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
                 con.commit()
-
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
