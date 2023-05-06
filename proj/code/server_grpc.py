@@ -9,9 +9,6 @@ import sqlite3
 import os
 from queue import Queue, SimpleQueue
 
-# TODO: should probably be using os.path.normpath (actually no I think this does opposite of what I want)
-# To get normalized path formatting between Windows and Mac
-
 # 3 uses serialized mode - can be used safely by multiple threads with no restriction
 # Documentation/ and only answers seem to differ about this, so implementing a lock anyway
 sqlite3.threadsafety = 3
@@ -36,6 +33,9 @@ ERROR_DIFF_MACHINE = "user already logged in on different machine"
 ERROR_NOT_LOGGED_IN = "user not currently logged in"
 ERROR_DNE = "user does not exist :("
 
+# Size of chunks to stream (must match client_grpc.py)
+CHUNK_SIZE = 1024 * 10
+
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
@@ -46,52 +46,17 @@ PORT = "50051"
 
 
 class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
-
     # logs a user in
     def Login(self, request, context):
-        # with lock:
-        #     with sqlite3.connect(DATABASE_PATH) as con:
-        #         cur = con.cursor()
-        #
-        #         # check whether already logged in
-        #         logged_in = cur.execute("SELECT username FROM users WHERE username = ?",
-        #                                 (request.user, )).fetchall()
-        #
-        #         # user doesn't exist (returned empty list)
-        #         if not logged_in:
-        #             cur.execute("INSERT INTO users (username) VALUES (?)",
-        #                         (request.user, ))
-        #             con.commit()
-        #             return file_pb2.LoginReply(status=SUCCESS,
-        #                                        errormessage=NO_ERROR,
-        #                                        user=request.user)
-
         return file_pb2.LoginReply(status=SUCCESS,
                                    errormessage=NO_ERROR,
                                    user=request.user)
 
     # logs a user out
-    def Logout(self, request, context):
-        # with lock:
-        #     with sqlite3.connect(DATABASE_PATH) as con:
-        #         cur = con.cursor()
-        #
-        #         # they should be logged in to be able to run this,
-        #         # but just checking to avoid errors
-        #         logged_in = cur.execute("SELECT username FROM users WHERE user = ?",
-        #                                 (request.user, )).fetchall()
-        #
-        #         if logged_in and logged_in[0]:
-        #             cur.execute("UPDATE users SET online = FALSE WHERE user = ?",
-        #                         (request.user, ))
-        #             con.commit()
-        #             return file_pb2.LogoutReply(status=SUCCESS,
-        #                                         errormessage=NO_ERROR,
-        #                                         user=request.user)
-
-        return file_pb2.LogoutReply(status=FAILURE,
-                                    errormessage=ERROR_NOT_LOGGED_IN,
-                                    user=request.user)
+    # def Logout(self, request, context):
+    #     return file_pb2.LogoutReply(status=FAILURE,
+    #                                 errormessage=ERROR_NOT_LOGGED_IN,
+    #                                 user=request.user)
 
     # deletes a user from the database
     def Delete(self, request, context):
@@ -99,14 +64,22 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
 
-                # they should be logged in to be able to run this,
-                # but just checking to avoid errors
-                # logged_in = cur.execute("SELECT online FROM users WHERE user = ?",
-                #                         (request.user, )).fetchall()
-
-                # if logged_in:
-                cur.execute("DELETE FROM users WHERE username = ?",
+                # remove all ownerships related to this user
+                cur.execute("""
+                            DELETE FROM ownership
+                            WHERE username = ?""",
                             (request.user, ))
+                con.commit()
+
+                # forget about all files which nobody owns
+                cur.execute("""
+                            DELETE FROM files
+                            WHERE id NOT IN
+                            (
+                                SELECT file_id
+                                FROM ownership
+                            )
+                            """)
                 con.commit()
 
                 return file_pb2.DeleteReply(status=SUCCESS,
@@ -115,12 +88,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
     def Check(self, request, context):
         return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
-
-    # def check_previous_version(user, filename, hash):
-    #     with sqlite3.connect(DATABASE_PATH) as con:
-    #             cur = con.cursor()
-    #             cur.execute("SELECT user_id FROM ")
-
 
     def Upload(self, request_iterator, context):
         # Creating byte array to reconstruct file
@@ -187,73 +154,23 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
-    # Lists users in the database using SQL wildcard syntax
-    def ListUsers(self, request, context):
-        wildcard = request.args.strip()
-        with sqlite3.connect(DATABASE_PATH) as con:
-            cur = con.cursor()
-
-            # no real way for this to fail so just set as SUCCESS
-            user_list = file_pb2.ListReply(status=SUCCESS,
-                                           wildcard=wildcard,
-                                           errormessage="")
-
-            # pull users according to SQL wildcard
-            matched_users = cur.execute("SELECT user FROM users WHERE user LIKE ?",
-                                        (wildcard, )).fetchall()
-            for user in matched_users:
-                user_list.user.append(user[0])
-
-            return user_list
-
-    # sends a message from one client to another
-    def Send(self, request, context):
-        with lock:
-            with sqlite3.connect(DATABASE_PATH) as con:
-                cur = con.cursor()
-
-                # check whether the name they gave to send to is valid user
-                target_check = cur.execute("SELECT user FROM users WHERE user = ?",
-                                           (request.user, ))
-                if not target_check:
-                    return file_pb2.SendReply(status=FAILURE,
-                                              errormessage=ERROR_DNE,
-                                              user=request.user,
-                                              message=request.message,
-                                              target=request.target)
-
-                # put message into database
-                cur.execute("INSERT INTO messages (sender, message, recipient) VALUES (?, ?, ?)",
-                            (request.user, request.message, request.target, ))
-                con.commit()
-                return file_pb2.SendReply(status=SUCCESS,
-                                          errormessage=NO_ERROR,
-                                          user=request.user,
-                                          message=request.message,
-                                          target=request.target)
-
-    def latest_ver(self, md, files):
+    def __latest_ver(self, md, files):
         latest_hash = None
         latest_clock = -1
         found = False
         for file in files:
             filename, filepath, file, MAC, hash, clock = file
-            print(filename, md.filename, filepath, md.filepath)
             if not(filename == md.filename and filepath == md.filepath):
                 continue
             else:
-                # So we have a problem here right now
                 if clock > latest_clock:
                     latest_clock = clock
                     latest_hash = hash
                 if hash == md.hash:
-                    print("Match!")
                     found = True
 
-        print(md.hash, latest_hash)
         # If latest version is local version, return latest
         if md.hash == latest_hash:
-            print("returned latest")
             return True
 
         # If otherwise found but not latest, we have an old version
@@ -262,8 +179,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
         # Otherwise we have a very old version, or a new version?
         return False
-
-
 
     # pulls messages from server to client
 
@@ -304,20 +219,14 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # That they don't have stored locally
                 # Again pulling trick that there must be at least two items in tuple to behave nicely
                 synced_local_files = [-2, -1]
-                print("haha")
-                print(md_stream)
                 if md_stream:
                     for md in md_stream:
-                        if self.latest_ver(md, files):
+                        if self.__latest_ver(md, files):
                             # Update array
                             synced_local_files.append(os.path.join(md.filepath, md.filename))
-                    # TODO: Patrick do I need any other cases here? If I don't have the latest file,
-                    # I should always just be pulling right? Also could do with a logic check on my helper function
 
 
                 # Attempting to get all the files I need to pull
-                # TODO: Think this is gonna have an error with the file path, might be ok though, just think
-                # this isn't Mac-Windows compatible (i.e. will work if all Windows or all Mac, but otherwise problems)
                 print(f"Synced local files: {synced_local_files}")
                 query = """ SELECT filename, filepath, src, file, MAC, hash, clock
                             FROM files
@@ -329,16 +238,15 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                             )
                             AND id IN {}
                             AND src NOT IN {}""".format(tuple(file_ids), tuple(synced_local_files))
-                # TODO: Not checking the src component correctly?
                 to_pull_files = cur.execute(query).fetchall()
                 print(f"To pull: {to_pull_files}")
+
                 send_queue = Queue()
                 if not(to_pull_files):
                     send_queue.put(file_pb2.SyncReply(will_receive=False))
 
                 for file in to_pull_files:
                     filename, filepath, src, file, MAC, hash, clock = file
-
 
                     send_queue.put(file_pb2.SyncReply(meta=file_pb2.Metadata(
                         clock=clock,
@@ -350,24 +258,13 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     )))
 
                     # Yield metadata for file
-
-                    chunk_size = 10 * 1024 # 10KB
-                    for i in range(0, len(file), chunk_size):
-                        end = i + chunk_size if i + chunk_size < len(file) else len(file) -1
+                    for i in range(0, len(file), CHUNK_SIZE):
+                        end = i + CHUNK_SIZE if i + CHUNK_SIZE < len(file) else len(file) -1
                         send_queue.put(file_pb2.SyncReply(file=file[i:end]))
                 send_queue.put(None)
                 return iter(send_queue.get, None)
 
                 # https://stackoverflow.com/questions/43075449/split-binary-string-into-31bit-strings
-
-
-# takes the lock and sets all users offline
-# def set_all_offline():
-#     with lock:
-#         with sqlite3.connect(DATABASE_PATH) as con:
-#             cur = con.cursor()
-#             cur.execute("UPDATE users SET online = FALSE")
-#             con.commit()
 
 
 # initializes database
@@ -428,9 +325,6 @@ def serve():
     # initialize logs
     logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
-    # handling any weird crashes to ensure users can still log in
-    # set_all_offline()
-
     # initialize database
     init_db()
 
@@ -444,10 +338,8 @@ def serve():
     # shut down nicely
     try:
         server.wait_for_termination()
-        # set_all_offline()
     except KeyboardInterrupt:
         pass
-        # set_all_offline()
 
 
 if __name__ == '__main__':

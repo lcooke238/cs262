@@ -3,6 +3,7 @@ import threading
 import grpc
 import file_pb2
 import file_pb2_grpc
+from time import sleep
 import sys
 import os
 from watchdog.observers import Observer
@@ -11,8 +12,6 @@ import hashlib
 import uuid
 from queue import Queue, SimpleQueue
 from ast import literal_eval
-
-
 
 LOG_PATH = "../logs/client_grpc.log"
 
@@ -32,6 +31,12 @@ FILE_PATH = os.path.abspath("../files/")
 MAX_USERNAME_LENGTH = 30
 MAX_MESSAGE_LENGTH = 1000
 
+# Size of chunks to stream
+CHUNK_SIZE = 1024 * 10
+
+# Rate at which to poll server for updates in seconds
+SYNC_RATE = 3
+
 # customize server address
 HOST_IP = "localhost"
 PORT = "50051"
@@ -48,46 +53,33 @@ class EventWatcher(FileSystemEventHandler):
         self.user_token = user_token
         self.client_clock = 0
 
-
-
     def on_created(self, event):
         return super().on_created(event)
 
     def on_deleted(self, event):
         return super().on_deleted(event)
 
-    def on_modified(self, event):
-        # Dodging double detection issue
-        statbuf = os.stat(event.src_path)
-        new = statbuf.st_mtime
-
-        # Need to avoid getting this on directories?
-        if event.is_directory:
-            return
-
-        # By checking if the two events were separated by a small delta time, if not, return
-        if (new - self.old < self.delta):
-            return
-
-        print(f"\nLocal file update detected: {event.src_path}.")
-
-        # Otherwise, update last update time 
-        self.old = new
+    def __push(self, path):
+        print(f"\nLocal modification detected at {path}.")
+        logging.info(f"Local modification detected at {path}.")
 
         # We hash the file
-        hash = hash_file(event.src_path)
+        hash = hash_file(path)
         # Get MAC address
         MAC_addr = literal_eval(hex(uuid.getnode()))
         # Process the event source path
-        filepath, filename = os.path.split(event.src_path)
+        filepath, filename = os.path.split(path)
 
         # We check the file to see if it is the same as on the server (no action needed)
         request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
-        response = self.stub.Check(request)
+        try:
+            response = self.stub.Check(request)
+        except Exception as e:
+            logging.error(e)
+            self.shutdown(FAILURE)
 
         # If the response tells use we need to send an update, we send
         if response.sendupdate:
-
             # Add metadata
             send_queue = Queue()
             send_queue.put(file_pb2.UploadRequest(meta=
@@ -101,9 +93,9 @@ class EventWatcher(FileSystemEventHandler):
                         )
 
             # Add 10KB chunks
-            with open(event.src_path) as f:
+            with open(path) as f:
                 while True:
-                    data = f.read(10240)
+                    data = f.read(CHUNK_SIZE)
                     if not data:
                         break
                     block = bytes(data, "utf-8")
@@ -113,15 +105,41 @@ class EventWatcher(FileSystemEventHandler):
             send_queue.put(None)
 
             # Send grpc request
-            response = self.stub.Upload(iter(send_queue.get, None))
-            if response.status==SUCCESS:
-                print(f"Local file update at {event.src_path} uploaded to server succesfully.")
+            try:
+                response = self.stub.Upload(iter(send_queue.get, None))
+            except Exception as e:
+                logging.error(e)
+                self.shutdown(FAILURE)
+
+            if response.status == SUCCESS:
+                print(f"Local modification at {path} uploaded to server successfully.")
+                logging.info(f"Push to server for {path} complete.")
         return
-    
+
+    def on_modified(self, event):
+        # Dodging double detection issue
+        statbuf = os.stat(event.src_path)
+        new = statbuf.st_mtime
+
+        # Need to avoid getting this on directories
+        if event.is_directory:
+            return
+
+        # By checking if the two events were separated by a small delta time, if not, return
+        if (new - self.old < self.delta):
+            return
+
+        # Otherwise, update last update time
+        self.old = new
+
+        # Push modification to server
+        self.__push(event.src_path)
+        return
+
     # Unusued methods for now
 
     # def on_any_event(self, event):
-    #     return super().on_any_event(event) 
+    #     return super().on_any_event(event)
 
     # def on_closed(self, event):
     #     return super().on_closed(event)
@@ -133,7 +151,6 @@ class EventWatcher(FileSystemEventHandler):
     #     return super().on_opened(event)
 
 class Client:
-
     def __init__(self, host=HOST_IP, port=PORT):
         self.host = host
         self.port = port
@@ -148,32 +165,6 @@ class Client:
     def attempt_login(self, condition):
         while True:
             user = input("Please enter a username: ")
-
-            # Example for Patrick: sync works, now just to actually incorporate it at the appropriate time
-
-            # First building metadata of local files
-            local_files = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
-            request = file_pb2.SyncRequest(user=user)
-            MAC_addr = literal_eval(hex(uuid.getnode()))
-            for file in local_files:
-                filepath, filename = os.path.split(file)
-                request.metadata.append(file_pb2.Metadata(clock=0, 
-                                                          user=user, 
-                                                          hash=hash_file(file), 
-                                                          MAC=MAC_addr, 
-                                                          filename=filename, 
-                                                          filepath=filepath))
-
-            responses = self.stub.Sync(request)
-            # if response.HasField("file"):
-            # TODO: Seems like I'm hitting error here iterating through response 
-            # EDIT: Think I fixed that by adding a check of whether you will receive any data
-            # Don't want to try to for an empty iterator
-            for r in responses:
-                if r.HasField("will_receive"):
-                   break
-                else:
-                    print(r)
             if self.__valid_username(user):
                 break
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
@@ -181,8 +172,9 @@ class Client:
         # attempt login on server
         try:
             response = self.stub.Login(file_pb2.LoginRequest(user=user))
-        except:
-            self.handle_server_shutdown()
+        except Exception as e:
+            logging.error(e)
+            self.shutdown(FAILURE)
 
         # if failure, print failure and return; they can attempt again
         if response.status == FAILURE:
@@ -191,7 +183,7 @@ class Client:
 
         # if success, set user token and print success
         self.user_token = response.user
-        print(f"Succesfully logged in as user: {self.user_token}.")
+        print(f"Successfully logged in as user: {self.user_token}.")
 
         # notify listener thread to start listening
         with condition:
@@ -201,22 +193,11 @@ class Client:
         self.user_token = ""
         return
 
-        # In case we want to use the online/offline stuff later
-        # try:
-        #     response = self.stub.Logout(file_pb2.LogoutRequest(user=self.user_token))
-        # except:
-        #     self.handle_server_shutdown()
-        # if response.status == FAILURE:
-        #     print(f"Logout error: {response.errormessage}")
-        #     return
-        # self.user_token = ""
-        # return
-
     def attempt_delete(self):
         try:
-            self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
+            response = self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
         except:
-            self.handle_server_shutdown()
+            self.shutdown(FAILURE)
         self.user_token = ""
         return
 
@@ -227,12 +208,11 @@ class Client:
         print(
         """
               -- Valid commands --
-        \\help -> Gives this list of commands
-        \\quit -> Exits the program
-        \\logout -> logs out of your account
-        \\delete -> deletes your account
-        \\send message -> {target_user} -> sends message to target_user
-        \\list {wildcard} -> lists all users that match the SQL wildcard provided, e.g. \\list % lists all users
+        \\help -> provides the text you're seeing now
+        \\list -> list files you have access to
+        \\logout -> logs you out of your account
+        \\delete -> deletes all of your files from server, logs you out
+        \\quit -> exits the program
         """
             )
 
@@ -263,6 +243,7 @@ class Client:
         condition = threading.Condition()
 
         if testing:
+            logging.info("Testing!")
             self.attempt_login(condition)
             return
 
@@ -271,64 +252,93 @@ class Client:
         thread = threading.Thread(target=self.listen, args=(condition,))
         thread.daemon = True
         thread.start()
+        logging.info("Listener thread up.")
 
         # We setup a thread to monitor file updates on the local machine
-        logging.basicConfig(level=logging.DEBUG,
-            format='%(asctime)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S')
         path = FILE_PATH
 
         while True:
             if not self.server_online:
                 observer.stop()
-                self.handle_server_shutdown()
+                logging.error("Server not online.")
+                self.shutdown(FAILURE)
             try:
                 if self.user_token:
                     command = input(f"{self.user_token} > ")
                     # if \quit is run, quit
                     if not self.process_command(command):
-                        print("See you later!")
-                        self.channel.close()
-                        break
+                        logging.warning("Quitting...")
+                        self.shutdown(SUCCESS)
                 else:
                     self.attempt_login(condition)
+                    logging.info(f"Logged in as {self.user_token}.")
+
+                    # after logging in, begin observer thread
                     event_handler = EventWatcher(self.stub, self.user_token)
                     observer = Observer()
                     observer.schedule(event_handler, path, recursive=True)
                     observer.start()
+                    logging.info("Observer thread up.")
             except KeyboardInterrupt:  # for ctrl-c interrupt
                 observer.stop()
+                logging.warning("Keyboard interrupt.")
                 self.attempt_logout()
-                self.channel.close()
-                print("Logging you out!")
-                break
+                self.shutdown(SUCCESS)
         observer.join()
+
+    def __pull(self):
+        # First building metadata of local files
+        local_files = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
+        request = file_pb2.SyncRequest(user=self.user_token)
+        MAC_addr = literal_eval(hex(uuid.getnode()))
+        for file in local_files:
+            filepath, filename = os.path.split(file)
+            request.metadata.append(file_pb2.Metadata(clock=0,
+                                                        user=self.user_token,
+                                                        hash=hash_file(file),
+                                                        MAC=MAC_addr,
+                                                        filename=filename,
+                                                        filepath=filepath))
+
+        try:
+            responses = self.stub.Sync(request)
+        except Exception as e:
+            logging.error(e)
+            self.shutdown(FAILURE)
+
+        for r in responses:
+            if r.HasField("will_receive"):
+                break
+            else:
+                print(r)
 
     def listen(self, condition):
         while True:
             if self.user_token:
-                pass
-                # try:
-                #     response = self.stub.GetMessages(file_pb2.GetRequest(user=self.user_token))
-                # except:
-                #     self.server_online = False
-                #     self.handle_server_shutdown()
-                # if response.status == SUCCESS_WITH_DATA:
-                #     print("")
-                #     for message in response.message:
-                #         print(f"\033[94m{message.sender} > \033[0m{message.message}")
-                #     print(f"{self.user_token} > ", end="")
+                try:
+                    self.__pull()
+                except Exception as e:
+                    logging.error(e)
+                    self.shutdown(FAILURE)
+                sleep(SYNC_RATE)
             else:
                 with condition:
                     condition.wait()
 
-    def handle_server_shutdown(self):
+    def shutdown(self, status):
         self.channel.close()
-        os._exit(FAILURE)
+        print("Goodbye!")
+        logging.warning("Shutting down.")
+        os._exit(status)
 
     def run(self, testing=False):
         # initialize logs
-        # logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
+        logging.basicConfig(filename=LOG_PATH,
+                            filemode='w',
+                            format='%(asctime)s - %(message)s',
+                            datefmt='%Y-%m-%d %H:%M:%S',
+                            level=logging.DEBUG)
+        logging.info("Starting client...")
 
         self.channel = grpc.insecure_channel(self.host + ":" + self.port)
         self.server_online = True
