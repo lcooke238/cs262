@@ -69,6 +69,7 @@ class EventWatcher(FileSystemEventHandler):
         MAC_addr = literal_eval(hex(uuid.getnode()))
         # Process the event source path
         filepath, filename = os.path.split(path)
+        safe_filepath = filepath.replace("\\", "/")
 
         # We check the file to see if it is the same as on the server (no action needed)
         request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
@@ -76,6 +77,8 @@ class EventWatcher(FileSystemEventHandler):
             response = self.stub.Check(request)
         except Exception as e:
             logging.error(e)
+            print(e)
+            print("hi")
             self.shutdown(FAILURE)
 
         # If the response tells use we need to send an update, we send
@@ -88,7 +91,7 @@ class EventWatcher(FileSystemEventHandler):
                                              hash=hash,
                                              MAC=MAC_addr,
                                              filename=filename,
-                                             filepath=filepath)
+                                             filepath=safe_filepath)
                             )
                         )
 
@@ -109,6 +112,8 @@ class EventWatcher(FileSystemEventHandler):
                 response = self.stub.Upload(iter(send_queue.get, None))
             except Exception as e:
                 logging.error(e)
+                print(e)
+                print("hi here")
                 self.shutdown(FAILURE)
 
             if response.status == SUCCESS:
@@ -174,6 +179,7 @@ class Client:
             response = self.stub.Login(file_pb2.LoginRequest(user=user))
         except Exception as e:
             logging.error(e)
+            print(f"Here: {e}")
             self.shutdown(FAILURE)
 
         # if failure, print failure and return; they can attempt again
@@ -288,7 +294,7 @@ class Client:
 
     def __pull(self):
         # First building metadata of local files
-        local_files = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
+        local_files = [os.path.join(dirpath,f).replace("\\", "/") for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
         request = file_pb2.SyncRequest(user=self.user_token)
         MAC_addr = literal_eval(hex(uuid.getnode()))
         for file in local_files:
@@ -304,13 +310,17 @@ class Client:
             responses = self.stub.Sync(request)
         except Exception as e:
             logging.error(e)
+            print(e)
             self.shutdown(FAILURE)
 
-        for r in responses:
-            if r.HasField("will_receive"):
-                break
-            else:
-                print(r)
+        try:
+            for r in responses:
+                if r.HasField("will_receive"):
+                    break
+                else:
+                    print(r)
+        except Exception as e:
+            print(e)
 
     def listen(self, condition):
         while True:
@@ -319,6 +329,7 @@ class Client:
                     self.__pull()
                 except Exception as e:
                     logging.error(e)
+                    print("Hitting exception here")
                     self.shutdown(FAILURE)
                 sleep(SYNC_RATE)
             else:

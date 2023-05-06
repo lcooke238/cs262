@@ -39,7 +39,7 @@ CHUNK_SIZE = 1024 * 10
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
-RESET_DB = True
+RESET_DB = False
 
 # set server address
 PORT = "50051"
@@ -105,6 +105,11 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             # Rebuild file
             if request.HasField("file"):
                 file.extend(request.file)
+        
+        # Standardize file paths:
+        unsafe_src = os.path.join(filepath, filename)
+        safe_src = unsafe_src.replace("\\", "/")
+        safe_path = filepath.replace("\\", "/")
 
         # Update databse
         with lock:
@@ -113,7 +118,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Find occurences of file in database right now
                 info = cur.execute("SELECT id, COUNT(id) FROM files WHERE src = ?",
-                            (os.path.join(filepath, filename), )).fetchall()
+                            (safe_src, )).fetchall()
 
                 # If it doesn't exist (never been uploaded before)
                 if not info[0][0]:
@@ -135,8 +140,11 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     # Remove oldest version if at capacity
                     if count and count == 3:
                         # TODO: Check if this is deleting oldest or newest
+                        print(safe_src)
+                        print(count)
+                        print(info)
                         cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
-                                    (os.path.join(filepath, filename), ))
+                                    (safe_src, ))
                         con.commit()
 
                 clock = cur.execute("SELECT clock FROM clock").fetchone()[0]
@@ -144,7 +152,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Upload file
                 cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                            (id, filename, filepath, os.path.join(filepath, filename), file, MAC, hash, clock, ))
+                            (id, filename, safe_path, safe_src, file, MAC, hash, clock, ))
                 con.commit()
 
                 # Update clock
@@ -218,28 +226,36 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # Going to keep track of up-to-date local files. This will allow us to pull files
                 # That they don't have stored locally
                 # Again pulling trick that there must be at least two items in tuple to behave nicely
-                synced_local_files = [-2, -1]
+                synced_local_files = []
                 if md_stream:
                     for md in md_stream:
                         if self.__latest_ver(md, files):
                             # Update array
-                            synced_local_files.append(os.path.join(md.filepath, md.filename))
-
+                            synced_local_files.append(os.path.join(md.filepath, md.filename).replace("\\", "/"))
+                
+                synced_local_files.append("1")
+                synced_local_files.append("0")
 
                 # Attempting to get all the files I need to pull
                 print(f"Synced local files: {synced_local_files}")
                 query = """ SELECT filename, filepath, src, file, MAC, hash, clock
                             FROM files
-                            WHERE (id, clock) IN
+                            WHERE src NOT IN {}
+                            AND (id, clock) IN
                             (
                                 SELECT id, MAX(clock)
                                 FROM files
                                 GROUP BY id
                             )
-                            AND id IN {}
-                            AND src NOT IN {}""".format(tuple(file_ids), tuple(synced_local_files))
-                to_pull_files = cur.execute(query).fetchall()
-                print(f"To pull: {to_pull_files}")
+                            AND id IN {}""".format(tuple(synced_local_files), tuple(file_ids), )
+                try:
+                    to_pull_files = cur.execute(query).fetchall()
+                except Exception as e:
+                    print(e)
+                if to_pull_files:
+                    print(f"To pull: {to_pull_files}")
+                else:
+                    print("Nothing to pull")
 
                 send_queue = Queue()
                 if not(to_pull_files):
@@ -259,7 +275,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                     # Yield metadata for file
                     for i in range(0, len(file), CHUNK_SIZE):
-                        end = i + CHUNK_SIZE if i + CHUNK_SIZE < len(file) else len(file) -1
+                        end = i + CHUNK_SIZE if i + CHUNK_SIZE < len(file) else len(file)
                         send_queue.put(file_pb2.SyncReply(file=file[i:end]))
                 send_queue.put(None)
                 return iter(send_queue.get, None)
