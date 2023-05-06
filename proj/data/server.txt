@@ -1,7 +1,10 @@
+file id can't be primary key as want same id for same file with different versions
+
 CREATE TABLE files (
-    id INTEGER PRIMARY KEY,
+    id INTEGER,
     filename VARCHAR(100),
     filepath VARCHAR(100),
+    src VARCHAR(200),
     file BLOB,
     MAC INTEGER,
     hash BINARY,

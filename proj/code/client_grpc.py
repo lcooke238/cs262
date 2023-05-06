@@ -13,6 +13,7 @@ from queue import Queue, SimpleQueue
 from ast import literal_eval
 
 
+
 LOG_PATH = "../logs/client_grpc.log"
 
 # statuses
@@ -103,7 +104,7 @@ class EventWatcher(FileSystemEventHandler):
             send_queue.put(None)
 
             # Send grpc request
-            responses = self.stub.Upload(iter(send_queue.get, None))
+            response = self.stub.Upload(iter(send_queue.get, None))
             if response.status==SUCCESS:
                 print(f"Local file update at {event.src_path} uploaded to server succesfully.")
         return
@@ -138,6 +139,14 @@ class Client:
     def attempt_login(self, condition):
         while True:
             user = input("Please enter a username: ")
+            try:
+                print("please")
+                response = self.stub.Sync(file_pb2.SyncRequest(user="", metadata=None))
+                for r in response:
+                    print(f"response: {r}")
+            except Exception as e:
+                print("something")
+                print(e)
             if self.__valid_username(user):
                 break
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")

@@ -6,6 +6,10 @@ import file_pb2
 import file_pb2_grpc
 import threading
 import sqlite3
+import os
+
+# TODO: should probably be using os.path.normpath (actually no I think this does opposite of what I want)
+# To get normalized path formatting between Windows and Mac
 
 # 3 uses serialized mode - can be used safely by multiple threads with no restriction
 # Documentation/ and only answers seem to differ about this, so implementing a lock anyway
@@ -117,8 +121,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
     #             cur = con.cursor()
     #             cur.execute("SELECT user_id FROM ")
 
-    # def Sync(self, request, context):
-
 
     def Upload(self, request_iterator, context):
         # Creating byte array to reconstruct file
@@ -142,19 +144,36 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
 
+                # Find occurences of file in database right now
+                info = cur.execute("SELECT id, COUNT(id) FROM files WHERE src = ?", 
+                            (os.path.join(filepath, filename), )).fetchall()
+                
+                # If it doesn't exist (never been uploaded before)
+                if not info[0][0]:
+                    # Create a new id
+                    prev_id = cur.execute("SELECT MAX(id) FROM files").fetchone()[0]
+                    if prev_id:
+                        id = prev_id + 1
+                    else:
+                        id = 1
+
+                    # Update ownership table
+                    cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
+                                    (user, id, OWNER))
+                    con.commit()
+                
+                # If it did exist, make sure to clean out super old versions
+                else:
+                    id, count = info[0]
+                    # Remove oldest version if at capacity
+                    if count and count == 3:
+                        cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock LIMIT 1",
+                                    (os.path.join(filepath, filename) , ))
+                        con.commit()
+
                 # Upload file
-                cur.execute("INSERT INTO files (filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?)",
-                            (filename, filepath, filepath + filename, file, MAC, hash, clock, ))
-                con.commit()
-
-                # Find file ID
-                # TODO: Add ORDER ASC by clock or similar and use fetchone() to pull latest
-                id = cur.execute("SELECT id FROM files WHERE filename = ? AND filepath = ? AND MAC = ? AND hash = ?",
-                                 (filename, filepath, MAC, hash, )).fetchall()
-
-                # Update ownership table
-                cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
-                             (user, id[0][0], OWNER))
+                cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                            (id, filename, filepath, os.path.join(filepath, filename), file, MAC, hash, clock, ))
                 con.commit()
                 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
@@ -232,7 +251,17 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             
 
     # pulls messages from server to client
+
+    # Logic sketch
+    # For each piece of client data (their file)
+    # Check version of local file against online files
+    # If exists but not latest, should pull
+    # If exists and is latest, skip to next
+
+    # If there's a file they don't have, pull latest version!
+
     def Sync(self, request, context):
+        print("attempt sync")
         user = request.user
         md = request.metadata
         with lock:
@@ -242,13 +271,15 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # Pulling file ids that they have access to
                 file_ids = cur.execute("SELECT file_id FROM ownership WHERE username = ?",
                                          (request.user, )).fetchall()
-
+                print(f"file_ids {file_ids}")
                 # Extracting ids from tuples
                 file_ids = list(map(lambda x: x[0], file_ids))
+                print(f"file_ids cleaned {file_ids}")
 
                 # Pull all file information that they have access to
-                files = cur.execute("SELECT filename, filepath, file, MAC, hash, clock FROM files WHERE id IN ?",
-                                     (file_ids, )).fetchall()
+                # A little bit weird but need this tuple syntax for IN queries
+                query = "SELECT filename, filepath, file, MAC, hash, clock FROM files WHERE id IN {}".format(tuple(file_ids))
+                files = cur.execute(query).fetchall()
 
                 # Going to keep track of up-to-date local files. This will allow us to pull files
                 # That they don't have stored locally
@@ -257,30 +288,70 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     status = self.file_match(client_file, files) 
                     if status == "latest":
                         # Update array
-                        synced_local_files.append(client_file.filepath + client_file.filename)
+                        synced_local_files.append(os.path.join(client_file.filepath, client_file.filename))
                     # TODO: Patrick do I need any other cases here? If I don't have the latest file,
                     # I should always just be pulling right? Also could do with a logic check on my helper function
 
-                to_pull_files = cur.execute("""SELECT filename, filepath, file, MAC, hash, clock FROM files 
-                                            WHERE id IN ? 
-                                            AND NOT  filepath + filename IN ?
-                                            GROUP BY """,
-                                     (file_ids, synced_local_files, )).fetchall()
+                # to_pull_files = cur.execute("""SELECT filename, filepath, file, MAC, hash, clock FROM files 
+                #                             WHERE id IN ? 
+                #                             AND NOT src IN ?
+                #                             GROUP BY id""",
+                #                      (file_ids, synced_local_files, )).fetchall()
 
+                # Attempting to get all the files I need to pull
+                # TODO: Think this is gonna have an error with the file path, might be ok though, just think
+                # this isn't Mac-Windows compatible (i.e. will work if all Windows or all Mac, but otherwise problems)
 
+                # https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
+                query = """SELECT filename, filepath, file, MAC, hash, clock FROM files as a
+                                INNER JOIN (
+                                    SELECT id, MAX(clock)
+                                    WHERE id IN {}
+                                    AND NOT src IN {}
+                                    FROM files
+                                    GROUP BY id
+                                ) AS b on a.id = b.d and a.clock = b.clock 
+                            """.format(tuple(file_ids), tuple(synced_local_files))
+# For testing purposes
+    #             SELECT filename, filepath, file, MAC, hash, clock FROM files as a
+    #                             INNER JOIN (
+    #                                 SELECT id, MAX(clock) clock
+    #                                   FROM files
+    #                                 WHERE id IN (0, 1, 2, 3, 4, 5, 6, 7)
+    #                                 AND NOT src IN (0)
+                                    
+    #                                 GROUP BY id
+    #                             ) AS b on a.id = b.id and a.clock = b.clock 
 
-                # For each piece of client data (their file)
-                # CHeck version of local file against online files
-                # If exists but not latest, should pull
-                # If exists and is latest, skip to next
+    # SELECT * 
+    # FROM files WHERE (id, clock) IN 
+    # ( SELECT id, MAX(clock)
+    # FROM files
+    # GROUP BY id
+    # )
 
-                # If there's a file they don't have, pull latest version!
+                to_pull_files = cur.execute(query).fetchall()
 
+                print("3")
+                for file in to_pull_files:
+                    filename, filepath, file, MAC, hash, clock = file
+                    
+                    # Yield metadata for file
+                    yield file_pb2.SyncReply(file_pb2.Metadata(
+                        clock=clock,
+                        user=user,
+                        hash=hash,
+                        MAC=MAC,
+                        filename=filename,
+                        filepath=filepath
+                    ))
+                    chunk_size = 10 * 1024 # 10KB
+                    for i in range(0, len(file), chunk_size):
+                        end = i + chunk_size if i + chunk_size < len(file) else len(file) -1
+                        yield file_pb2.SyncReply(file=file[i:end])
+                                            
 
-                # for md in request.metadata:
-                #     if md.filename in files ...
-
-                yield None
+                # https://stackoverflow.com/questions/43075449/split-binary-string-into-31bit-strings
 
 
 # takes the lock and sets all users offline
@@ -302,7 +373,7 @@ def init_db():
     # File table, which stores all file information
     cur.execute("""CREATE TABLE IF NOT EXISTS files 
                 (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER,
                     filename VARCHAR(100),
                     filepath VARCHAR(100),
                     src VARCHAR(200),
