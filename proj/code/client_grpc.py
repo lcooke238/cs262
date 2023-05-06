@@ -26,7 +26,7 @@ OWNER = 10
 EDITOR = 11
 
 # File path
-FILE_PATH = "../files/"
+FILE_PATH = os.path.abspath("../files/")
 
 # Setting a maximum allowed length for usernames and messages
 MAX_USERNAME_LENGTH = 30
@@ -55,12 +55,16 @@ class EventWatcher(FileSystemEventHandler):
 
     def on_deleted(self, event):
         return super().on_deleted(event)
-    
+
     def on_modified(self, event):
         # Dodging double detection issue
         statbuf = os.stat(event.src_path)
         new = statbuf.st_mtime
-        
+
+        # Need to avoid getting this on directories?
+        if event.is_directory:
+            return
+
         # By checking if the two events were separated by a small delta time, if not, return
         if (new - self.old < self.delta):
             return
@@ -76,18 +80,18 @@ class EventWatcher(FileSystemEventHandler):
         MAC_addr = literal_eval(hex(uuid.getnode()))
         # Process the event source path
         filepath, filename = os.path.split(event.src_path)
-        
+
         # We check the file to see if it is the same as on the server (no action needed)
         request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
         response = self.stub.Check(request)
-        
+
         # If the response tells use we need to send an update, we send
         if response.sendupdate:
 
             # Add metadata
             send_queue = Queue()
             send_queue.put(file_pb2.UploadRequest(meta=
-                            file_pb2.Metadata(clock=0, 
+                            file_pb2.Metadata(clock=0,
                                              user=self.user_token,
                                              hash=hash,
                                              MAC=MAC_addr,
@@ -104,7 +108,7 @@ class EventWatcher(FileSystemEventHandler):
                         break
                     block = bytes(data, "utf-8")
                     send_queue.put(file_pb2.UploadRequest(file=block))
-            
+
             # Add sentinel to mark stream termination
             send_queue.put(None)
 
@@ -121,7 +125,7 @@ class EventWatcher(FileSystemEventHandler):
 
     # def on_closed(self, event):
     #     return super().on_closed(event)
-    
+
     # def on_moved(self, event):
     #     return super().on_moved(event)
 
@@ -149,7 +153,7 @@ class Client:
 
             # First building metadata of local files
             local_files = [os.path.join(dirpath,f) for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
-            request = file_pb2.SyncRequest(user="")
+            request = file_pb2.SyncRequest(user=user)
             MAC_addr = literal_eval(hex(uuid.getnode()))
             for file in local_files:
                 filepath, filename = os.path.split(file)
@@ -165,14 +169,11 @@ class Client:
             # TODO: Seems like I'm hitting error here iterating through response 
             # EDIT: Think I fixed that by adding a check of whether you will receive any data
             # Don't want to try to for an empty iterator
-            print("don't do this I guess")
             for r in responses:
                 if r.HasField("will_receive"):
                    break
                 else:
                     print(r)
-            # for r in response:
-            #     print(f"response: {r}")
             if self.__valid_username(user):
                 break
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
@@ -187,7 +188,7 @@ class Client:
         if response.status == FAILURE:
             print(f"Login error: {response.errormessage}")
             return
-        
+
         # if success, set user token and print success
         self.user_token = response.user
         print(f"Succesfully logged in as user: {self.user_token}.")
@@ -276,20 +277,13 @@ class Client:
             format='%(asctime)s - %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')
         path = FILE_PATH
-        event_handler = EventWatcher(self.stub, self.user_token)
-        # event_handler = LoggingEventHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path, recursive=True)
-        observer.start()
 
         while True:
             if not self.server_online:
-                print("this problem now")
                 observer.stop()
                 self.handle_server_shutdown()
             try:
                 if self.user_token:
-
                     command = input(f"{self.user_token} > ")
                     # if \quit is run, quit
                     if not self.process_command(command):
@@ -298,6 +292,10 @@ class Client:
                         break
                 else:
                     self.attempt_login(condition)
+                    event_handler = EventWatcher(self.stub, self.user_token)
+                    observer = Observer()
+                    observer.schedule(event_handler, path, recursive=True)
+                    observer.start()
             except KeyboardInterrupt:  # for ctrl-c interrupt
                 observer.stop()
                 self.attempt_logout()
