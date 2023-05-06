@@ -272,9 +272,12 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 file_ids = cur.execute("SELECT file_id FROM ownership WHERE username = ?",
                                          (request.user, )).fetchall()
                 print(f"file_ids {file_ids}")
+
                 # Extracting ids from tuples
                 file_ids = list(map(lambda x: x[0], file_ids))
-                print(f"file_ids cleaned {file_ids}")
+
+                # Slightly odd fix to Python not allowing single element tuples
+                file_ids.append(-1)
 
                 # Pull all file information that they have access to
                 # A little bit weird but need this tuple syntax for IN queries
@@ -284,11 +287,13 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # Going to keep track of up-to-date local files. This will allow us to pull files
                 # That they don't have stored locally
                 synced_local_files = []
-                for client_file in md:
-                    status = self.file_match(client_file, files) 
-                    if status == "latest":
-                        # Update array
-                        synced_local_files.append(os.path.join(client_file.filepath, client_file.filename))
+                # print(md)
+                # if md:
+                #     for client_file in md:
+                #         status = self.file_match(client_file, files) 
+                #         if status == "latest":
+                #             # Update array
+                #             synced_local_files.append(os.path.join(client_file.filepath, client_file.filename))
                     # TODO: Patrick do I need any other cases here? If I don't have the latest file,
                     # I should always just be pulling right? Also could do with a logic check on my helper function
 
@@ -303,15 +308,28 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # this isn't Mac-Windows compatible (i.e. will work if all Windows or all Mac, but otherwise problems)
 
                 # https://stackoverflow.com/questions/7745609/sql-select-only-rows-with-max-value-on-a-column
-                query = """SELECT filename, filepath, file, MAC, hash, clock FROM files as a
-                                INNER JOIN (
-                                    SELECT id, MAX(clock)
-                                    WHERE id IN {}
-                                    AND NOT src IN {}
-                                    FROM files
-                                    GROUP BY id
-                                ) AS b on a.id = b.d and a.clock = b.clock 
-                            """.format(tuple(file_ids), tuple(synced_local_files))
+                # query = """SELECT filename, filepath, file, MAC, hash, clock FROM files as a
+                #                 INNER JOIN (
+                #                     SELECT id, MAX(clock)
+                #                     FROM files
+                #                     WHERE id IN {}
+                #                     AND src NOT IN {}
+                #                     GROUP BY id
+                #                 ) AS b on a.id = b.d and a.clock = b.clock 
+                #             """.format(tuple(file_ids), tuple(synced_local_files))
+                
+                query = """ SELECT filename, filepath, file, MAC, hash, clock 
+                            FROM files 
+                            WHERE (id, clock) IN 
+                            ( 
+                                SELECT id, MAX(clock)
+                                FROM files
+                                GROUP BY id
+                            )
+                            AND id IN {}
+                            AND src NOT IN {}""".format(tuple(file_ids), tuple(synced_local_files))
+                print(query)
+
 # For testing purposes
     #             SELECT filename, filepath, file, MAC, hash, clock FROM files as a
     #                             INNER JOIN (
@@ -337,7 +355,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                     filename, filepath, file, MAC, hash, clock = file
                     
                     # Yield metadata for file
-                    yield file_pb2.SyncReply(file_pb2.Metadata(
+                    yield file_pb2.SyncReply(meta=file_pb2.Metadata(
                         clock=clock,
                         user=user,
                         hash=hash,
