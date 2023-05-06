@@ -313,14 +313,48 @@ class Client:
             print(e)
             self.shutdown(FAILURE)
 
+
+        data = bytearray()
+        file_received = False
+        filename = None
+        filepath = None
+        for r in responses:
+            if r.HasField("will_receive"):
+                break
+            else:
+                try:
+                    if r.HasField("meta"):
+                        if file_received:
+                            print()
+                            path = os.path.abspath(filepath)
+                            print(path)
+                            os.makedirs(path, exist_ok=True)
+                            with open(os.path.join(filepath, filename), "wb") as f:
+                                f.write(data)
+                                data = bytearray()
+
+                        filename = r.meta.filename
+                        filepath = r.meta.filepath
+                        file_received = True
+                        print(filepath)
+                        print(r.meta.filepath)
+                    else:
+                        data.extend(r.file)
+                except Exception as e:
+                    print(e)
+
+        # Catch last file
         try:
-            for r in responses:
-                if r.HasField("will_receive"):
-                    break
-                else:
-                    print(r)
+            if data != b"":
+                path = os.path.abspath(filepath)
+                os.makedirs(path, exist_ok=True)
+                with open(os.path.join(filepath, filename), "wb") as f:
+                    f.write(data)
+                    data = bytearray()
         except Exception as e:
+            print("Problem here")
             print(e)
+
 
     def listen(self, condition):
         while True:

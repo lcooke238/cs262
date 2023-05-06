@@ -143,6 +143,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                         print(safe_src)
                         print(count)
                         print(info)
+                        # TODO: Work out why this is causing problems
                         cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
                                     (safe_src, ))
                         con.commit()
