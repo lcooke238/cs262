@@ -304,7 +304,7 @@ class Client:
         """
               -- Valid commands --
         \\help -> provides the text you're seeing now
-        \\list -> list files you have access to
+        \\list -> lists files you have access to
         \\logout -> logs you out of your account
         \\delete -> deletes all of your files from server, logs you out
         \\quit -> exits the program
@@ -312,7 +312,7 @@ class Client:
             )
 
     def process_command(self, command):
-        if len(command) < 5:
+        if (len(command) < 5):
             self.handle_invalid_command(command)
             return True
         if command[0:5] == "\\help":
@@ -444,6 +444,7 @@ class Client:
                         filename = r.meta.filename
                         filepath = r.meta.filepath
                         file_received = True
+                        print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
                     else:
                         data.extend(r.file)
                 except Exception as e:
@@ -457,6 +458,7 @@ class Client:
                 with open(os.path.join(filepath, filename), "wb") as f:
                     f.write(data)
                     data = bytearray()
+            print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
         except Exception as e:
             print("Problem here")
             print(e)
@@ -470,7 +472,7 @@ class Client:
                     safe = False
                     while self.attempt_backup_connect():
                         try:
-                            if self.user_token:
+                            if (self.user_token):
                                 self.__pull()
                             else:
                                 self.attempt_login(condition)
