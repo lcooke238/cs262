@@ -24,7 +24,7 @@ service ClientHandler {
   // Methods to be used by ServerWorkers
   rpc UploadAddNew (UploadAddNewRequest) returns (Empty) {}
   rpc UploadRemoveOld (UploadRemoveOldRequest) returns (Empty) {}
-  rpc UploadHelper (stream UploadHelperRequest) returns (Empty) {}
+  rpc UploadHelper (UploadHelperRequest) returns (Empty) {}
   rpc DeleteHelper (DeleteRequest) returns (Empty) {}
 
   rpc CheckClock (Empty) returns (Clock) {}

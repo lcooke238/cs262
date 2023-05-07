@@ -116,7 +116,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Write changes to backups
                 worker = ServerWorker(self.backups)
-                worker.DeleteHelper(request.user)
+                worker.delete_helper(request.user)
 
         return file_pb2.DeleteReply(status=SUCCESS,
                                     errormessage=NO_ERROR,
@@ -176,7 +176,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                     # Write change to backups
                     worker = ServerWorker(self.backups)
-                    worker.UploadAddNew(user, id)
+                    worker.upload_add_new(user, id)
 
                 # If it did exist, make sure to clean out super old versions
                 else:
@@ -195,7 +195,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                         # Write change to backups
                         worker = ServerWorker(self.backups)
-                        worker.UploadRemoveOld(safe_src, count - 2)
+                        worker.upload_remove_old(safe_src, count - 2)
 
                 clock = cur.execute("SELECT current_clock FROM server_clock").fetchone()[0]
                 meta = file_pb2.Metadata(
@@ -218,7 +218,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # Write changes to backups
                 worker = ServerWorker(self.backups)
-                worker.UploadHelper(id, meta, safe_src, file)
+                worker.upload_helper(id, meta, safe_src, file)
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
@@ -368,6 +368,8 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
         return EMPTY
 
     def UploadHelper(self, request, context):
+        print("IN UploadHelper")
+        print(request)
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
@@ -471,7 +473,7 @@ class ServerWorker():
             try:
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = file_pb2_grpc.ClientHandlerStub(channel)
-                stub.UploadHelper(file_pb2.UploadHelperRequest(id=id, meta=meta, src=src, file=file))
+                stub.UploadHelper(file_pb2.UploadHelperRequest(id=id, meta=meta, src=src, file=bytes(file)))
                 channel.close()
             except Exception as e:
                 logging.error(e)
@@ -623,7 +625,7 @@ def restore_data(other_servers):
                                 (file.id, file.filename, file.filepath, file.src, file.file, file.MAC, file.hash, file.clock, ))
                     con.commit()
                 for ownership in response.ownerships:
-                    cur.execute("INSERT INTO ownerships (username, file_id, permissions) VALUES (?, ?, ?)",
+                    cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
                                 (ownership.username, ownership.file_id, ownership.permissions, ))
                     con.commit()
                 cur.execute("UPDATE server_clock SET current_clock = ?", (response.clock.clock, ))

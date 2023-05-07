@@ -65,7 +65,7 @@ class ClientHandlerStub(object):
                 request_serializer=file__pb2.UploadRemoveOldRequest.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
-        self.UploadHelper = channel.stream_unary(
+        self.UploadHelper = channel.unary_unary(
                 '/ClientHandler/UploadHelper',
                 request_serializer=file__pb2.UploadHelperRequest.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
@@ -160,7 +160,7 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def UploadHelper(self, request_iterator, context):
+    def UploadHelper(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -237,7 +237,7 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     request_deserializer=file__pb2.UploadRemoveOldRequest.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
             ),
-            'UploadHelper': grpc.stream_unary_rpc_method_handler(
+            'UploadHelper': grpc.unary_unary_rpc_method_handler(
                     servicer.UploadHelper,
                     request_deserializer=file__pb2.UploadHelperRequest.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
@@ -439,7 +439,7 @@ class ClientHandler(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def UploadHelper(request_iterator,
+    def UploadHelper(request,
             target,
             options=(),
             channel_credentials=None,
@@ -449,7 +449,7 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/ClientHandler/UploadHelper',
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/UploadHelper',
             file__pb2.UploadHelperRequest.SerializeToString,
             file__pb2.Empty.FromString,
             options, channel_credentials,
