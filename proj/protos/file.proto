@@ -8,8 +8,8 @@ service ClientHandler {
   rpc ListUsers (ListRequest) returns (ListReply) {}
   // Requests to Login
   rpc Login (LoginRequest) returns (LoginReply) {}
-  // Requests to Logout
-  rpc Logout (LogoutRequest) returns (LogoutReply) {}
+  // Lists files available to user
+  rpc List (ListRequest) returns (ListReply) {}
   // Attempts to delete account
   rpc Delete (DeleteRequest) returns (DeleteReply) {}
   // Checks a file
@@ -18,6 +18,44 @@ service ClientHandler {
   rpc Upload (stream UploadRequest) returns (UploadReply) {}
   // Attempts to sync files
   rpc Sync (SyncRequest) returns (stream SyncReply) {}
+  // Creates backup chain
+  rpc GetBackups (BackupRequest) returns (BackupReply) {}
+
+  // Methods to be used by ServerWorkers
+  rpc UploadAddNew (UploadAddNewRequest) returns (Empty) {}
+  rpc UploadRemoveOld (UploadRemoveOldRequest) returns (Empty) {}
+  rpc UploadHelper (stream UploadHelperRequest) returns (Empty) {}
+  rpc DeleteHelper (DeleteRequest) returns (Empty) {}
+
+  rpc CheckClock (Empty) returns (Clock) {}
+  rpc PullData (Empty) returns (Data) {}
+}
+
+message Clock {
+  int64 clock = 1;
+}
+
+message File {
+  int32 id = 1;
+  string filename = 2;
+  string filepath = 3;
+  string src = 4;
+  bytes file = 5;
+  int64 MAC = 6;
+  bytes hash = 7;
+  int64 clock = 8;
+}
+
+message Ownership {
+  string username = 1;
+  int32 file_id = 2;
+  int32 permissions = 3;
+}
+
+message Data {
+  Clock clock = 1;
+  repeated File files = 2;
+  repeated Ownership ownerships = 3;
 }
 
 message CheckRequest {
@@ -32,6 +70,20 @@ message CheckReply {
   bool sendupdate = 3;
 }
 
+message ServerInfo {
+  string host = 1;
+  string port = 2;
+}
+
+message BackupRequest {
+}
+
+message BackupReply {
+  int32 status = 1;
+  string errormessage = 2;
+  repeated ServerInfo serverinfo = 3;
+}
+
 message SyncRequest {
   string user = 1;
   repeated Metadata metadata = 2;
@@ -39,8 +91,9 @@ message SyncRequest {
 
 message SyncReply {
     oneof test_oneof {
+        bool will_receive = 1;
         Metadata meta = 2;
-        bytes file = 1;
+        bytes file = 3;
   }
 }
 
@@ -49,6 +102,23 @@ message UploadRequest{
         Metadata meta = 2;
         bytes file = 1;
   }
+}
+
+message UploadAddNewRequest {
+  string user = 1;
+  int32 id = 2;
+}
+
+message UploadRemoveOldRequest {
+  string src = 1;
+  int32 count_minus_2 = 2;
+}
+
+message UploadHelperRequest {
+  int32 id = 1;
+  Metadata meta = 2;
+  string src = 3;
+  bytes file = 4;
 }
 
 message Metadata{
@@ -70,20 +140,12 @@ message LoginRequest {
   string user = 1;
 }
 
-message LogoutRequest{
-    string user = 1;
-}
-
 message ListRequest {
-    string args = 1;
+  string user = 1;
 }
 
 message DeleteRequest {
     string user = 1;
-}
-
-message GetRequest {
-  string user = 1;
 }
 
 message LoginReply {
@@ -92,17 +154,10 @@ message LoginReply {
   string user = 3;
 }
 
-message LogoutReply {
-    int32 status = 1;
-    string errormessage = 2;
-    string user = 3;
-}
-
 message ListReply {
   int32 status = 1;
   string errormessage = 2;
-  string wildcard = 3;
-  repeated string user = 4;
+  repeated string files = 3;
 }
 
 message DeleteReply {
@@ -111,15 +166,6 @@ message DeleteReply {
     string user = 3;
 }
 
+message Empty {
 
-message UnreadMessage {
-  string sender = 1;
-  string message = 2;
-  string receiver = 3;
-}
-
-message GetReply {
-  int32 status = 1;
-  string errormessage = 2;
-  repeated UnreadMessage message = 3;
 }

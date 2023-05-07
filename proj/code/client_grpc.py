@@ -35,7 +35,7 @@ MAX_MESSAGE_LENGTH = 1000
 CHUNK_SIZE = 1024 * 10
 
 # Rate at which to poll server for updates in seconds
-SYNC_RATE = 60
+SYNC_RATE = 4
 
 # customize server address
 HOST_IP = "localhost"
@@ -163,6 +163,32 @@ class Client:
         self.stub = None
         self.user_token = ""
         self.server_online = False
+        self.backups = []
+
+    def attempt_backup_connect(self):
+        if not self.backups:
+            return False
+        backup = self.backups.pop()
+        # Set host and port to new settings
+        self.host = backup.host
+        self.port = backup.port
+        # Update the channel, closing the previous
+        self.channel.close()
+        self.channel = grpc.insecure_channel(self.host + ":" + self.port)
+        self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
+        return True
+
+    def attempt_setup_backups(self):
+        response = self.stub.GetBackups(file_pb2.BackupRequest())
+        try:
+            for backup in response.serverinfo:
+                self.backups.append(backup)
+        except:
+            while self.attempt_backup_connect():
+                if self.attempt_setup_backups():
+                    return True
+            return False
+        return True
 
     def __valid_username(self, user):
         return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
@@ -175,12 +201,7 @@ class Client:
             print(f"Invalid username - please provide an alphanumeric username of up to {MAX_USERNAME_LENGTH} characters.")
 
         # attempt login on server
-        try:
-            response = self.stub.Login(file_pb2.LoginRequest(user=user))
-        except Exception as e:
-            logging.error(e)
-            print(f"Here: {e}")
-            self.shutdown(FAILURE)
+        response = self.stub.Login(file_pb2.LoginRequest(user=user))
 
         # if failure, print failure and return; they can attempt again
         if response.status == FAILURE:
@@ -199,11 +220,25 @@ class Client:
         self.user_token = ""
         return
 
+    def attempt_list(self):
+        response = self.stub.List(file_pb2.ListRequest(user=self.user_token))
+
+        # if failed, print failure and return
+        if response.status == FAILURE:
+            print(f"List users error: {response.errormessage}")
+            return
+
+        # if success, print users that match the wildcard provided
+        if response.files:
+            print(f"Files available to you:")
+            for file in response.files:
+                print(file)
+        else:
+            print("You have no files available.")
+        return
+
     def attempt_delete(self):
-        try:
-            response = self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
-        except:
-            self.shutdown(FAILURE)
+        response = self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
         self.user_token = ""
         return
 
@@ -229,6 +264,9 @@ class Client:
         if command[0:5] == "\\help":
             self.display_command_help()
             return True
+        if command[0:5] == "\\list":
+            self.attempt_list()
+            return True
         if command[0:5] == "\\quit":
             self.attempt_logout()
             return False
@@ -247,6 +285,9 @@ class Client:
     def ClientHandler(self, testing=False):
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
         condition = threading.Condition()
+
+        # try to setup backups
+        self.attempt_setup_backups()
 
         if testing:
             logging.info("Testing!")
@@ -290,6 +331,21 @@ class Client:
                 logging.warning("Keyboard interrupt.")
                 self.attempt_logout()
                 self.shutdown(SUCCESS)
+            except Exception as e:
+                safe = False
+                while self.attempt_backup_connect():
+                    try:
+                        if self.user_token:
+                            self.process_command(command)
+                        else:
+                            self.attempt_login(condition)
+                        safe = True
+                        break
+                    except:
+                        continue
+                if not safe:
+                    logging.error(e)
+                    self.shutdown(FAILURE)
         observer.join()
 
     def __pull(self):
@@ -355,16 +411,26 @@ class Client:
             print("Problem here")
             print(e)
 
-
     def listen(self, condition):
         while True:
             if self.user_token:
                 try:
                     self.__pull()
                 except Exception as e:
-                    logging.error(e)
-                    print("Hitting exception here")
-                    self.shutdown(FAILURE)
+                    safe = False
+                    while self.attempt_backup_connect():
+                        try:
+                            if self.user_token:
+                                self.__pull()
+                            else:
+                                self.attempt_login(condition)
+                            safe = True
+                            break
+                        except:
+                            continue
+                    if not safe:
+                        logging.error(e)
+                        self.shutdown(FAILURE)
                 sleep(SYNC_RATE)
             else:
                 with condition:

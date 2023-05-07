@@ -33,6 +33,8 @@ ERROR_DIFF_MACHINE = "user already logged in on different machine"
 ERROR_NOT_LOGGED_IN = "user not currently logged in"
 ERROR_DNE = "user does not exist :("
 
+EMPTY = file_pb2.Empty()
+
 # Size of chunks to stream (must match client_grpc.py)
 CHUNK_SIZE = 1024 * 10
 
@@ -42,21 +44,51 @@ CHUNK_SIZE = 1024 * 10
 RESET_DB = False
 
 # set server address
-PORT = "50051"
+BASE_PORT = 50051
 
 
 class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
+    def __init__(self, backups):
+        self.backups = backups
+
+    # get backup servers
+    def GetBackups(self, request, context):
+        response = file_pb2.BackupReply(status=0, errormessage="")
+        for backup in self.backups:
+            response.serverinfo.append(file_pb2.ServerInfo(host=backup["host"], port=backup["port"]))
+        return response
+
     # logs a user in
     def Login(self, request, context):
         return file_pb2.LoginReply(status=SUCCESS,
                                    errormessage=NO_ERROR,
                                    user=request.user)
 
-    # logs a user out
-    # def Logout(self, request, context):
-    #     return file_pb2.LogoutReply(status=FAILURE,
-    #                                 errormessage=ERROR_NOT_LOGGED_IN,
-    #                                 user=request.user)
+    # lists files available to you
+    def List(self, request, context):
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+
+            # no real way for this to fail so just set as SUCCESS
+            files = file_pb2.ListReply(status=SUCCESS,
+                                       errormessage="")
+
+            # pull available files according to current user token
+            files_available = cur.execute("""
+                                          SELECT filename
+                                          FROM files
+                                          WHERE id IN
+                                          (
+                                              SELECT file_id
+                                              FROM ownership
+                                              WHERE username = ?
+                                          )
+                                          """,
+                                            (request.user, )).fetchall()
+            for file in files_available:
+                files.files.append(file[0])
+
+            return files
 
     # deletes a user from the database
     def Delete(self, request, context):
@@ -82,9 +114,13 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                             """)
                 con.commit()
 
-                return file_pb2.DeleteReply(status=SUCCESS,
-                                            errormessage=NO_ERROR,
-                                            user=request.user)
+                # Write changes to backups
+                worker = ServerWorker(self.backups)
+                worker.DeleteHelper(request.user)
+
+        return file_pb2.DeleteReply(status=SUCCESS,
+                                    errormessage=NO_ERROR,
+                                    user=request.user)
 
     def Check(self, request, context):
         return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
@@ -96,7 +132,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
             # Pull meta information from header packet
             if request.HasField("meta"):
                 user = request.meta.user
-                # clock = request.meta.clock
+                clock = request.meta.clock
                 filename = request.meta.filename
                 filepath = request.meta.filepath
                 hash = request.meta.hash
@@ -117,7 +153,10 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 cur = con.cursor()
 
                 # Find occurences of file in database right now
-                info = cur.execute("SELECT id, COUNT(id) FROM files WHERE src = ?",
+                info = cur.execute("""
+                                   SELECT id, COUNT(id)
+                                   FROM files
+                                   WHERE src = ?""",
                             (safe_src, )).fetchall()
 
                 # If it doesn't exist (never been uploaded before)
@@ -135,6 +174,10 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                     (user, id, OWNER))
                     con.commit()
 
+                    # Write change to backups
+                    worker = ServerWorker(self.backups)
+                    worker.UploadAddNew(user, id)
+
                 # If it did exist, make sure to clean out super old versions
                 else:
                     id, count = info[0]
@@ -150,8 +193,19 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                         )""", (safe_src, safe_src, count - 2, ))
                         con.commit()
 
+                        # Write change to backups
+                        worker = ServerWorker(self.backups)
+                        worker.UploadRemoveOld(safe_src, count - 2)
+
                 clock = cur.execute("SELECT current_clock FROM server_clock").fetchone()[0]
-                print(clock)
+                meta = file_pb2.Metadata(
+                    clock=clock,
+                    user=user,
+                    hash=hash,
+                    MAC=MAC,
+                    filename=filename,
+                    filepath=safe_path
+                )
 
                 # Upload file
                 cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -161,6 +215,10 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 # Update clock
                 cur.execute("UPDATE server_clock SET current_clock = ((SELECT current_clock FROM server_clock) + 1)")
                 con.commit()
+
+                # Write changes to backups
+                worker = ServerWorker(self.backups)
+                worker.UploadHelper(id, meta, safe_src, file)
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
@@ -234,7 +292,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                         if self.__latest_ver(md, files):
                             # Update array
                             synced_local_files.append(os.path.join(md.filepath, md.filename).replace("\\", "/"))
-                
+ 
                 synced_local_files.append("1")
                 synced_local_files.append("0")
 
@@ -284,6 +342,151 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # https://stackoverflow.com/questions/43075449/split-binary-string-into-31bit-strings
 
+    def UploadAddNew(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO ownership (username, file_id, permissions) VALUES (?, ?, ?)",
+                                (request.user, request.id, OWNER))
+                con.commit()
+        return EMPTY
+
+    def UploadRemoveOld(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("""
+                            DELETE FROM files WHERE src = ?
+                            AND clock IN
+                            (
+                                SELECT clock
+                                FROM files
+                                WHERE src = ?
+                                LIMIT ?
+                            )""", (request.src, request.src, request.count_minus_2, ))
+                con.commit()
+        return EMPTY
+
+    def UploadHelper(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                            (request.id,
+                             request.meta.filename,
+                             request.meta.filepath,
+                             request.src,
+                             request.file,
+                             request.meta.MAC,
+                             request.meta.hash,
+                             request.meta.clock, ))
+                con.commit()
+                cur.execute("UPDATE server_clock SET current_clock = ((SELECT current_clock FROM server_clock) + 1)")
+                con.commit()
+        return EMPTY
+
+    def DeleteHelper(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("""
+                            DELETE FROM ownership
+                            WHERE username = ?""",
+                            (request.user, ))
+                con.commit()
+                cur.execute("""
+                            DELETE FROM files
+                            WHERE id NOT IN
+                            (
+                                SELECT file_id
+                                FROM ownership
+                            )
+                            """)
+                con.commit()
+        return EMPTY
+
+    def CheckClock(self, request, context):
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
+            return file_pb2.Clock(clock=clock)
+
+    def PullData(self, request, context):
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
+            response = file_pb2.Data(clock=file_pb2.Clock(clock=clock))
+
+            files = cur.execute("SELECT * FROM files").fetchall()
+            for file in files:
+                file_info = file_pb2.File(id=file[0],
+                                          filename=file[1],
+                                          filepath=file[2],
+                                          src=file[3],
+                                          file=file[4],
+                                          MAC=file[5],
+                                          hash=file[6],
+                                          clock=file[7])
+                response.files.append(file_info)
+
+            ownerships = cur.execute("SELECT * FROM ownership").fetchall()
+            for ownership in ownerships:
+                ownership_info = file_pb2.Ownership(username=ownership[1],
+                                                    file_id=ownership[2],
+                                                    permissions=ownership[3])
+                response.ownerships.append(ownership_info)
+
+            return response
+
+# class to duplicate adjustments to databases across all backups
+# only apply to commands with SQL writes, so login/list/sync/etc. don't need these
+class ServerWorker():
+    def __init__(self, backups):
+        self.backups = backups
+
+    def upload_add_new(self, user, id):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.UploadAddNew(file_pb2.UploadAddNewRequest(user=user, id=id))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
+
+    def upload_remove_old(self, src, count_minus_2):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.UploadRemoveOld(file_pb2.UploadRemoveOldRequest(src=src, count_minus_2=count_minus_2))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
+
+    def upload_helper(self, id, meta, src, file):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.UploadHelper(file_pb2.UploadHelperRequest(id=id, meta=meta, src=src, file=file))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
+
+    def delete_helper(self, user):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.DeleteHelper(file_pb2.DeleteRequest(user=user))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
 
 # initializes database
 def init_db():
@@ -337,28 +540,121 @@ def init_db():
         cur.execute("DELETE FROM ownership")
         con.commit()
 
+# Call to set up backups
+def setup():
+    global DATABASE_PATH
+
+    # Give the server an id
+    while True:
+        id_input = input("Give this server an id (0-100): ")
+        try:
+            id = int(id_input)
+            if id <= 100 and id >= 0:
+                DATABASE_PATH = f"../data/server_{id}.db"
+                break
+        except:
+            print("Provide a numerical input between 0 and 100 inclusive!")
+
+    # Get number of backups
+    while True:
+        num_backups_input = input("Number of backup servers?: ")
+        try:
+            num_backups = int(num_backups_input)
+            if (0 <= num_backups and num_backups <= 10):
+                break
+        except:
+            print("Provide a numerical input between 0 and 10 inclusive!")
+
+    # Setting up backups
+    backups = []
+    other_servers = []
+    for i in range(num_backups):
+        while True:
+            try:
+                backup_host = input(f"Backup Server #{i + 1} IP (default 127.0.0.1): ")
+                backup_id = input(f"Backup Server #{i + 1} ID: ")
+                if not backup_host:
+                    backup_host = "127.0.0.1"
+                backup_port = int(backup_id) + BASE_PORT
+                if (BASE_PORT <= backup_port and backup_port <= BASE_PORT + 100):
+                    backup_port = str(backup_port)
+                    break
+            except:
+                print("Provide a numerical input for backup ID between 0 and 100 inclusive!")
+        if int(backup_port) > BASE_PORT + id:
+            backups.append({"host": backup_host, "port": backup_port})
+        other_servers.append({"host": backup_host, "port": backup_port})
+    backups.reverse()
+    other_servers.reverse()
+    return id, backups, other_servers
+
+# pull most recent server data from backups
+def restore_data(other_servers):
+    best_server = None
+    best_port = None
+    with lock:
+        with sqlite3.connect(DATABASE_PATH) as con:
+            cur = con.cursor()
+            my_clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
+            best_clock = my_clock
+    for server in other_servers:
+        channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
+        stub = file_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.CheckClock(file_pb2.Empty())
+        channel.close()
+        if response.clock > best_clock:
+            best_clock = response.clock
+            best_server = server["host"]
+            best_port = server["port"]
+    if best_server and best_port:
+        channel = grpc.insecure_channel(best_server + ":" + best_port)
+        stub = file_pb2_grpc.ClientHandlerStub(channel)
+        response = stub.PullData(file_pb2.Empty())
+        channel.close()
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("DELETE FROM files")
+                con.commit()
+                cur.execute("DELETE FROM ownership")
+                con.commit()
+                for file in response.files:
+                    cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                (file.id, file.filename, file.filepath, file.src, file.file, file.MAC, file.hash, file.clock, ))
+                    con.commit()
+                for ownership in response.ownerships:
+                    cur.execute("INSERT INTO ownerships (username, file_id, permissions) VALUES (?, ?, ?)",
+                                (ownership.username, ownership.file_id, ownership.permissions, ))
+                    con.commit()
+                cur.execute("UPDATE server_clock SET current_clock = ?", (response.clock.clock, ))
 
 # runs the server logic
 def serve():
     # initialize logs
     logging.basicConfig(filename=LOG_PATH, filemode='w', level=logging.DEBUG)
 
+    # setup backups; this changes DATABASE_PATH
+    id, backups, other_servers = setup()
+    port = str(BASE_PORT + id)
+
     # initialize database
     init_db()
 
     # run server
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    file_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(), server)
-    server.add_insecure_port('[::]:' + PORT)
+    file_pb2_grpc.add_ClientHandlerServicer_to_server(ClientHandler(backups), server)
+    server.add_insecure_port('[::]:' + port)
     server.start()
-    print("server started, listening on " + PORT)
+    print("server started, listening on " + port)
+
+    input("Hit enter when all servers are up to sync the latest data across all replicas")
+    restore_data(other_servers)
 
     # shut down nicely
     try:
         server.wait_for_termination()
     except KeyboardInterrupt:
         pass
-
 
 if __name__ == '__main__':
     serve()

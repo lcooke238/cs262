@@ -25,10 +25,10 @@ class ClientHandlerStub(object):
                 request_serializer=file__pb2.LoginRequest.SerializeToString,
                 response_deserializer=file__pb2.LoginReply.FromString,
                 )
-        self.Logout = channel.unary_unary(
-                '/ClientHandler/Logout',
-                request_serializer=file__pb2.LogoutRequest.SerializeToString,
-                response_deserializer=file__pb2.LogoutReply.FromString,
+        self.List = channel.unary_unary(
+                '/ClientHandler/List',
+                request_serializer=file__pb2.ListRequest.SerializeToString,
+                response_deserializer=file__pb2.ListReply.FromString,
                 )
         self.Delete = channel.unary_unary(
                 '/ClientHandler/Delete',
@@ -50,6 +50,41 @@ class ClientHandlerStub(object):
                 request_serializer=file__pb2.SyncRequest.SerializeToString,
                 response_deserializer=file__pb2.SyncReply.FromString,
                 )
+        self.GetBackups = channel.unary_unary(
+                '/ClientHandler/GetBackups',
+                request_serializer=file__pb2.BackupRequest.SerializeToString,
+                response_deserializer=file__pb2.BackupReply.FromString,
+                )
+        self.UploadAddNew = channel.unary_unary(
+                '/ClientHandler/UploadAddNew',
+                request_serializer=file__pb2.UploadAddNewRequest.SerializeToString,
+                response_deserializer=file__pb2.Empty.FromString,
+                )
+        self.UploadRemoveOld = channel.unary_unary(
+                '/ClientHandler/UploadRemoveOld',
+                request_serializer=file__pb2.UploadRemoveOldRequest.SerializeToString,
+                response_deserializer=file__pb2.Empty.FromString,
+                )
+        self.UploadHelper = channel.stream_unary(
+                '/ClientHandler/UploadHelper',
+                request_serializer=file__pb2.UploadHelperRequest.SerializeToString,
+                response_deserializer=file__pb2.Empty.FromString,
+                )
+        self.DeleteHelper = channel.unary_unary(
+                '/ClientHandler/DeleteHelper',
+                request_serializer=file__pb2.DeleteRequest.SerializeToString,
+                response_deserializer=file__pb2.Empty.FromString,
+                )
+        self.CheckClock = channel.unary_unary(
+                '/ClientHandler/CheckClock',
+                request_serializer=file__pb2.Empty.SerializeToString,
+                response_deserializer=file__pb2.Clock.FromString,
+                )
+        self.PullData = channel.unary_unary(
+                '/ClientHandler/PullData',
+                request_serializer=file__pb2.Empty.SerializeToString,
+                response_deserializer=file__pb2.Data.FromString,
+                )
 
 
 class ClientHandlerServicer(object):
@@ -70,8 +105,8 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Logout(self, request, context):
-        """Requests to Logout
+    def List(self, request, context):
+        """Lists files available to user
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -105,6 +140,50 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetBackups(self, request, context):
+        """Creates backup chain
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UploadAddNew(self, request, context):
+        """Methods to be used by ServerWorkers
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UploadRemoveOld(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UploadHelper(self, request_iterator, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteHelper(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CheckClock(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PullData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -118,10 +197,10 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     request_deserializer=file__pb2.LoginRequest.FromString,
                     response_serializer=file__pb2.LoginReply.SerializeToString,
             ),
-            'Logout': grpc.unary_unary_rpc_method_handler(
-                    servicer.Logout,
-                    request_deserializer=file__pb2.LogoutRequest.FromString,
-                    response_serializer=file__pb2.LogoutReply.SerializeToString,
+            'List': grpc.unary_unary_rpc_method_handler(
+                    servicer.List,
+                    request_deserializer=file__pb2.ListRequest.FromString,
+                    response_serializer=file__pb2.ListReply.SerializeToString,
             ),
             'Delete': grpc.unary_unary_rpc_method_handler(
                     servicer.Delete,
@@ -142,6 +221,41 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     servicer.Sync,
                     request_deserializer=file__pb2.SyncRequest.FromString,
                     response_serializer=file__pb2.SyncReply.SerializeToString,
+            ),
+            'GetBackups': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetBackups,
+                    request_deserializer=file__pb2.BackupRequest.FromString,
+                    response_serializer=file__pb2.BackupReply.SerializeToString,
+            ),
+            'UploadAddNew': grpc.unary_unary_rpc_method_handler(
+                    servicer.UploadAddNew,
+                    request_deserializer=file__pb2.UploadAddNewRequest.FromString,
+                    response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'UploadRemoveOld': grpc.unary_unary_rpc_method_handler(
+                    servicer.UploadRemoveOld,
+                    request_deserializer=file__pb2.UploadRemoveOldRequest.FromString,
+                    response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'UploadHelper': grpc.stream_unary_rpc_method_handler(
+                    servicer.UploadHelper,
+                    request_deserializer=file__pb2.UploadHelperRequest.FromString,
+                    response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'DeleteHelper': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteHelper,
+                    request_deserializer=file__pb2.DeleteRequest.FromString,
+                    response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'CheckClock': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckClock,
+                    request_deserializer=file__pb2.Empty.FromString,
+                    response_serializer=file__pb2.Clock.SerializeToString,
+            ),
+            'PullData': grpc.unary_unary_rpc_method_handler(
+                    servicer.PullData,
+                    request_deserializer=file__pb2.Empty.FromString,
+                    response_serializer=file__pb2.Data.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -189,7 +303,7 @@ class ClientHandler(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def Logout(request,
+    def List(request,
             target,
             options=(),
             channel_credentials=None,
@@ -199,9 +313,9 @@ class ClientHandler(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Logout',
-            file__pb2.LogoutRequest.SerializeToString,
-            file__pb2.LogoutReply.FromString,
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/List',
+            file__pb2.ListRequest.SerializeToString,
+            file__pb2.ListReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -270,5 +384,124 @@ class ClientHandler(object):
         return grpc.experimental.unary_stream(request, target, '/ClientHandler/Sync',
             file__pb2.SyncRequest.SerializeToString,
             file__pb2.SyncReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetBackups(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/GetBackups',
+            file__pb2.BackupRequest.SerializeToString,
+            file__pb2.BackupReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UploadAddNew(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/UploadAddNew',
+            file__pb2.UploadAddNewRequest.SerializeToString,
+            file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UploadRemoveOld(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/UploadRemoveOld',
+            file__pb2.UploadRemoveOldRequest.SerializeToString,
+            file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UploadHelper(request_iterator,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.stream_unary(request_iterator, target, '/ClientHandler/UploadHelper',
+            file__pb2.UploadHelperRequest.SerializeToString,
+            file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteHelper(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/DeleteHelper',
+            file__pb2.DeleteRequest.SerializeToString,
+            file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CheckClock(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/CheckClock',
+            file__pb2.Empty.SerializeToString,
+            file__pb2.Clock.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def PullData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/PullData',
+            file__pb2.Empty.SerializeToString,
+            file__pb2.Data.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
