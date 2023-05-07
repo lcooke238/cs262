@@ -161,7 +161,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # If it doesn't exist (never been uploaded before)
                 if not info[0][0]:
-                    print("hitting wrong case")
                     # Create a new id
                     prev_id = cur.execute("SELECT MAX(id) FROM files").fetchone()[0]
                     if prev_id:
