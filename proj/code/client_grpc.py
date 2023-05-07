@@ -35,7 +35,7 @@ MAX_MESSAGE_LENGTH = 1000
 CHUNK_SIZE = 1024 * 10
 
 # Rate at which to poll server for updates in seconds
-SYNC_RATE = 3
+SYNC_RATE = 60
 
 # customize server address
 HOST_IP = "localhost"

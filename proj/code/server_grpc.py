@@ -122,6 +122,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # If it doesn't exist (never been uploaded before)
                 if not info[0][0]:
+                    print("hitting wrong case")
                     # Create a new id
                     prev_id = cur.execute("SELECT MAX(id) FROM files").fetchone()[0]
                     if prev_id:
@@ -138,27 +139,18 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 else:
                     id, count = info[0]
                     # Remove oldest version if at capacity
-                    if count and count == 3:
+                    if count and count >= 3:
                         # TODO: Check if this is deleting oldest or newest
-                        print(safe_src)
-                        print(count)
-                        print(info)
-                        # cur.execute("DELETE FROM files WHERE src = ? ORDER BY clock ASC LIMIT 1",
-                        #             (safe_src, ))
-                        # fairly certain ORDER BY won't work like this for DELETE
-                        # https://stackoverflow.com/questions/60651362/ms-sql-server-delete-order-by
-                        cur.execute("""
-                                    DELETE FROM files
-                                    WHERE src IN
-                                    (
-                                        SELECT FROM files
-                                        WHERE src = ?
-                                        ORDER BY clock LIMIT 1
-                                    )""",
-                                    (safe_src, ))
+                        cur.execute("""DELETE FROM files WHERE src = ?
+                                        AND clock IN (
+                                            SELECT clock
+                                            FROM files
+                                            WHERE src = ?
+                                            LIMIT ?
+                                        )""", (safe_src, safe_src, count - 2, ))
                         con.commit()
 
-                clock = cur.execute("SELECT clock FROM clock").fetchone()[0]
+                clock = cur.execute("SELECT current_clock FROM server_clock").fetchone()[0]
                 print(clock)
 
                 # Upload file
@@ -167,7 +159,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
 
                 # Update clock
-                cur.execute("UPDATE clock SET clock = ((SELECT clock FROM clock) + 1)")
+                cur.execute("UPDATE server_clock SET current_clock = ((SELECT current_clock FROM server_clock) + 1)")
                 con.commit()
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
@@ -325,17 +317,17 @@ def init_db():
     con.commit()
 
     # Server clock system
-    cur.execute("""CREATE TABLE IF NOT EXISTS clock
+    cur.execute("""CREATE TABLE IF NOT EXISTS server_clock
                 (
-                    clock INTEGER
+                    current_clock INTEGER
                 )""")
     con.commit()
 
     # Ensure we have a clock
-    clock_check = cur.execute("""SELECT * FROM clock""").fetchall()
+    clock_check = cur.execute("""SELECT * FROM server_clock""").fetchall()
     if len(clock_check) == 0: 
         with lock:
-            cur.execute("INSERT INTO clock (clock) VALUES (0)")
+            cur.execute("INSERT INTO server_clock (current_clock) VALUES (0)")
             con.commit()
 
     # clear database if desired
