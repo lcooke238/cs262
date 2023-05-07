@@ -29,6 +29,18 @@ service ClientHandler {
 
   rpc CheckClock (Empty) returns (Clock) {}
   rpc PullData (Empty) returns (Data) {}
+  rpc Move (MoveRequest) returns (MoveReply) {}
+}
+
+message MoveRequest {
+  string old_src = 1; 
+  string dest_src = 2;
+  string dest_filepath = 3;
+  string dest_filename = 4;
+}
+
+message MoveReply {
+  int32 status = 1;
 }
 
 message Clock {

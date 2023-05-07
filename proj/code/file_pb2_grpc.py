@@ -85,6 +85,11 @@ class ClientHandlerStub(object):
                 request_serializer=file__pb2.Empty.SerializeToString,
                 response_deserializer=file__pb2.Data.FromString,
                 )
+        self.Move = channel.unary_unary(
+                '/ClientHandler/Move',
+                request_serializer=file__pb2.MoveRequest.SerializeToString,
+                response_deserializer=file__pb2.MoveReply.FromString,
+                )
 
 
 class ClientHandlerServicer(object):
@@ -184,6 +189,12 @@ class ClientHandlerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Move(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ClientHandlerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -256,6 +267,11 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     servicer.PullData,
                     request_deserializer=file__pb2.Empty.FromString,
                     response_serializer=file__pb2.Data.SerializeToString,
+            ),
+            'Move': grpc.unary_unary_rpc_method_handler(
+                    servicer.Move,
+                    request_deserializer=file__pb2.MoveRequest.FromString,
+                    response_serializer=file__pb2.MoveReply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -503,5 +519,22 @@ class ClientHandler(object):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/PullData',
             file__pb2.Empty.SerializeToString,
             file__pb2.Data.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Move(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Move',
+            file__pb2.MoveRequest.SerializeToString,
+            file__pb2.MoveReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

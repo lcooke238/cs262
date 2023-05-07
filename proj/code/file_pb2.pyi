@@ -143,6 +143,24 @@ class Metadata(_message.Message):
     user: str
     def __init__(self, clock: _Optional[int] = ..., user: _Optional[str] = ..., hash: _Optional[bytes] = ..., MAC: _Optional[int] = ..., filename: _Optional[str] = ..., filepath: _Optional[str] = ...) -> None: ...
 
+class MoveReply(_message.Message):
+    __slots__ = ["status"]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    status: int
+    def __init__(self, status: _Optional[int] = ...) -> None: ...
+
+class MoveRequest(_message.Message):
+    __slots__ = ["dest_filename", "dest_filepath", "dest_src", "old_src"]
+    DEST_FILENAME_FIELD_NUMBER: _ClassVar[int]
+    DEST_FILEPATH_FIELD_NUMBER: _ClassVar[int]
+    DEST_SRC_FIELD_NUMBER: _ClassVar[int]
+    OLD_SRC_FIELD_NUMBER: _ClassVar[int]
+    dest_filename: str
+    dest_filepath: str
+    dest_src: str
+    old_src: str
+    def __init__(self, old_src: _Optional[str] = ..., dest_src: _Optional[str] = ..., dest_filepath: _Optional[str] = ..., dest_filename: _Optional[str] = ...) -> None: ...
+
 class Ownership(_message.Message):
     __slots__ = ["file_id", "permissions", "username"]
     FILE_ID_FIELD_NUMBER: _ClassVar[int]

@@ -12,6 +12,7 @@ import hashlib
 import uuid
 from queue import Queue, SimpleQueue
 from ast import literal_eval
+import time
 
 LOG_PATH = "../logs/client_grpc.log"
 
@@ -41,6 +42,8 @@ SYNC_RATE = 4
 HOST_IP = "localhost"
 PORT = "50051"
 
+move_lock = threading.Lock()
+
 def hash_file(file):
     with open(file, 'rb', buffering=0) as f:
         return hashlib.file_digest(f, 'sha256').digest()
@@ -52,12 +55,65 @@ class EventWatcher(FileSystemEventHandler):
         self.stub = stub
         self.user_token = user_token
         self.client_clock = 0
+        self.move_queue = Queue()
 
     def on_created(self, event):
-        return super().on_created(event)
+        time.sleep(0.1)
+        # If we have a file creation, two cases
+        try:
+            old_src = self.move_queue.get(block=False)
+            print("move creation!")
+        except:
+            # If nothing in the move queue, this is a new file creation!
+            # Treat like any modification of a file
+            print("blank creation!")
+            self.on_modified(event)
+            return
+        # Otherwise we might have a file move
+        # Extract deleted filename
+        
+        _, deleted = os.path.split(old_src)
+
+        print("2")
+
+        # Get creation information
+        old_src = old_src.replace("\\", "/")
+        dest_src = event.src_path.replace("\\", "/")
+        dest_filepath, dest_filename = os.path.split(event.src_path)
+        dest_filepath = dest_filepath.replace("\\", "/")
+
+        # Check if files had same name, if so, a move!
+        if (deleted == dest_filename):
+            response = self.stub.Move(file_pb2.MoveRequest(
+                                                            old_src=old_src, 
+                                                            dest_src=dest_src,
+                                                            dest_filepath=dest_filepath,
+                                                            dest_filename=dest_filename
+                                                        ))
+            print(f"File {dest_filename} moved from {old_src} to {dest_src}")
+        else:
+            self.on_modified(event)
 
     def on_deleted(self, event):
-        return super().on_deleted(event)
+        # Put in queue to check for MOVE
+        # delete can be triggered by MOVE or DELETE
+        # Check for creation to check for MOVE
+        self.move_queue.put(event.src_path)
+        thread = threading.Thread(target = self.force_delete, args = (), daemon=True)
+        thread.start()
+
+    def force_delete(self):
+        time.sleep(0.3)
+        try:
+            self.move_queue.get(block=False)
+        except:
+            pass
+        return
+
+    def on_moved(self, event):
+        print("Renamed")
+
+
 
     def __push(self, path):
         print(f"\nLocal modification detected at {path}.")
@@ -122,6 +178,7 @@ class EventWatcher(FileSystemEventHandler):
         return
 
     def on_modified(self, event):
+        print(event.event_type)
         # Dodging double detection issue
         statbuf = os.stat(event.src_path)
         new = statbuf.st_mtime
@@ -148,9 +205,6 @@ class EventWatcher(FileSystemEventHandler):
 
     # def on_closed(self, event):
     #     return super().on_closed(event)
-
-    # def on_moved(self, event):
-    #     return super().on_moved(event)
 
     # def on_opened(self, event):
     #     return super().on_opened(event)
@@ -381,9 +435,7 @@ class Client:
                 try:
                     if r.HasField("meta"):
                         if file_received:
-                            print()
                             path = os.path.abspath(filepath)
-                            print(path)
                             os.makedirs(path, exist_ok=True)
                             with open(os.path.join(filepath, filename), "wb") as f:
                                 f.write(data)
@@ -392,8 +444,6 @@ class Client:
                         filename = r.meta.filename
                         filepath = r.meta.filepath
                         file_received = True
-                        print(filepath)
-                        print(r.meta.filepath)
                     else:
                         data.extend(r.file)
                 except Exception as e:
@@ -401,7 +451,7 @@ class Client:
 
         # Catch last file
         try:
-            if data != b"":
+            if file_received:
                 path = os.path.abspath(filepath)
                 os.makedirs(path, exist_ok=True)
                 with open(os.path.join(filepath, filename), "wb") as f:

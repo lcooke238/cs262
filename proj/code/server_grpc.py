@@ -41,7 +41,7 @@ CHUNK_SIZE = 1024 * 10
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
-RESET_DB = False
+RESET_DB = True
 
 # set server address
 BASE_PORT = 50051
@@ -64,6 +64,18 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                    errormessage=NO_ERROR,
                                    user=request.user)
 
+    def Move(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("""UPDATE files SET filepath = ?, src = ?, filename = ?
+                            WHERE src = ?""",
+                            (request.dest_filepath, request.dest_src, request.dest_filename, request.old_src, ))
+                con.commit()
+                worker = ServerWorker(self.backups)
+                worker.move_helper(request)
+        return file_pb2.MoveReply(status=SUCCESS)
+
     # lists files available to you
     def List(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
@@ -75,7 +87,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
             # pull available files according to current user token
             files_available = cur.execute("""
-                                          SELECT filename
+                                          SELECT UNIQUE(filename)
                                           FROM files
                                           WHERE id IN
                                           (
@@ -368,8 +380,6 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
         return EMPTY
 
     def UploadHelper(self, request, context):
-        print("IN UploadHelper")
-        print(request)
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
@@ -485,6 +495,17 @@ class ServerWorker():
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = file_pb2_grpc.ClientHandlerStub(channel)
                 stub.DeleteHelper(file_pb2.DeleteRequest(user=user))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
+
+    def move_helper(self, request):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.Move(request)
                 channel.close()
             except Exception as e:
                 logging.error(e)
