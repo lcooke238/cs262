@@ -30,6 +30,11 @@ class ClientHandlerStub(object):
                 request_serializer=file__pb2.ListRequest.SerializeToString,
                 response_deserializer=file__pb2.ListReply.FromString,
                 )
+        self.Drop = channel.unary_unary(
+                '/ClientHandler/Drop',
+                request_serializer=file__pb2.DropRequest.SerializeToString,
+                response_deserializer=file__pb2.DropReply.FromString,
+                )
         self.Delete = channel.unary_unary(
                 '/ClientHandler/Delete',
                 request_serializer=file__pb2.DeleteRequest.SerializeToString,
@@ -112,6 +117,13 @@ class ClientHandlerServicer(object):
 
     def List(self, request, context):
         """Lists files available to user
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Drop(self, request, context):
+        """Attempts to delete file
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -212,6 +224,11 @@ def add_ClientHandlerServicer_to_server(servicer, server):
                     servicer.List,
                     request_deserializer=file__pb2.ListRequest.FromString,
                     response_serializer=file__pb2.ListReply.SerializeToString,
+            ),
+            'Drop': grpc.unary_unary_rpc_method_handler(
+                    servicer.Drop,
+                    request_deserializer=file__pb2.DropRequest.FromString,
+                    response_serializer=file__pb2.DropReply.SerializeToString,
             ),
             'Delete': grpc.unary_unary_rpc_method_handler(
                     servicer.Delete,
@@ -332,6 +349,23 @@ class ClientHandler(object):
         return grpc.experimental.unary_unary(request, target, '/ClientHandler/List',
             file__pb2.ListRequest.SerializeToString,
             file__pb2.ListReply.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Drop(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/ClientHandler/Drop',
+            file__pb2.DropRequest.SerializeToString,
+            file__pb2.DropReply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

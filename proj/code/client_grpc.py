@@ -71,7 +71,7 @@ class EventWatcher(FileSystemEventHandler):
             return
         # Otherwise we might have a file move
         # Extract deleted filename
-        
+
         _, deleted = os.path.split(old_src)
 
         print("2")
@@ -283,13 +283,30 @@ class Client:
             print(f"List users error: {response.errormessage}")
             return
 
-        # if success, print users that match the wildcard provided
+        # if success, print filenames in response
         if response.files:
             print(f"Files available to you:")
             for file in response.files:
                 print(file)
         else:
             print("You have no files available.")
+        return
+
+    def attempt_drop(self, arg):
+        filename = ''.join(arg.split())
+        if not filename:
+            print("Drop file error: no argument provided.")
+            return
+
+        response = self.stub.Drop(file_pb2.DropRequest(user=self.user_token, filename=filename))
+
+        # if failed, print failure and return
+        if response.status == FAILURE:
+            print(f"Drop file error: {response.errormessage}")
+            return
+
+        # if success, print confirmation
+        print(f"Dropped {filename} successfully.")
         return
 
     def attempt_delete(self):
@@ -306,6 +323,7 @@ class Client:
               -- Valid commands --
         \\help -> provides the text you're seeing now
         \\list -> lists files you have access to
+        \\drop filename -> deletes file from server with name 'filename'
         \\logout -> logs you out of your account
         \\delete -> deletes all of your files from server, logs you out
         \\quit -> exits the program
@@ -321,6 +339,9 @@ class Client:
             return True
         if command[0:5] == "\\list":
             self.attempt_list()
+            return True
+        if command[0:5] == "\\drop":
+            self.attempt_drop(command[5:])
             return True
         if command[0:5] == "\\quit":
             self.attempt_logout()
@@ -457,8 +478,6 @@ class Client:
                         filepath = r.meta.filepath
                         MAC = r.meta.MAC
                         file_received = True
-                        print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
-
                     else:
                         data.extend(r.file)
                 except Exception as e:
@@ -469,7 +488,6 @@ class Client:
             if file_received:
                 self.__store_file(r, filepath, filename, MAC, local_MAC, data)
                 data = bytearray()
-            print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
         except Exception as e:
             print("Problem here")
             print(e)
