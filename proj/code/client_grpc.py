@@ -51,16 +51,24 @@ def hash_file(file):
         return hashlib.file_digest(f, 'sha256').digest()
 
 class EventWatcher(FileSystemEventHandler):
-    def __init__(self, stub, user_token, host, port, channel):
+    def __init__(self, stub, user_token, host, port, channel, backups):
         self.old = 0
         self.delta = 0.1
         self.host = host
         self.port = port
-        self.channel = None
+        self.channel = channel
         self.stub = stub
         self.user_token = user_token
         self.client_clock = 0
         self.move_queue = Queue()
+        self.backups = backups
+    
+    def shutdown(self):
+        try:
+            self.channel.close()
+        except:
+            pass
+
 
     def attempt_backup_connect(self):
         if not self.backups:
@@ -75,6 +83,30 @@ class EventWatcher(FileSystemEventHandler):
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
         return True
 
+    def safe_move(self, old_src, dest_src, dest_filepath, dest_filename):
+        try:
+            self.stub.Move(file_pb2.MoveRequest(
+                                                    old_src=old_src, 
+                                                    dest_src=dest_src,
+                                                    dest_filepath=dest_filepath,
+                                                    dest_filename=dest_filename
+                                                ))
+        except:
+            safe = False
+            while self.attempt_backup_connect():
+                try:
+                    self.stub.Move(file_pb2.MoveRequest(
+                                        old_src=old_src, 
+                                        dest_src=dest_src,
+                                        dest_filepath=dest_filepath,
+                                        dest_filename=dest_filename
+                                    ))
+                    safe = True
+                except:
+                    continue
+            if not safe:
+                print("FATAL ERROR, ALL SERVERS UNREACHABLE")
+                os._exit(FAILURE)
 
     def on_created(self, event):
         time.sleep(0.1)
@@ -101,30 +133,7 @@ class EventWatcher(FileSystemEventHandler):
 
         # Check if files had same name, if so, a move!
         if (deleted == dest_filename):
-            try:
-                self.stub.Move(file_pb2.MoveRequest(
-                                                        old_src=old_src, 
-                                                        dest_src=dest_src,
-                                                        dest_filepath=dest_filepath,
-                                                        dest_filename=dest_filename
-                                                    ))
-            except:
-                safe = False
-                while self.attempt_backup_connect():
-                    try:
-                        self.stub.Move(file_pb2.MoveRequest(
-                                            old_src=old_src, 
-                                            dest_src=dest_src,
-                                            dest_filepath=dest_filepath,
-                                            dest_filename=dest_filename
-                                        ))
-                        safe = True
-                    except:
-                        continue
-                if not safe:
-                    print("FATAL ERROR, ALL SERVERS UNREACHABLE")
-                    os._exit(FAILURE)
-
+            self.safe_move(old_src, dest_src, dest_filepath, dest_filename)
             print(f"File {dest_filename} moved from {old_src} to {dest_src}")
         else:
             self.on_modified(event)
@@ -150,12 +159,7 @@ class EventWatcher(FileSystemEventHandler):
         dest_src = event.dest_path.replace("\\", "/")
         dest_filepath, dest_filename = os.path.split(dest_src)
         dest_filepath.replace("\\", "/")
-        response = self.stub.Move(file_pb2.MoveRequest(
-                                                old_src=old_src, 
-                                                dest_src=dest_src,
-                                                dest_filepath=dest_filepath,
-                                                dest_filename=dest_filename
-                                            ))
+        self.safe_move( old_src, dest_src, dest_filepath, dest_filename)
 
 
 
@@ -173,13 +177,7 @@ class EventWatcher(FileSystemEventHandler):
 
         # We check the file to see if it is the same as on the server (no action needed)
         request = file_pb2.CheckRequest(user=self.user_token, hash=hash, clock=self.client_clock)
-        try:
-            response = self.stub.Check(request)
-        except Exception as e:
-            logging.error(e)
-            print(e)
-            print("hi")
-            self.shutdown(FAILURE)
+        response = self.stub.Check(request)
 
         # If the response tells use we need to send an update, we send
         if response.sendupdate:
@@ -207,12 +205,8 @@ class EventWatcher(FileSystemEventHandler):
             send_queue.put(None)
 
             # Send grpc request
-            try:
-                response = self.stub.Upload(iter(send_queue.get, None))
-            except Exception as e:
-                logging.error(e)
-                print(e)
-                print("hi here")
+            response = self.stub.Upload(iter(send_queue.get, None))
+  
 
             if response.status == SUCCESS:
                 print(f"Local modification at {path} uploaded to server successfully.")
@@ -236,7 +230,19 @@ class EventWatcher(FileSystemEventHandler):
         self.old = new
 
         # Push modification to server
-        self.__push(event.src_path)
+        try:
+            self.__push(event.src_path)
+        except:
+            safe = False
+            while self.attempt_backup_connect():
+                try: 
+                    self._push(event.src_path)
+                    safe = True
+                except:
+                    continue
+            if not safe:
+                print("FATAL ERROR, ALL SERVERS UNREACHABLE")
+                os._exit(FAILURE)
         return
 
     # Unusued methods for now
@@ -424,6 +430,7 @@ class Client:
 
         while True:
             if not self.server_online:
+                observer.shutdown()
                 observer.stop()
                 logging.error("Server not online.")
                 self.shutdown(FAILURE)
@@ -439,12 +446,13 @@ class Client:
                     logging.info(f"Logged in as {self.user_token}.")
 
                     # after logging in, begin observer thread
-                    event_handler = EventWatcher(self.stub, self.user_token, self.host, self.port, self.channel)
+                    event_handler = EventWatcher(self.stub, self.user_token, self.host, self.port, grpc.insecure_channel(self.host + ":" + self.port), self.backups)
                     observer = Observer()
                     observer.schedule(event_handler, path, recursive=True)
                     observer.start()
                     logging.info("Observer thread up.")
             except KeyboardInterrupt:  # for ctrl-c interrupt
+                observer.shutdown()
                 observer.stop()
                 logging.warning("Keyboard interrupt.")
                 self.attempt_logout()
