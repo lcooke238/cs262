@@ -16,6 +16,8 @@ import time
 
 LOG_PATH = "../logs/client_grpc.log"
 
+MAC_DEMO = 0
+
 # statuses
 SUCCESS = 0
 FAILURE = 1
@@ -111,7 +113,16 @@ class EventWatcher(FileSystemEventHandler):
         return
 
     def on_moved(self, event):
-        print("Renamed")
+        old_src = event.src_path.replace("\\", "/")
+        dest_src = event.dest_path.replace("\\", "/")
+        dest_filepath, dest_filename = os.path.split(dest_src)
+        dest_filepath.replace("\\", "/")
+        response = self.stub.Move(file_pb2.MoveRequest(
+                                                old_src=old_src, 
+                                                dest_src=dest_src,
+                                                dest_filepath=dest_filepath,
+                                                dest_filename=dest_filename
+                                            ))
 
 
 
@@ -122,7 +133,7 @@ class EventWatcher(FileSystemEventHandler):
         # We hash the file
         hash = hash_file(path)
         # Get MAC address
-        MAC_addr = literal_eval(hex(uuid.getnode() + 1))
+        MAC_addr = literal_eval(hex(uuid.getnode() + MAC_DEMO))
         # Process the event source path
         filepath, filename = os.path.split(path)
         safe_filepath = filepath.replace("\\", "/")

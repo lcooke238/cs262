@@ -62,6 +62,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                    errormessage=NO_ERROR,
                                    user=request.user)
 
+
     def Move(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
