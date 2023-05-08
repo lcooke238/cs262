@@ -41,7 +41,7 @@ CHUNK_SIZE = 1024 * 10
 # ADJUSTABLE PARAMETERS BELOW:
 
 # set to true to wipe messages/users database on next run
-RESET_DB = True
+RESET_DB = False
 
 # set server address
 BASE_PORT = 50051

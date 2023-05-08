@@ -36,7 +36,7 @@ MAX_MESSAGE_LENGTH = 1000
 CHUNK_SIZE = 1024 * 10
 
 # Rate at which to poll server for updates in seconds
-SYNC_RATE = 4
+SYNC_RATE = 10
 
 # customize server address
 HOST_IP = "localhost"
@@ -122,7 +122,7 @@ class EventWatcher(FileSystemEventHandler):
         # We hash the file
         hash = hash_file(path)
         # Get MAC address
-        MAC_addr = literal_eval(hex(uuid.getnode()))
+        MAC_addr = literal_eval(hex(uuid.getnode() + 1))
         # Process the event source path
         filepath, filename = os.path.split(path)
         safe_filepath = filepath.replace("\\", "/")
@@ -152,13 +152,12 @@ class EventWatcher(FileSystemEventHandler):
                         )
 
             # Add 10KB chunks
-            with open(path) as f:
+            with open(path, "rb") as f:
                 while True:
                     data = f.read(CHUNK_SIZE)
                     if not data:
                         break
-                    block = bytes(data, "utf-8")
-                    send_queue.put(file_pb2.UploadRequest(file=block))
+                    send_queue.put(file_pb2.UploadRequest(file=data))
 
             # Add sentinel to mark stream termination
             send_queue.put(None)
@@ -275,6 +274,8 @@ class Client:
         return
 
     def attempt_list(self):
+
+
         response = self.stub.List(file_pb2.ListRequest(user=self.user_token))
 
         # if failed, print failure and return
@@ -402,6 +403,20 @@ class Client:
                     self.shutdown(FAILURE)
         observer.join()
 
+    def __store_file(self, r, filepath, filename, MAC, local_MAC, data):
+        # Create folders if necessary
+        path = os.path.abspath(filepath)
+        os.makedirs(path, exist_ok=True)
+
+        # Rename file if local version ahead of latest version from server
+        # The 'OneDrive' solution we talked about
+        src = os.path.join(filepath, filename)
+        if os.path.isfile(src) and MAC != local_MAC:
+            os.rename(src, os.path.join(filepath, str(local_MAC) + "_" + filename)) 
+        
+        with open(src, "wb") as f:
+            f.write(data)
+
     def __pull(self):
         # First building metadata of local files
         local_files = [os.path.join(dirpath,f).replace("\\", "/") for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
@@ -428,6 +443,7 @@ class Client:
         file_received = False
         filename = None
         filepath = None
+        local_MAC = literal_eval(hex(uuid.getnode()))
         for r in responses:
             if r.HasField("will_receive"):
                 break
@@ -435,16 +451,14 @@ class Client:
                 try:
                     if r.HasField("meta"):
                         if file_received:
-                            path = os.path.abspath(filepath)
-                            os.makedirs(path, exist_ok=True)
-                            with open(os.path.join(filepath, filename), "wb") as f:
-                                f.write(data)
-                                data = bytearray()
-
+                            self.__store_file(r, filepath, filename, MAC, local_MAC, data)
+                            data = bytearray()
                         filename = r.meta.filename
                         filepath = r.meta.filepath
+                        MAC = r.meta.MAC
                         file_received = True
                         print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
+
                     else:
                         data.extend(r.file)
                 except Exception as e:
@@ -453,11 +467,8 @@ class Client:
         # Catch last file
         try:
             if file_received:
-                path = os.path.abspath(filepath)
-                os.makedirs(path, exist_ok=True)
-                with open(os.path.join(filepath, filename), "wb") as f:
-                    f.write(data)
-                    data = bytearray()
+                self.__store_file(r, filepath, filename, MAC, local_MAC, data)
+                data = bytearray()
             print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
         except Exception as e:
             print("Problem here")
