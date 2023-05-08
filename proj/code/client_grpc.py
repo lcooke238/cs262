@@ -16,6 +16,7 @@ import time
 
 LOG_PATH = "../logs/client_grpc.log"
 
+# DEMO code to manually alter MAC for demonstration purposes
 MAC_DEMO = 0
 
 # statuses
@@ -38,31 +39,39 @@ MAX_MESSAGE_LENGTH = 1000
 CHUNK_SIZE = 1024 * 10
 
 # Rate at which to poll server for updates in seconds
-SYNC_RATE = 10
+SYNC_RATE = 4
 
 # customize server address
 HOST_IP = "localhost"
 PORT = "50051"
 
-move_lock = threading.Lock()
-
+# Function to hash file to binary
 def hash_file(file):
     with open(file, 'rb', buffering=0) as f:
         return hashlib.file_digest(f, 'sha256').digest()
 
 class EventWatcher(FileSystemEventHandler):
     def __init__(self, stub, user_token, host, port, channel, backups):
+
+        # Used for filtering out double modification detections (watchdog bug)
         self.old = 0
         self.delta = 0.1
+
+        # Server info
         self.host = host
         self.port = port
         self.channel = channel
         self.stub = stub
+        self.backups = backups
+
+        # User info
         self.user_token = user_token
         self.client_clock = 0
+
+        # Used for checking for MOVEs rather than creations
         self.move_queue = Queue()
-        self.backups = backups
-    
+        
+    # Shutdown connection for observer thread
     def shutdown(self):
         try:
             self.channel.close()
@@ -70,19 +79,28 @@ class EventWatcher(FileSystemEventHandler):
             pass
 
 
+    
     def attempt_backup_connect(self):
+        # If out of backups, fail
         if not self.backups:
             return False
+        
+        # Pull next backup
         backup = self.backups.pop()
+
         # Set host and port to new settings
         self.host = backup.host
         self.port = backup.port
+
         # Update the channel, closing the previous
         self.channel.close()
         self.channel = grpc.insecure_channel(self.host + ":" + self.port)
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
+
+        print(f"New connection on: {self.host}: {self.port}")
         return True
 
+    # Safe move function with backup functionality
     def safe_move(self, old_src, dest_src, dest_filepath, dest_filename):
         try:
             self.stub.Move(file_pb2.MoveRequest(
@@ -102,27 +120,32 @@ class EventWatcher(FileSystemEventHandler):
                                         dest_filename=dest_filename
                                     ))
                     safe = True
+                    break
                 except:
                     continue
             if not safe:
                 print("FATAL ERROR, ALL SERVERS UNREACHABLE")
                 os._exit(FAILURE)
 
+    # Function fires on creation of file or folder
     def on_created(self, event):
+
+        # Give time to detect deletion (check for MOVE events)
         time.sleep(0.1)
-        # If we have a file creation, two cases
+
+        # If we have a file creation, two cases:
+        # Case 1: file is a move (object in move_queue)
         try:
             old_src = self.move_queue.get(block=False)
-            print("move creation!")
+
+        # Case 2: file is new creation (nothing in move_queue)
         except:
-            # If nothing in the move queue, this is a new file creation!
-            # Treat like any modification of a file
-            print("blank creation!")
+            # New file creation: treat like any modification of a file
             self.on_modified(event)
             return
+        
         # Otherwise we might have a file move
         # Extract deleted filename
-
         _, deleted = os.path.split(old_src)
 
         # Get creation information
@@ -135,9 +158,12 @@ class EventWatcher(FileSystemEventHandler):
         if (deleted == dest_filename):
             self.safe_move(old_src, dest_src, dest_filepath, dest_filename)
             print(f"File {dest_filename} moved from {old_src} to {dest_src}")
+        
+        # Else it was just a creation again
         else:
             self.on_modified(event)
 
+    # Function fired on file deletion
     def on_deleted(self, event):
         # Put in queue to check for MOVE
         # delete can be triggered by MOVE or DELETE
@@ -146,6 +172,8 @@ class EventWatcher(FileSystemEventHandler):
         thread = threading.Thread(target = self.force_delete, args = (), daemon=True)
         thread.start()
 
+    # Empty the move queue after small amount of time
+    # To ensure move triggers only when appropriate
     def force_delete(self):
         time.sleep(0.3)
         try:
@@ -154,23 +182,25 @@ class EventWatcher(FileSystemEventHandler):
             pass
         return
 
+    # Function fires on file RENAMING (NOTE: watchdog method name VERY MISLEADING HERE)
     def on_moved(self, event):
         old_src = event.src_path.replace("\\", "/")
         dest_src = event.dest_path.replace("\\", "/")
         dest_filepath, dest_filename = os.path.split(dest_src)
         dest_filepath.replace("\\", "/")
-        self.safe_move( old_src, dest_src, dest_filepath, dest_filename)
+        self.safe_move(old_src, dest_src, dest_filepath, dest_filename)
 
-
-
+    # Push local change to server
     def __push(self, path):
         print(f"\nLocal modification detected at {path}.")
         logging.info(f"Local modification detected at {path}.")
 
         # We hash the file
         hash = hash_file(path)
+
         # Get MAC address
         MAC_addr = literal_eval(hex(uuid.getnode() + MAC_DEMO))
+        
         # Process the event source path
         filepath, filename = os.path.split(path)
         safe_filepath = filepath.replace("\\", "/")
@@ -236,12 +266,14 @@ class EventWatcher(FileSystemEventHandler):
             safe = False
             while self.attempt_backup_connect():
                 try: 
-                    self._push(event.src_path)
+                    self.__push(event.src_path)
                     safe = True
+                    break
                 except:
                     continue
+                
             if not safe:
-                print("FATAL ERROR, ALL SERVERS UNREACHABLE")
+                print("FATAL ERROR, ALL SERVERS UNREACHABLE 1")
                 os._exit(FAILURE)
         return
 
@@ -267,14 +299,18 @@ class Client:
         self.backups = []
 
     def attempt_backup_connect(self):
+        logging.error(self.backups)
+        logging.error("check 1")
         if not self.backups:
             return False
         backup = self.backups.pop()
+        logging.error("check 2")
         # Set host and port to new settings
         self.host = backup.host
         self.port = backup.port
         # Update the channel, closing the previous
         self.channel.close()
+        logging.error("check 3")
         self.channel = grpc.insecure_channel(self.host + ":" + self.port)
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
         return True
@@ -446,7 +482,7 @@ class Client:
                     logging.info(f"Logged in as {self.user_token}.")
 
                     # after logging in, begin observer thread
-                    event_handler = EventWatcher(self.stub, self.user_token, self.host, self.port, grpc.insecure_channel(self.host + ":" + self.port), self.backups)
+                    event_handler = EventWatcher(self.stub, self.user_token, self.host, self.port, grpc.insecure_channel(self.host + ":" + self.port), self.backups.copy())
                     observer = Observer()
                     observer.schedule(event_handler, path, recursive=True)
                     observer.start()
@@ -501,13 +537,7 @@ class Client:
                                                         MAC=MAC_addr,
                                                         filename=filename,
                                                         filepath=filepath))
-
-        try:
-            responses = self.stub.Sync(request)
-        except Exception as e:
-            logging.error(e)
-            print(e)
-            self.shutdown(FAILURE)
+        responses = self.stub.Sync(request)
 
 
         data = bytearray()
@@ -562,6 +592,7 @@ class Client:
                         except:
                             continue
                     if not safe:
+                        logging.error("Test")
                         logging.error(e)
                         self.shutdown(FAILURE)
                 sleep(SYNC_RATE)
