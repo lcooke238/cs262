@@ -32,6 +32,7 @@ service ClientHandler {
   rpc CheckClock (Empty) returns (Clock) {}
   rpc PullData (Empty) returns (Data) {}
   rpc Move (MoveRequest) returns (MoveReply) {}
+  rpc MoveHelper (MoveRequest) returns (MoveReply) {}
 }
 
 message MoveRequest {

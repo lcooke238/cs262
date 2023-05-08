@@ -51,13 +51,30 @@ def hash_file(file):
         return hashlib.file_digest(f, 'sha256').digest()
 
 class EventWatcher(FileSystemEventHandler):
-    def __init__(self, stub, user_token):
+    def __init__(self, stub, user_token, host, port, channel):
         self.old = 0
         self.delta = 0.1
+        self.host = host
+        self.port = port
+        self.channel = None
         self.stub = stub
         self.user_token = user_token
         self.client_clock = 0
         self.move_queue = Queue()
+
+    def attempt_backup_connect(self):
+        if not self.backups:
+            return False
+        backup = self.backups.pop()
+        # Set host and port to new settings
+        self.host = backup.host
+        self.port = backup.port
+        # Update the channel, closing the previous
+        self.channel.close()
+        self.channel = grpc.insecure_channel(self.host + ":" + self.port)
+        self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
+        return True
+
 
     def on_created(self, event):
         time.sleep(0.1)
@@ -76,8 +93,6 @@ class EventWatcher(FileSystemEventHandler):
 
         _, deleted = os.path.split(old_src)
 
-        print("2")
-
         # Get creation information
         old_src = old_src.replace("\\", "/")
         dest_src = event.src_path.replace("\\", "/")
@@ -86,12 +101,30 @@ class EventWatcher(FileSystemEventHandler):
 
         # Check if files had same name, if so, a move!
         if (deleted == dest_filename):
-            response = self.stub.Move(file_pb2.MoveRequest(
-                                                            old_src=old_src, 
-                                                            dest_src=dest_src,
-                                                            dest_filepath=dest_filepath,
-                                                            dest_filename=dest_filename
-                                                        ))
+            try:
+                self.stub.Move(file_pb2.MoveRequest(
+                                                        old_src=old_src, 
+                                                        dest_src=dest_src,
+                                                        dest_filepath=dest_filepath,
+                                                        dest_filename=dest_filename
+                                                    ))
+            except:
+                safe = False
+                while self.attempt_backup_connect():
+                    try:
+                        self.stub.Move(file_pb2.MoveRequest(
+                                            old_src=old_src, 
+                                            dest_src=dest_src,
+                                            dest_filepath=dest_filepath,
+                                            dest_filename=dest_filename
+                                        ))
+                        safe = True
+                    except:
+                        continue
+                if not safe:
+                    print("FATAL ERROR, ALL SERVERS UNREACHABLE")
+                    os._exit(FAILURE)
+
             print(f"File {dest_filename} moved from {old_src} to {dest_src}")
         else:
             self.on_modified(event)
@@ -180,7 +213,6 @@ class EventWatcher(FileSystemEventHandler):
                 logging.error(e)
                 print(e)
                 print("hi here")
-                self.shutdown(FAILURE)
 
             if response.status == SUCCESS:
                 print(f"Local modification at {path} uploaded to server successfully.")
@@ -408,7 +440,7 @@ class Client:
                     logging.info(f"Logged in as {self.user_token}.")
 
                     # after logging in, begin observer thread
-                    event_handler = EventWatcher(self.stub, self.user_token)
+                    event_handler = EventWatcher(self.stub, self.user_token, self.host, self.port, self.channel)
                     observer = Observer()
                     observer.schedule(event_handler, path, recursive=True)
                     observer.start()

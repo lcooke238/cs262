@@ -487,6 +487,16 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    def MoveHelper(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("""UPDATE files SET filepath = ?, src = ?, filename = ?
+                            WHERE src = ?""",
+                            (request.dest_filepath, request.dest_src, request.dest_filename, request.old_src, ))
+                con.commit()
+        return file_pb2.MoveReply(status=SUCCESS)
+
     def CheckClock(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
             cur = con.cursor()
@@ -586,7 +596,7 @@ class ServerWorker():
             try:
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = file_pb2_grpc.ClientHandlerStub(channel)
-                stub.Move(request)
+                stub.MoveHelper(request)
                 channel.close()
             except Exception as e:
                 logging.error(e)
