@@ -1,3 +1,4 @@
+
 # CS262 Final Project: Engineering Notebook
 ## Andrew Holmes, Patrick Thornton, Lauren Cooke
 
@@ -11,7 +12,7 @@ We'll give ourselves multiple tiers of development for this project:
  - Files should synchronize across all computers; only most recent file version available for pulling within the system (we imagine this will necessitate the use of logical clocks).
 
 **Then...**
-- Users should be able to share files, such that not only can a user access a file in two different instances of the program, but two different users can access the same file.
+- Additional commands; users should be able to list out the files they have, delete ones they no longer wish to keep track of, etc.
 - Usual distributed-system spit-and-shine stuff: *n*-fault tolerance via replication, persistence
 
 ### Saturday, April 29th
@@ -79,7 +80,7 @@ First, we finish up the client interface. More specifically, we flesh out fully 
 
 \help, \logout, and \quit should be relatively intuitive. \list is new to this program; it enumerates every file for which the currently-logged-in user has permissions for. These are the files this user will always receive the newest version of, no matter which computer or terminal they use to log in to our service. Regardless, if our software is deemed unsatisfactory somehow, \delete allows you to log out and take your files with you so they disappear from the server-end (provided nobody else has permissions for them; more on that in a moment.)
 
-One command you notice may be missing is the promised \share; all in due time! You may gripe regardless that this looks like a less-featured client interface than that which we had for our first and third design exercises. In truth, however, the client interface for this program is just filigree; the heart of the program and the real meat of the functionality happens automatically, either in response to local modifications or at timed intervals, none of which involves (nor should it involve) direct user interaction via the terminal.
+You may gripe that this looks like a less-featured client interface than that which we had for our first and third design exercises. In truth, however, the client interface for this program is just filigree; the heart of the program and the real meat of the functionality happens automatically, either in response to local modifications or at timed intervals, none of which involves (nor should it involve) direct user interaction via the terminal.
 
 #### Replication, Persistence
 Second, we make good on our promise to realize the design optimizations explored in the third design exercise in our own project.
@@ -91,6 +92,29 @@ Persistence is realized in two key ways. Firstly, whenever we run a command via 
 Secondly, whenever we start a server with backups, we quickly poll amongst those server's backups to see which server among them has the most recent database. This is determined via the system_clock table in each database, which increments with uploads. That most recent version is then pulled over gRPC to every backup before starting the program; this way, an upload sent to a downed server will still be there even if we bring the entire system down before bringing it back up again. The combination of these two facts should keep the most recent version of our file system persistent even in tricky edge-cases.
 
 ### Sunday, May 7th
+
+#### Testing
 Today we finish up our project. For the most part, this involves a thousand little tweaks all over the place that prove impossible to discuss in any meaningful way. One larger tweak is in the long-awaited completion of our testing suite. We use **pytest**, and run our tests this way: we start up an instance of the server in a separate terminal, one that resets its database every time it opens for replicability; in the testing file, we instantiate a client instance that eschews the automatic listener/observer threads and instead waits entirely upon manually-run commands; we log in to this client using **monkeypatch**, which allows for values to be fed into the standard input; we then run commands in a particular order and read the standard output using pytest's **capsys** module, to ensure that said output is complaint with what we expect; and we close the client manually.
 
-To artificially simulate a local modification for testing, we create an ad hoc event and observer object before running the push method. To artificially simulate a pull from the server, which usually runs in regular intervals on a clock, we create a listener thread that automatically times out after one second. If we didn't include the timeout, our testing file would stall forever as it waits for a keyboard interrupt that will never actually come. This listener thread invokes the pull method; we then test to see if the synchronization was successful.
+To artificially simulate a local modification for testing, we create an ad hoc event and observer object before running the push method. To artificially simulate a pull from the server, which usually runs in regular intervals on a clock, we create a listener thread that automatically times out after one second. If we didn't include the timeout, our testing file would stall forever as it waits for a keyboard interrupt that will never actually come. This listener thread invokes the pull method; we then test to see if the synchronization was successful. To test replication/persistence, we run our testing suite with backups while crashing through the servers with keyboard interrupts to see if the output remains unaffected.
+
+#### \drop
+We also make an addition to the client interface, one that's a little inconvenient to do without:
+
+	                  -- Valid commands --
+        \help -> provides the text you're seeing now
+        \list -> list files you have access to
+        \drop filename -> deletes file from server with name 'filename'
+        \logout -> logs you out of your account
+        \delete -> deletes all of your files from server, logs you out
+        \quit -> exits the program
+
+Namely, we tack on the \drop command, which works a little like \delete but it limits its scope to just the file specified in the argument to \drop instead of all files associated with the user. This way, if a user sees a file in \list that they no longer possess and wouldn't like to pull back, they can drop it specifically. There's little to comment on regarding the implementation of this new command except that it acts as a neat encapsulation of the general architecture of our software; an attempt_drop() function in the client uses a gRPC DropRequest as it calls the Drop application in the server, which after manipulating the relevant SQL tables returns a DropReply either with status SUCCESS (if the relevant file was indeed dropped) or status FAILURE (if the filename supplied matched no file in the server). And since \drop writes to the server's databases, we use a lock whenever it is invoked and create ServerWorkers to update the backup databases in turn.
+
+#### watchdog details
+Finally, we flesh out a number of functions **watchdog** provides for us to introduce behavior in cases other than local modification, such as creation of files, deletion of files, movement of files, and renaming of files. Much of these follow similarly to modification, with a few small notes. For one, a certain fact about how our operating systems work becomes very clear; moves and renames are two names for the same fundamental operation, as the full path to the file is what's being edited in either case. Hence our code only has a on_moved() function which handles both the moving and renaming of files.
+
+Another has to do with a fault in **watchdog**; it appears to be single-threaded, so an exactly simultaneous creation and deletion of a file may result in one event slipping under the radar. We need a way of distinguishing moves, which appear as very quick deletions and creations, to regular run-of-the-mill deletions and creations. To do so, we throw a recently deleted file into a queue for a short amount of time, within which a creation event will be interpreted as a move; if the creation event takes longer than that, it is considered an independent creation event in its own right.
+
+#### Thanks!
+If you've read this far, thank you sincerely for your interest in our project - have a great summer!
