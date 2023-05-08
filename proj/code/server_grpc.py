@@ -27,10 +27,11 @@ SUCCESS_WITH_DATA = 2
 OWNER = 10
 EDITOR = 11
 
-# error messages
+# Error messages
 NO_ERROR = ""
 ERROR_DNE = "no file with that name exists"
 
+# Constant for empty gRPC message
 EMPTY = file_pb2.Empty()
 
 # Size of chunks to stream (must match client_grpc.py)
@@ -63,14 +64,24 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                    user=request.user)
 
 
+    # moves a file from one directory to another
     def Move(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
                 cur = con.cursor()
-                cur.execute("""UPDATE files SET filepath = ?, src = ?, filename = ?
+                cur.execute("""
+                            UPDATE files
+                            SET filepath = ?,
+                            src = ?,
+                            filename = ?
                             WHERE src = ?""",
-                            (request.dest_filepath, request.dest_src, request.dest_filename, request.old_src, ))
+                            (request.dest_filepath, 
+                             request.dest_src, 
+                             request.dest_filename,
+                             request.old_src, ))
                 con.commit()
+
+                # Write changes to backups
                 worker = ServerWorker(self.backups)
                 worker.move_helper(request)
         return file_pb2.MoveReply(status=SUCCESS)
@@ -178,9 +189,11 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                     errormessage=NO_ERROR,
                                     user=request.user)
 
+    # checks if file is present / server is up (currently functions as a pulse check)
     def Check(self, request, context):
         return file_pb2.CheckReply(status=SUCCESS, errormessage="", sendupdate=True)
 
+    # push to server
     def Upload(self, request_iterator, context):
         # Creating byte array to reconstruct file
         file = bytearray()
@@ -277,6 +290,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
         return file_pb2.UploadReply(status=SUCCESS, errormessage=NO_ERROR, success=True)
 
+    # helper function for Sync(); determines if file is latest version on hand
     def __latest_ver(self, md, files):
         latest_hash = None
         latest_clock = -1
@@ -372,6 +386,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 else:
                     print("Nothing to pull")
 
+                # Prepare queue and iterator for streaming to client
                 send_queue = Queue()
                 if not(to_pull_files):
                     send_queue.put(file_pb2.SyncReply(will_receive=False))
@@ -397,6 +412,8 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
                 # https://stackoverflow.com/questions/43075449/split-binary-string-into-31bit-strings
 
+    # ServerWorker helper for upload when file is new;
+    # Duplicates a SQL query from Upload()
     def UploadAddNew(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -406,6 +423,8 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    # ServerWorker helper for upload when file is old;
+    # Duplicates a SQL query from Upload()
     def UploadRemoveOld(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -422,6 +441,8 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    # ServerWorker helper for upload that runs in all cases;
+    # Duplicates two SQL queries from Upload()
     def UploadHelper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -440,6 +461,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    # ServerWorker helper that duplicates the SQL queries of Drop()
     def DropHelper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -467,6 +489,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    # ServerWorker helper that duplicates the SQL queries of Delete()
     def DeleteHelper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -487,6 +510,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    # ServerWorker helper that duplicates the SQL queries of Move()
     def MoveHelper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -497,18 +521,22 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return file_pb2.MoveReply(status=SUCCESS)
 
+    # Pulls the clock
     def CheckClock(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
             cur = con.cursor()
             clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
             return file_pb2.Clock(clock=clock)
 
+    # Pulls all available data on all tables for persistence
     def PullData(self, request, context):
         with sqlite3.connect(DATABASE_PATH) as con:
+            # Pulling server_clock data
             cur = con.cursor()
             clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
             response = file_pb2.Data(clock=file_pb2.Clock(clock=clock))
 
+            # Pulling files data
             files = cur.execute("SELECT * FROM files").fetchall()
             for file in files:
                 file_info = file_pb2.File(id=file[0],
@@ -521,6 +549,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                                           clock=file[7])
                 response.files.append(file_info)
 
+            # Pulling ownership data
             ownerships = cur.execute("SELECT * FROM ownership").fetchall()
             for ownership in ownerships:
                 ownership_info = file_pb2.Ownership(username=ownership[1],
@@ -532,6 +561,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
 # class to duplicate adjustments to databases across all backups
 # only apply to commands with SQL writes, so login/list/sync/etc. don't need these
+# each are relatively cookie-cutter
 class ServerWorker():
     def __init__(self, backups):
         self.backups = backups
@@ -706,20 +736,28 @@ def setup():
 def restore_data(other_servers):
     best_server = None
     best_port = None
+    # get clock
     with lock:
         with sqlite3.connect(DATABASE_PATH) as con:
             cur = con.cursor()
             my_clock = cur.execute("SELECT current_clock FROM server_clock").fetchall()[0][0]
             best_clock = my_clock
+
+    # use clock to find the server with the most recent database
     for server in other_servers:
         channel = grpc.insecure_channel(server["host"] + ":" + server["port"])
         stub = file_pb2_grpc.ClientHandlerStub(channel)
         response = stub.CheckClock(file_pb2.Empty())
         channel.close()
+
+        # if found clock is better than current candidate for max clock, switch
         if response.clock > best_clock:
             best_clock = response.clock
             best_server = server["host"]
             best_port = server["port"]
+
+    # if we found a better server and port, pull all data
+    # from that server and port and replace the current database with it
     if best_server and best_port:
         channel = grpc.insecure_channel(best_server + ":" + best_port)
         stub = file_pb2_grpc.ClientHandlerStub(channel)
@@ -727,11 +765,14 @@ def restore_data(other_servers):
         channel.close()
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
+                # delete current database
                 cur = con.cursor()
                 cur.execute("DELETE FROM files")
                 con.commit()
                 cur.execute("DELETE FROM ownership")
                 con.commit()
+
+                # replace current database with best version
                 for file in response.files:
                     cur.execute("INSERT INTO files (id, filename, filepath, src, file, MAC, hash, clock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 (file.id, file.filename, file.filepath, file.src, file.file, file.MAC, file.hash, file.clock, ))
@@ -761,6 +802,7 @@ def serve():
     server.start()
     print("server started, listening on " + port)
 
+    # grab most recent version of database for persistence
     input("Hit enter when all servers are up to sync the latest data across all replicas")
     restore_data(other_servers)
 
