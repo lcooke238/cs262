@@ -71,6 +71,22 @@ class DeleteRequest(_message.Message):
     user: str
     def __init__(self, user: _Optional[str] = ...) -> None: ...
 
+class DropReply(_message.Message):
+    __slots__ = ["errormessage", "status"]
+    ERRORMESSAGE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    errormessage: str
+    status: int
+    def __init__(self, status: _Optional[int] = ..., errormessage: _Optional[str] = ...) -> None: ...
+
+class DropRequest(_message.Message):
+    __slots__ = ["filename", "user"]
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    USER_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    user: str
+    def __init__(self, user: _Optional[str] = ..., filename: _Optional[str] = ...) -> None: ...
+
 class Empty(_message.Message):
     __slots__ = []
     def __init__(self) -> None: ...

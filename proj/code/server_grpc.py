@@ -29,9 +29,7 @@ EDITOR = 11
 
 # error messages
 NO_ERROR = ""
-ERROR_DIFF_MACHINE = "user already logged in on different machine"
-ERROR_NOT_LOGGED_IN = "user not currently logged in"
-ERROR_DNE = "user does not exist :("
+ERROR_DNE = "no file with that name exists"
 
 EMPTY = file_pb2.Empty()
 
@@ -87,7 +85,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
 
             # pull available files according to current user token
             files_available = cur.execute("""
-                                          SELECT UNIQUE(filename)
+                                          SELECT DISTINCT filename
                                           FROM files
                                           WHERE id IN
                                           (
@@ -101,6 +99,51 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 files.files.append(file[0])
 
             return files
+
+    # deletes single file given in argument
+    def Drop(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+
+                # check if file present
+                check = cur.execute("SELECT * FROM files WHERE filename = ?", (request.filename,)).fetchall()
+                if not check:
+                    return file_pb2.DropReply(status=FAILURE,
+                                              errormessage=ERROR_DNE)
+
+                # remove the ownership associated with this file and this user
+                cur.execute("""
+                            DELETE FROM ownership
+                            WHERE username = ?
+                            AND file_id IN
+                            (
+                                SELECT id
+                                FROM files
+                                WHERE filename = ?
+                            )
+                            """,
+                            (request.user, request.filename, ))
+                con.commit()
+
+                # forget about all files which nobody owns (will get rid of deleted file if noone owns it)
+                cur.execute("""
+                            DELETE FROM files
+                            WHERE id NOT IN
+                            (
+                                SELECT file_id
+                                FROM ownership
+                            )
+                            """)
+                con.commit()
+
+                # Write changes to backups
+                worker = ServerWorker(self.backups)
+                worker.drop_helper(request.user, request.filename)
+
+        return file_pb2.DropReply(status=SUCCESS,
+                                  errormessage=NO_ERROR)
+
 
     # deletes a user from the database
     def Delete(self, request, context):
@@ -303,7 +346,7 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                         if self.__latest_ver(md, files):
                             # Update array
                             synced_local_files.append(os.path.join(md.filepath, md.filename).replace("\\", "/"))
- 
+
                 synced_local_files.append("1")
                 synced_local_files.append("0")
 
@@ -396,6 +439,33 @@ class ClientHandler(file_pb2_grpc.ClientHandlerServicer):
                 con.commit()
         return EMPTY
 
+    def DropHelper(self, request, context):
+        with lock:
+            with sqlite3.connect(DATABASE_PATH) as con:
+                cur = con.cursor()
+                cur.execute("""
+                            DELETE FROM ownership
+                            WHERE username = ?
+                            AND file_id NOT IN
+                            (
+                                SELECT id
+                                FROM files
+                                WHERE filename = ?
+                            )
+                            """,
+                            (request.user, request.filename, ))
+                con.commit()
+                cur.execute("""
+                            DELETE FROM files
+                            WHERE id NOT IN
+                            (
+                                SELECT file_id
+                                FROM ownership
+                            )
+                            """)
+                con.commit()
+        return EMPTY
+
     def DeleteHelper(self, request, context):
         with lock:
             with sqlite3.connect(DATABASE_PATH) as con:
@@ -483,6 +553,17 @@ class ServerWorker():
                 channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
                 stub = file_pb2_grpc.ClientHandlerStub(channel)
                 stub.UploadHelper(file_pb2.UploadHelperRequest(id=id, meta=meta, src=src, file=bytes(file)))
+                channel.close()
+            except Exception as e:
+                logging.error(e)
+                continue
+
+    def drop_helper(self, user, filename):
+        for backup in self.backups:
+            try:
+                channel = grpc.insecure_channel(backup["host"] + ":" + backup["port"])
+                stub = file_pb2_grpc.ClientHandlerStub(channel)
+                stub.DropHelper(file_pb2.DropRequest(user=user, filename=filename))
                 channel.close()
             except Exception as e:
                 logging.error(e)
