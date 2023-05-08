@@ -200,7 +200,7 @@ class EventWatcher(FileSystemEventHandler):
 
         # Get MAC address
         MAC_addr = literal_eval(hex(uuid.getnode() + MAC_DEMO))
-        
+
         # Process the event source path
         filepath, filename = os.path.split(path)
         safe_filepath = filepath.replace("\\", "/")
@@ -211,6 +211,7 @@ class EventWatcher(FileSystemEventHandler):
 
         # If the response tells use we need to send an update, we send
         if response.sendupdate:
+
             # Add metadata
             send_queue = Queue()
             send_queue.put(file_pb2.UploadRequest(meta=
@@ -236,19 +237,20 @@ class EventWatcher(FileSystemEventHandler):
 
             # Send grpc request
             response = self.stub.Upload(iter(send_queue.get, None))
-  
 
+            # If success, print result
             if response.status == SUCCESS:
                 print(f"Local modification at {path} uploaded to server successfully.")
                 logging.info(f"Push to server for {path} complete.")
         return
 
     def on_modified(self, event):
+
         # Dodging double detection issue
         statbuf = os.stat(event.src_path)
         new = statbuf.st_mtime
 
-        # Need to avoid getting this on directories
+        # Need to avoid getting this on directories (don't add to database for new folders etc)
         if event.is_directory:
             return
 
@@ -271,50 +273,49 @@ class EventWatcher(FileSystemEventHandler):
                     break
                 except:
                     continue
-                
             if not safe:
                 print("FATAL ERROR, ALL SERVERS UNREACHABLE 1")
                 os._exit(FAILURE)
         return
 
-    # Unusued methods for now
-
-    # def on_any_event(self, event):
-    #     return super().on_any_event(event)
-
-    # def on_closed(self, event):
-    #     return super().on_closed(event)
-
-    # def on_opened(self, event):
-    #     return super().on_opened(event)
-
+# Main class for command processing
 class Client:
     def __init__(self, host=HOST_IP, port=PORT):
+
+        # Server info
         self.host = host
         self.port = port
         self.channel = None
         self.stub = None
-        self.user_token = ""
         self.server_online = False
+
+        # User info
+        self.user_token = ""
+        
+        # Backup info
         self.backups = []
 
+    # Attempt to connect to a backup server
     def attempt_backup_connect(self):
-        logging.error(self.backups)
-        logging.error("check 1")
+
+        # If out of backups, return False
         if not self.backups:
             return False
+        
+        # Else get next backup to try
         backup = self.backups.pop()
-        logging.error("check 2")
+
         # Set host and port to new settings
         self.host = backup.host
         self.port = backup.port
+
         # Update the channel, closing the previous
         self.channel.close()
-        logging.error("check 3")
         self.channel = grpc.insecure_channel(self.host + ":" + self.port)
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
         return True
 
+    # Attempt to setup backups when connecting to a server
     def attempt_setup_backups(self):
         response = self.stub.GetBackups(file_pb2.BackupRequest())
         try:
@@ -327,9 +328,11 @@ class Client:
             return False
         return True
 
+    # Valid username check function
     def __valid_username(self, user):
         return user and len(user) < MAX_USERNAME_LENGTH and user.isalnum()
 
+    # Attempt to login
     def attempt_login(self, condition):
         while True:
             user = input("Please enter a username: ")
@@ -353,13 +356,13 @@ class Client:
         with condition:
             condition.notify_all()
 
+    # Log user out
     def attempt_logout(self):
         self.user_token = ""
         return
 
+    # List files user owns
     def attempt_list(self):
-
-
         response = self.stub.List(file_pb2.ListRequest(user=self.user_token))
 
         # if failed, print failure and return
@@ -376,6 +379,7 @@ class Client:
             print("You have no files available.")
         return
 
+    # Drop a file from user's tracking so they can delete permanently
     def attempt_drop(self, arg):
         filename = ''.join(arg.split())
         if not filename:
@@ -393,14 +397,17 @@ class Client:
         print(f"Dropped {filename} successfully.")
         return
 
+    # Delete user
     def attempt_delete(self):
-        response = self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
+        self.stub.Delete(file_pb2.DeleteRequest(user=self.user_token))
         self.user_token = ""
         return
 
+    # Feedback on invalid command
     def handle_invalid_command(self, command):
         print(f"Invalid command: {command}, please try \\help for list of commands")
 
+    # Help function to display commands
     def display_command_help(self):
         print(
         """
@@ -414,6 +421,7 @@ class Client:
         """
             )
 
+    # General function to process available commands
     def process_command(self, command):
         if (len(command) < 5):
             self.handle_invalid_command(command)
@@ -442,13 +450,19 @@ class Client:
         self.handle_invalid_command(command)
         return True
 
+    # Client Handler service
     def ClientHandler(self, testing=False):
+
+        # Create stub
         self.stub = file_pb2_grpc.ClientHandlerStub(self.channel)
+
+        # Setup condition variable: should only listen when logged in
         condition = threading.Condition()
 
         # try to setup backups
         self.attempt_setup_backups()
 
+        # For testing only
         if testing:
             logging.info("Testing!")
             self.attempt_login(condition)
@@ -465,19 +479,27 @@ class Client:
         path = FILE_PATH
 
         while True:
+
+            # If the server is already offline, we have to shutdown
             if not self.server_online:
                 observer.shutdown()
                 observer.stop()
                 logging.error("Server not online.")
                 self.shutdown(FAILURE)
             try:
+                # Otherwise, main logic loop
                 if self.user_token:
+
+                    # If logged in, process commands
                     command = input(f"{self.user_token} > ")
+
                     # if \quit is run, quit
                     if not self.process_command(command):
                         logging.warning("Quitting...")
                         self.shutdown(SUCCESS)
                 else:
+                    
+                    # Else, attempt login
                     self.attempt_login(condition)
                     logging.info(f"Logged in as {self.user_token}.")
 
@@ -487,13 +509,22 @@ class Client:
                     observer.schedule(event_handler, path, recursive=True)
                     observer.start()
                     logging.info("Observer thread up.")
-            except KeyboardInterrupt:  # for ctrl-c interrupt
+            
+            # User shutdown from CTRL-C interrupt
+            except KeyboardInterrupt:  
+                # Shutdown the connections nicely, then stop the thread
                 observer.shutdown()
                 observer.stop()
                 logging.warning("Keyboard interrupt.")
+
+                # Logout and shutdown main thread
                 self.attempt_logout()
                 self.shutdown(SUCCESS)
+            
+            # Otherwise likely server has gone down
             except Exception as e:
+                
+                # Attempt to connect to backups
                 safe = False
                 while self.attempt_backup_connect():
                     try:
@@ -505,12 +536,16 @@ class Client:
                         break
                     except:
                         continue
+                
+                # If all failed, no choice but to shutdown
                 if not safe:
                     logging.error(e)
                     self.shutdown(FAILURE)
         observer.join()
 
+    # Helper to store file locally
     def __store_file(self, r, filepath, filename, MAC, local_MAC, data):
+        
         # Create folders if necessary
         path = os.path.abspath(filepath)
         os.makedirs(path, exist_ok=True)
@@ -521,14 +556,18 @@ class Client:
         if os.path.isfile(src) and MAC != local_MAC:
             os.rename(src, os.path.join(filepath, str(local_MAC) + "_" + filename)) 
         
+        # Write in the binary data
         with open(src, "wb") as f:
             f.write(data)
 
     def __pull(self):
+
         # First building metadata of local files
         local_files = [os.path.join(dirpath,f).replace("\\", "/") for (dirpath, dirnames, filenames) in os.walk(FILE_PATH) for f in filenames]
         request = file_pb2.SyncRequest(user=self.user_token)
         MAC_addr = literal_eval(hex(uuid.getnode()))
+
+        # Send metadata of each to server to compare
         for file in local_files:
             filepath, filename = os.path.split(file)
             request.metadata.append(file_pb2.Metadata(clock=0,
@@ -537,14 +576,18 @@ class Client:
                                                         MAC=MAC_addr,
                                                         filename=filename,
                                                         filepath=filepath))
+        
+        # Get responses
         responses = self.stub.Sync(request)
 
-
+        # Setup variables
         data = bytearray()
         file_received = False
         filename = None
         filepath = None
         local_MAC = literal_eval(hex(uuid.getnode()))
+
+        # Pull data
         for r in responses:
             if r.HasField("will_receive"):
                 break
@@ -562,7 +605,7 @@ class Client:
                     else:
                         data.extend(r.file)
                 except Exception as e:
-                    print(e)
+                    logging.error(e)
 
         # Catch last file
         try:
@@ -571,9 +614,9 @@ class Client:
                 data = bytearray()
             print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
         except Exception as e:
-            print("Problem here")
-            print(e)
+            logging.error(e)
 
+    # Listener to listen from the server
     def listen(self, condition):
         while True:
             if self.user_token:
@@ -600,12 +643,14 @@ class Client:
                 with condition:
                     condition.wait()
 
+    # Shutdown main thread nicely
     def shutdown(self, status):
         self.channel.close()
         print("Goodbye!")
         logging.warning("Shutting down.")
         os._exit(status)
 
+    # Main run loop
     def run(self, testing=False):
         # initialize logs
         logging.basicConfig(filename=LOG_PATH,
