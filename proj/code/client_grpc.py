@@ -220,7 +220,6 @@ class EventWatcher(FileSystemEventHandler):
         return
 
     def on_modified(self, event):
-        print(event.event_type)
         # Dodging double detection issue
         statbuf = os.stat(event.src_path)
         new = statbuf.st_mtime
@@ -521,6 +520,7 @@ class Client:
                         filepath = r.meta.filepath
                         MAC = r.meta.MAC
                         file_received = True
+                        print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
                     else:
                         data.extend(r.file)
                 except Exception as e:
@@ -531,6 +531,7 @@ class Client:
             if file_received:
                 self.__store_file(r, filepath, filename, MAC, local_MAC, data)
                 data = bytearray()
+            print(f"Successful sync at {r.meta.filepath}/{r.meta.filename}.")
         except Exception as e:
             print("Problem here")
             print(e)

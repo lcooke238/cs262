@@ -109,6 +109,48 @@ def test_list(monkeypatch, capsys):
     client.channel.close()
 
 
+# tests the drop function
+def test_drop(monkeypatch, capsys):
+    client = client_grpc.Client()
+
+    # log in as patrick, add a file and make sure it's there
+    monkeypatch.setattr('builtins.input', lambda _: "patrick")
+    client.run(testing=True)
+
+    client.attempt_list()
+    stdout = capsys.readouterr().out
+    assert "test_drop.txt" not in stdout
+
+    observer = client_grpc.EventWatcher(client.stub, client.user_token)
+    test_file_path = FILE_PATH + '/test_drop.txt'
+    with open(test_file_path, 'w') as f:
+        f.write('hi')
+    class Event():
+        def __init__(self):
+            self.src_path = test_file_path
+            self.st_mtime = 100
+            self.is_directory = False
+    event = Event()
+
+    observer.on_modified(event)
+    stdout = capsys.readouterr().out
+    assert ("Local modification" in stdout
+        and "uploaded to server successfully." in stdout)
+
+    client.attempt_list()
+    stdout = capsys.readouterr().out
+    assert "test_drop.txt" in stdout
+
+    # ask to drop file and delete locally, check its gone
+    client.attempt_drop("test_drop.txt")
+    os.remove(FILE_PATH + "/test_drop.txt")
+    stdout = capsys.readouterr().out
+    assert "Dropped test_drop.txt successfully." in stdout
+
+    client.attempt_logout()
+    client.channel.close()
+
+
 # tests delete functionality
 def test_delete(monkeypatch, capsys):
     client = client_grpc.Client()
